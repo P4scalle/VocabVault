@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService, getQuizExample } from '@vocavault/data-access';
 import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, SwipeableDirective, SwipeDirection, ToastService } from '@vocavault/ui';
-import { resolveQuizSetId, navigateToResults, firstQuizFinishCue } from '../quiz-shared/quiz-utils';
+import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
 import { buildQuizItem, filterAndNotify, QuizItem } from '../quiz-shared/quiz-direction';
 
 type Verdict = 'correct' | 'missed';
@@ -36,9 +36,6 @@ export class FlashcardQuiz implements HasUnsavedChanges {
 
   private readonly finishing = signal(false);
   readonly hasUnsavedChanges = computed(() => !this.finishing() && this.verdicts().size > 0);
-
-  /** Pulse the Finish button on a first-run user's very first quiz. */
-  protected readonly showFinishCue = firstQuizFinishCue();
 
   @HostListener('window:beforeunload', ['$event'])
   onBeforeUnload(event: BeforeUnloadEvent): void {

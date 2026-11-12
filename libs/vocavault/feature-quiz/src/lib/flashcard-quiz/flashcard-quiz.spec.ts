@@ -1,22 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { Signal, WritableSignal, signal } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { vi } from 'vitest';
 import { FlashcardQuiz } from './flashcard-quiz';
 import { QuizService, WordService, QuizSet, Word, MasteryLevel, makeWord } from '@vocavault/data-access';
 import { ToastService } from '@vocavault/ui';
-import { OnboardingService } from '@vocavault/util';
-
-/** Force the OnboardingService into the 'start-quiz' milestone. */
-function enterStartQuizMilestone(): void {
-  TestBed.inject(OnboardingService).setContext({
-    totalWords: signal(1),
-    quizzableWords: signal(1),
-    quizSets: signal(1),
-    completedQuizzes: signal(0),
-  });
-}
 
 interface FlashcardQuizInternals {
   isFlipped: WritableSignal<boolean>;
@@ -407,55 +396,6 @@ describe('FlashcardQuiz', () => {
     const footer = el.querySelector('.vv-sticky-footer-inline');
     expect(footer).toBeTruthy();
     expect(footer?.classList.contains('md:max-w-md')).toBe(true);
-  });
-
-  // ── First-quiz finish cue ──
-
-  it('showFinishCue() is true at the start-quiz milestone', () => {
-    enterStartQuizMilestone();
-    fixture.detectChanges();
-    expect((component as unknown as { showFinishCue: () => boolean })['showFinishCue']()).toBe(true);
-  });
-
-  it('showFinishCue() is false by default (no start-quiz context)', () => {
-    expect((component as unknown as { showFinishCue: () => boolean })['showFinishCue']()).toBe(false);
-  });
-
-  it('Finish button has vv-cue-pulse class at the start-quiz milestone', () => {
-    enterStartQuizMilestone();
-    // Assess all 3 cards so the Finish button renders on the last card.
-    (component as unknown as FlashcardQuizInternals).flipCard();
-    (component as unknown as FlashcardQuizInternals).markGotIt();
-    (component as unknown as FlashcardQuizInternals).flipCard();
-    (component as unknown as FlashcardQuizInternals).markGotIt();
-    (component as unknown as FlashcardQuizInternals).flipCard();
-    (component as unknown as FlashcardQuizInternals).markGotIt();
-    fixture.detectChanges();
-
-    const el = fixture.nativeElement as HTMLElement;
-    const finishBtn = Array.from(el.querySelectorAll('button')).find(
-      (b) => b.textContent?.trim().startsWith('Finish')
-    );
-    expect(finishBtn).toBeTruthy();
-    expect(finishBtn?.classList.contains('vv-cue-pulse')).toBe(true);
-  });
-
-  it('Finish button does NOT have vv-cue-pulse class by default', () => {
-    // Assess all 3 cards so the Finish button renders on the last card.
-    (component as unknown as FlashcardQuizInternals).flipCard();
-    (component as unknown as FlashcardQuizInternals).markGotIt();
-    (component as unknown as FlashcardQuizInternals).flipCard();
-    (component as unknown as FlashcardQuizInternals).markGotIt();
-    (component as unknown as FlashcardQuizInternals).flipCard();
-    (component as unknown as FlashcardQuizInternals).markGotIt();
-    fixture.detectChanges();
-
-    const el = fixture.nativeElement as HTMLElement;
-    const finishBtn = Array.from(el.querySelectorAll('button')).find(
-      (b) => b.textContent?.trim().startsWith('Finish')
-    );
-    expect(finishBtn).toBeTruthy();
-    expect(finishBtn?.classList.contains('vv-cue-pulse')).toBe(false);
   });
 
   // ── Orphaned word detection ──

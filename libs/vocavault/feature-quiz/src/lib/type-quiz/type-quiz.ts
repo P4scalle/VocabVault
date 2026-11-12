@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService } from '@vocavault/data-access';
 import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } from '@vocavault/ui';
 import { fuzzyMatch, FuzzyResult } from '@vocavault/util';
-import { resolveQuizSetId, navigateToResults, firstQuizFinishCue } from '../quiz-shared/quiz-utils';
+import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
 import { buildQuizItem, filterAndNotify, QuizItem } from '../quiz-shared/quiz-direction';
 
 @Component({
@@ -52,9 +52,6 @@ export class TypeQuiz implements HasUnsavedChanges {
 
   private readonly finishing = signal(false);
   readonly hasUnsavedChanges = computed(() => !this.finishing() && (this.userInput().trim().length > 0 || this.correctCount() > 0 || this.wrongWordIds().length > 0));
-
-  /** Pulse the Finish button on a first-run user's very first quiz. */
-  protected readonly showFinishCue = firstQuizFinishCue();
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {

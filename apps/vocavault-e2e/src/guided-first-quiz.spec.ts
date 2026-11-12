@@ -107,22 +107,22 @@ test.describe('Guided first-quiz onboarding cues', () => {
     // Single starter word => single card: flip, assess, finish.
     await page.locator('.flashcard').click(); // flip
     await page.getByRole('button', { name: 'Got it' }).click();
+    await page.getByRole('button', { name: 'Finish' }).click();
 
-    // Stage 4 cue: on the user's first quiz the Finish button pulses AND shows a
-    // bouncing tooltip. Assert the REAL animations, not just class presence.
-    const finishBtn = page.getByRole('button', { name: 'Finish' });
-    await expect(finishBtn).toBeVisible();
-    await expectAnimating(finishBtn, 'vv-cue-pulse-ring');
-    const finishTip = page.locator('.vv-cue-tooltip', { hasText: 'See how you did' });
-    await expect(finishTip).toBeVisible();
-    await expectAnimating(finishTip, 'vv-cue-tooltip-bounce');
-
-    await finishBtn.click();
-
-    // Stage 4 cue: the first-ever results page carries the results-hint.
+    // Stage 4 cue: the first-ever results page carries the teaching banner AND
+    // guides the user onward to the Progress section — the "See your progress"
+    // button pulses with a bouncing tooltip (completing the tour of all sections).
     await expect(page.getByText('Quiz Results')).toBeVisible();
     const resultsHint = page.getByTestId('results-hint');
     await expect(resultsHint).toBeVisible();
     await expect(resultsHint).toContainText('level your words up');
+
+    // Assert the REAL animations on the See-your-progress cue, not just classes.
+    const progressBtn = page.getByRole('button', { name: 'See your progress' });
+    await expect(progressBtn).toBeVisible();
+    await expectAnimating(progressBtn, 'vv-cue-pulse-ring');
+    const progressTip = page.locator('.vv-cue-tooltip', { hasText: 'See how you did' });
+    await expect(progressTip).toBeVisible();
+    await expectAnimating(progressTip, 'vv-cue-tooltip-bounce');
   });
 });

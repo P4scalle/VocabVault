@@ -26,14 +26,9 @@
       <div class="bg-green-50 dark:bg-green-900/30 rounded-2xl border-2 border-green-400 p-6 text-center">
         <i class="pi pi-check-circle text-3xl text-green-500 mb-2 block" aria-hidden="true"></i>
         <p class="font-semibold text-green-700 dark:text-green-400 text-lg">All matched!</p>
-        <span class="relative inline-block mt-4">
-          <lib-button [styleClass]="showFinishCue() ? 'px-8 vv-cue-pulse' : 'px-8'" (click)="finish()">
-            See Results
-          </lib-button>
-          @if (showFinishCue()) {
-            <span class="vv-cue-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">See how you did</span>
-          }
-        </span>
+        <lib-button styleClass="mt-4 px-8" (click)="finish()">
+          See Results
+        </lib-button>
       </div>
     } @else if (isRoundComplete() && !isLastRound()) {
       <!-- Round complete, more rounds to go -->

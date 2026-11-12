@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Signal, WritableSignal, signal } from '@angular/core';
+import { Signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MultipleChoiceQuiz } from './multiple-choice-quiz';
 import {
@@ -11,17 +11,6 @@ import {
   makeWord,
 } from '@vocavault/data-access';
 import { ToastService } from '@vocavault/ui';
-import { OnboardingService } from '@vocavault/util';
-
-/** Force the OnboardingService into the 'start-quiz' milestone. */
-function enterStartQuizMilestone(): void {
-  TestBed.inject(OnboardingService).setContext({
-    totalWords: signal(1),
-    quizzableWords: signal(1),
-    quizSets: signal(1),
-    completedQuizzes: signal(0),
-  });
-}
 
 interface MCQuestion {
   word: Word;
@@ -486,56 +475,6 @@ describe('MultipleChoiceQuiz', () => {
     const container = el.querySelector('.pb-24');
     expect(container).toBeTruthy();
     expect(container?.classList.contains('md:pb-8')).toBe(true);
-  });
-
-  // ── First-quiz finish cue ──
-
-  it('showFinishCue() is true at the start-quiz milestone', () => {
-    enterStartQuizMilestone();
-    fixture.detectChanges();
-    expect((component as unknown as { showFinishCue: () => boolean })['showFinishCue']()).toBe(true);
-  });
-
-  it('showFinishCue() is false by default (no start-quiz context)', () => {
-    expect((component as unknown as { showFinishCue: () => boolean })['showFinishCue']()).toBe(false);
-  });
-
-  it('Finish button has vv-cue-pulse class at the start-quiz milestone', async () => {
-    enterStartQuizMilestone();
-    // Jump to the last question so the Finish button renders after answering.
-    (component as unknown as MultipleChoiceQuizInternals).currentIndex.set(
-      (component as unknown as MultipleChoiceQuizInternals).questions().length - 1
-    );
-    fixture.detectChanges();
-
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    buttons[0].click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const finishBtn = Array.from(
-      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
-    ).find((b) => b.textContent?.trim() === 'Finish');
-    expect(finishBtn).toBeTruthy();
-    expect(finishBtn?.classList.contains('vv-cue-pulse')).toBe(true);
-  });
-
-  it('Finish button does NOT have vv-cue-pulse class by default', async () => {
-    (component as unknown as MultipleChoiceQuizInternals).currentIndex.set(
-      (component as unknown as MultipleChoiceQuizInternals).questions().length - 1
-    );
-    fixture.detectChanges();
-
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    buttons[0].click();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    const finishBtn = Array.from(
-      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
-    ).find((b) => b.textContent?.trim() === 'Finish');
-    expect(finishBtn).toBeTruthy();
-    expect(finishBtn?.classList.contains('vv-cue-pulse')).toBe(false);
   });
 
   it('does NOT show orphan toast when all words present', () => {
