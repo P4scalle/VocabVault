@@ -23,6 +23,8 @@ export interface ActionDrawerItem {
   iconClass?: string;
   description?: string;
   disabled?: boolean;
+  /** Visually emphasise this item (ring + "Start here" badge) to guide first-run users. */
+  highlight?: boolean;
 }
 
 export type ActionDrawerPosition = 'left' | 'right' | 'bottom' | 'top' | 'full';
@@ -97,6 +99,8 @@ export class ActionDrawer {
   readonly itemTemplate = input<TemplateRef<ActionItemTemplateContext> | null>(
     null
   );
+  /** Optional helper line shown under the actions (e.g. why some are locked). */
+  readonly footerNote = input<string>('');
 
   readonly actionSelected = output<ActionDrawerItem>();
   readonly closed = output<ActionDrawerCloseReason>();

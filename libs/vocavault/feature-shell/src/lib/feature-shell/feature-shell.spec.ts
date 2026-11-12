@@ -14,6 +14,8 @@ interface FeatureShellInternals {
   navigateHome: () => void;
   onAddActionSelected: (action: ActionDrawerItem) => void;
   findActiveComponent: () => { hasUnsavedChanges: Signal<boolean> } | null;
+  addActions: () => readonly { id: string; disabled?: boolean; highlight?: boolean }[];
+  addFooterNote: () => string;
 }
 
 @Component({ template: '', standalone: true })
@@ -381,6 +383,47 @@ describe('FeatureShell', () => {
     it('does not pulse while the add button is disabled (on an add page)', async () => {
       await navigateTo('/dictionary?addWord=true');
       expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+    });
+  });
+
+  // ──────────────────────────────────────
+  // Add-sheet gating (teach-through-disabling)
+  // ──────────────────────────────────────
+
+  describe('add sheet gating', () => {
+    function internals() {
+      return fixture.componentInstance as unknown as FeatureShellInternals;
+    }
+    const byId = (id: string) => internals().addActions().find((a) => a.id === id);
+
+    it('locks Quiz and Folder (keeps Word + Import) and shows the helper note while empty', async () => {
+      await navigateTo('/home');
+      expect(byId('word')?.disabled).toBeFalsy();
+      expect(byId('import')?.disabled).toBeFalsy();
+      expect(byId('quiz')?.disabled).toBe(true);
+      expect(byId('folder')?.disabled).toBe(true);
+      expect(internals().addFooterNote()).toContain('unlock quizzes and folders');
+    });
+
+    it('highlights the Word action during onboarding', async () => {
+      await navigateTo('/home');
+      expect(byId('word')?.highlight).toBe(true);
+    });
+
+    it('unlocks Quiz and Folder and clears the note once a word exists', async () => {
+      TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
+      await navigateTo('/home');
+      expect(byId('quiz')?.disabled).toBeFalsy();
+      expect(byId('folder')?.disabled).toBeFalsy();
+      expect(byId('word')?.highlight).toBe(false);
+      expect(internals().addFooterNote()).toBe('');
+    });
+
+    it('stops highlighting Word after onboarding is dismissed, but keeps Quiz locked at 0 words', async () => {
+      TestBed.inject(OnboardingService).dismiss();
+      await navigateTo('/home');
+      expect(byId('word')?.highlight).toBe(false);
+      expect(byId('quiz')?.disabled).toBe(true);
     });
   });
 });

@@ -55,6 +55,7 @@ jobs:
             src/folder-management.spec.ts \
             src/folder-scroller.spec.ts \
             src/navigation.spec.ts \
+            src/onboarding-flow.spec.ts \
             src/progress.spec.ts \
             src/quiz-management.spec.ts \
             src/quiz.spec.ts \

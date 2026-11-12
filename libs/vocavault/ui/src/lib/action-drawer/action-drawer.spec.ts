@@ -317,4 +317,38 @@ describe('ActionDrawer', () => {
     document.body.style.overflow = originalOverflow;
     document.body.style.paddingRight = originalPaddingRight;
   });
+
+  it('renders a footer note when provided', async () => {
+    fixture.componentRef.setInput('footerNote', 'Add your first word to unlock quizzes and folders.');
+    component.visible.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const footer = fixture.nativeElement.querySelector('[data-testid="action-drawer-footer"]');
+    expect(footer?.textContent).toContain('Add your first word to unlock quizzes and folders.');
+  });
+
+  it('omits the footer note when empty', async () => {
+    component.visible.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('[data-testid="action-drawer-footer"]')).toBeFalsy();
+  });
+
+  it('marks a highlighted action with a ring and a "Start here" badge, and disables others', async () => {
+    fixture.componentRef.setInput('actions', [
+      { id: 'word', label: 'Word', highlight: true },
+      { id: 'quiz', label: 'Quiz', disabled: true },
+    ] satisfies readonly ActionDrawerItem[]);
+    component.visible.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const buttons = fixture.nativeElement.querySelectorAll('section li button') as NodeListOf<HTMLButtonElement>;
+    expect(buttons[0].classList.contains('vv-action-highlight')).toBe(true);
+    expect(buttons[0].textContent).toContain('Start here');
+    expect(buttons[1].disabled).toBe(true);
+    expect(buttons[1].classList.contains('vv-action-highlight')).toBe(false);
+  });
 });

@@ -175,6 +175,24 @@ describe('FeatureHome', () => {
       expect(el.textContent).toContain('Welcome to VocaVault!');
     });
 
+    it('shows the "How VocaVault works" 3-step strip in the add-word banner', () => {
+      mockOnboardingStep.set('add-word');
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+      const strip = el.querySelector('[data-testid="how-it-works"]');
+      expect(strip).toBeTruthy();
+      expect(strip?.textContent).toContain('How VocaVault works');
+      expect(strip?.textContent).toContain('Add words');
+      expect(strip?.textContent).toContain('Practice');
+      expect(strip?.textContent).toContain('Master');
+    });
+
+    it('does not show the "How it works" strip once onboarding is past add-word', () => {
+      mockOnboardingStep.set('try-quiz');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('[data-testid="how-it-works"]')).toBeFalsy();
+    });
+
     it('shows try-quiz banner when onboarding step is try-quiz', () => {
       mockOnboardingStep.set('try-quiz');
       fixture.detectChanges();

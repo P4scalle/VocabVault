@@ -128,13 +128,19 @@ export class FeatureShell implements OnInit {
   );
   protected readonly addActions = computed<readonly ActionDrawerItem[]>(() => {
     const hw = this.hasWords();
+    const guide = this.showAddHint();
     return [
-      { id: 'word', label: 'Word', description: 'Add a new word to your dictionary.', iconClass: 'pi pi-file-edit' },
-      { id: 'quiz', label: 'Quiz', description: 'Create a new quiz set.', iconClass: 'pi pi-bolt' },
-      ...(hw ? [{ id: 'folder', label: 'Folder', description: 'Create a folder to organize words.', iconClass: 'pi pi-folder' }] : []),
+      { id: 'word', label: 'Word', description: 'Add a new word to your dictionary.', iconClass: 'pi pi-file-edit', highlight: guide },
+      { id: 'quiz', label: 'Quiz', description: 'Create a new quiz set.', iconClass: 'pi pi-bolt', disabled: !hw },
+      { id: 'folder', label: 'Folder', description: 'Create a folder to organize words.', iconClass: 'pi pi-folder', disabled: !hw },
       { id: 'import', label: 'Import Words', description: 'Paste or upload multiple words at once.', iconClass: 'pi pi-upload' },
     ];
   });
+
+  /** Helper line shown in the add sheet while quizzes and folders are locked. */
+  protected readonly addFooterNote = computed(() =>
+    this.hasWords() ? '' : 'Add your first word to unlock quizzes and folders.',
+  );
 
   protected onFabClick(): void {
     if (this.fabDisabled()) {
