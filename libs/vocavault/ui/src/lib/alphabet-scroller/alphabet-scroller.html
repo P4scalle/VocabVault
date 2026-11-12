@@ -1,0 +1,43 @@
+<nav
+  class="vv-alphabet-scroller"
+  aria-label="Alphabet navigation"
+  role="listbox"
+  [style.--letter-count]="alphabet.length"
+  #alphabetNav
+>
+  @for (letter of alphabet; track letter) {
+    <button
+      #letterBtn
+      class="vv-alphabet-scroller__letter"
+      role="option"
+      [class.vv-alphabet-scroller__letter--valid]="validSet().has(letter)"
+      [class.vv-alphabet-scroller__letter--invalid]="!validSet().has(letter)"
+      [class.vv-alphabet-scroller__letter--active]="activeLetter() === letter"
+      [class.vv-alphabet-scroller__letter--hovered]="hoveredLetter() === letter"
+      [class.vv-alphabet-scroller__letter--condensed-hide]="isCondensedHidden($index)"
+      [attr.tabindex]="getTabIndex($index)"
+      [attr.aria-label]="'Jump to letter ' + letter"
+      [attr.aria-selected]="activeLetter() === letter"
+      (pointerdown)="onPointerDown($event, letter)"
+      (mouseenter)="hoveredLetter.set(letter)"
+      (mouseleave)="hoveredLetter.set('')"
+      (keydown)="onKeyDown($event, $index)"
+      type="button"
+    >
+      {{ letter }}
+    </button>
+    @if (isLandscapeCondensed() && $index % 2 === 0 && $index < 25) {
+      <span class="vv-alphabet-scroller__dot" aria-hidden="true"></span>
+    }
+  }
+</nav>
+
+@if (scrubbing() && scrubLetter()) {
+  <div
+    class="vv-alphabet-scroller__bubble"
+    [style.top]="bubbleTop()"
+    aria-hidden="true"
+  >
+    {{ scrubLetter() }}
+  </div>
+}

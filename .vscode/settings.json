@@ -1,0 +1,16 @@
+{
+  "cSpell.words": [
+    "primeuix",
+    "primeng",
+    "analogjs",
+    "vocavault"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "never"
+  },
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.removeUnusedImports": "never"
+    }
+  }
+}

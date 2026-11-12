@@ -1,0 +1,26 @@
+# Keep `vercel` CLI uploads to source + config only. Vercel runs the install
+# and build itself, so build output, caches, deps, and local/test artifacts
+# must never be uploaded (they bloated a `vercel --prod` upload to ~115MB and
+# aborted). Git-integration deploys are unaffected by this file.
+
+# Dependencies (Vercel installs via vercel.json installCommand)
+node_modules
+
+# Build output (Vercel builds via vercel.json buildCommand)
+dist
+
+# Tool caches
+.nx
+.angular
+tmp
+coverage
+
+# Test artifacts
+test-results
+playwright-report
+.playwright
+
+# VCS + local planning / logs (not needed for the build)
+.git
+.planning
+*.log

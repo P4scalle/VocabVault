@@ -1,0 +1,182 @@
+<!-- Collapsed state (fixed height for virtual scroll) -->
+<div
+  class="border-l-4 px-3 py-2 bg-vv-surface dark:bg-slate-800 flex items-center gap-2 cursor-pointer"
+  [class]="badgeConfig().borderClass"
+  [class.opacity-50]="effectiveStatus() === 'skipped'"
+  [style.height.px]="72"
+  role="button"
+  tabindex="0"
+  [attr.aria-expanded]="expanded()"
+  [attr.aria-controls]="'bpr-panel-' + row().word"
+  (click)="onExpand()"
+  (keydown.enter)="onExpand()"
+  (keydown.space)="onExpand(); $event.preventDefault()"
+>
+  <!-- Status dot -->
+  <div class="w-2.5 h-2.5 rounded-full flex-shrink-0" [class]="badgeConfig().dotClass"></div>
+
+  <!-- Word + definition preview -->
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2">
+      <span
+        class="text-sm font-semibold text-slate-800 dark:text-slate-100"
+        [class.line-through]="effectiveStatus() === 'skipped'"
+        [class.text-slate-400]="effectiveStatus() === 'skipped'"
+      >
+        {{ row().word }}
+      </span>
+      <span class="vv-badge text-2xs px-1.5 py-0.5 rounded-full" [class]="badgeConfig().classes">
+        @if (row().lookupFailed) {
+          <i class="pi pi-wifi-off text-[10px] mr-0.5" aria-hidden="true"></i>Lookup failed
+        } @else {
+          {{ badgeConfig().label }}
+        }
+      </span>
+    </div>
+    <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+      @if (row().definition) {
+        {{ row().definition }}
+      } @else {
+        <span class="italic text-slate-400">No definition yet</span>
+      }
+    </p>
+  </div>
+
+  <!-- Right action buttons -->
+  <div class="flex items-center gap-1 flex-shrink-0">
+    @if (effectiveStatus() === 'missing-def' || effectiveStatus() === 'words-only') {
+      <button
+        class="vv-icon-btn text-vv-brand h-11 w-11"
+        aria-label="Look up definition"
+        (click)="onLookupOne(); $event.stopPropagation()"
+      >
+        @if (lookingUp()) {
+          <i class="pi pi-spin pi-spinner text-lg" aria-hidden="true"></i>
+        } @else {
+          <i class="pi pi-search text-lg" aria-hidden="true"></i>
+        }
+      </button>
+    }
+    <button
+      class="vv-icon-btn text-slate-400 h-11 w-11"
+      [attr.aria-label]="expanded() ? 'Collapse row' : 'Expand row'"
+      (click)="onExpand(); $event.stopPropagation()"
+    >
+      @if (expanded()) {
+        <i class="pi pi-chevron-up text-lg" aria-hidden="true"></i>
+      } @else {
+        <i class="pi pi-chevron-down text-lg" aria-hidden="true"></i>
+      }
+    </button>
+  </div>
+</div>
+
+<!-- Duplicate resolution pills (shown for unresolved RED rows) -->
+@if (row().status === 'duplicate' && !row().duplicateAction) {
+  <div
+    class="flex items-center gap-2 px-4 py-1.5 border-l-4"
+    [class]="badgeConfig().borderClass"
+    role="group"
+    [attr.aria-label]="'Resolve duplicate for: ' + row().word"
+  >
+    @for (action of duplicateActions; track action.value) {
+      <button
+        class="px-3 py-1 text-xs font-medium rounded-full border transition-colors"
+        [class]="
+          row().duplicateAction === action.value
+            ? 'bg-vv-brand text-white border-vv-brand'
+            : 'border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+        "
+        (click)="onResolveDuplicate(action.value); $event.stopPropagation()"
+      >
+        {{ action.label }}
+      </button>
+    }
+  </div>
+}
+
+<!-- Expanded state (inline edit form) -->
+@if (expanded()) {
+  <div
+    [id]="'bpr-panel-' + row().word"
+    class="px-4 py-3 border-l-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-700 transition-all duration-200"
+    [class]="badgeConfig().borderClass"
+  >
+    <div class="space-y-2">
+      <div>
+        <label [for]="'bpr-word-' + row().word" class="text-xs font-medium text-slate-500">Term</label>
+        <input
+          [id]="'bpr-word-' + row().word"
+          class="vv-input-inline w-full text-sm px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg vv-focus-ring"
+          [value]="editWord()"
+          (input)="editWord.set($any($event.target).value)"
+        />
+      </div>
+      <div>
+        <label [for]="'bpr-def-' + row().word" class="text-xs font-medium text-slate-500">Definition</label>
+        <input
+          [id]="'bpr-def-' + row().word"
+          class="vv-input-inline w-full text-sm px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg vv-focus-ring"
+          [value]="editDefinition()"
+          (input)="editDefinition.set($any($event.target).value)"
+        />
+      </div>
+      <div>
+        <label [for]="'bpr-pron-' + row().word" class="text-xs font-medium text-slate-500">Pronunciation</label>
+        <input
+          [id]="'bpr-pron-' + row().word"
+          class="vv-input-inline w-full text-sm px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg vv-focus-ring"
+          [value]="editPronunciation()"
+          (input)="editPronunciation.set($any($event.target).value)"
+        />
+      </div>
+      <div role="group" [attr.aria-labelledby]="'bpr-examples-label-' + row().word">
+        <div class="flex items-center justify-between">
+          <span [id]="'bpr-examples-label-' + row().word" class="text-xs font-medium text-slate-500">Examples</span>
+          <button
+            type="button"
+            class="text-xs text-vv-brand hover:text-vv-brand/80 font-medium inline-flex items-center gap-0.5"
+            (click)="addExample(); $event.stopPropagation()"
+          >
+            <i class="pi pi-plus text-[10px]" aria-hidden="true"></i> Add
+          </button>
+        </div>
+        @for (example of editExamples(); track $index) {
+          <div class="flex items-center gap-1 mt-1">
+            <input
+              class="vv-input-inline w-full text-sm px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg vv-focus-ring"
+              [value]="example"
+              placeholder="Example sentence..."
+              (input)="updateExample($index, $any($event.target).value)"
+            />
+            <button
+              type="button"
+              class="vv-icon-btn text-slate-400 hover:text-red-400 h-7 w-7 shrink-0"
+              aria-label="Remove example"
+              (click)="removeExample($index); $event.stopPropagation()"
+            >
+              <i class="pi pi-times text-xs" aria-hidden="true"></i>
+            </button>
+          </div>
+        }
+        @if (editExamples().length === 0) {
+          <p class="text-xs text-slate-400 italic mt-1">No examples yet</p>
+        }
+      </div>
+      <div class="flex items-center gap-2 pt-1">
+        <button
+          class="text-sm font-medium text-vv-brand hover:text-vv-brand/80 px-3 py-1.5"
+          (click)="onSaveEdit()"
+        >
+          Save
+        </button>
+        <button
+          class="text-sm text-slate-400 hover:text-slate-600 px-2 py-1.5"
+          (click)="onDiscardEdit()"
+        >
+          Discard
+        </button>
+      </div>
+    </div>
+  </div>
+}

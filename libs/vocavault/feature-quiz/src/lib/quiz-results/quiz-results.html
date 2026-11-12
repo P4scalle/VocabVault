@@ -1,0 +1,205 @@
+<lib-page-header
+  title="Quiz Results"
+  [showBack]="true"
+  (backClicked)="backToQuizzes()"
+/>
+
+<div class="flex flex-col gap-4 pb-28 lg:pb-0">
+
+  <!-- Score card -->
+  <div class="vv-card p-5 xs:p-8 text-center">
+    <p class="text-xs font-medium uppercase tracking-wide text-slate-400 mb-1">
+      {{ modeLabel() }}
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">{{ directionLabel() }}</p>
+
+    <!-- Circular score display -->
+    <div class="flex justify-center mb-4 animate-score-entrance">
+      <lib-score-ring [value]="accuracy()" suffix="%" />
+    </div>
+
+    <p class="text-slate-600 dark:text-slate-400">{{ correctAnswers() }} / {{ totalQuestions() }} correct</p>
+
+    @if (eloquenceDelta() !== 0) {
+      <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold"
+           [class]="eloquenceDelta() > 0
+             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+             : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'">
+        <i [class]="(eloquenceDelta() > 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down') + ' text-xs'" aria-hidden="true"></i>
+        {{ eloquenceDelta() > 0 ? '+' : '' }}{{ eloquenceDelta() }} Eloquence
+      </div>
+    }
+  </div>
+
+  <!-- Stats grid -->
+  <div class="grid grid-cols-2 gap-3">
+    <div class="vv-card p-3 text-center">
+      <p class="text-xl font-bold text-slate-800 dark:text-slate-100">{{ correctAnswers() }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Correct</p>
+    </div>
+    <div class="vv-card p-3 text-center">
+      <p class="text-xl font-bold text-slate-800 dark:text-slate-100">{{ totalQuestions() - correctAnswers() }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Incorrect</p>
+    </div>
+  </div>
+
+  <!-- Perfect score -->
+  @if (isPerfect()) {
+    <div class="bg-green-50 dark:bg-green-900/30 rounded-2xl border border-green-200 dark:border-green-800 p-4 text-center" role="status" aria-live="polite">
+      <i class="pi pi-star-fill text-2xl text-yellow-400 mb-1 block motion-safe:animate-pulse" aria-hidden="true"></i>
+      <p class="text-base font-semibold text-green-700 dark:text-green-400">Perfect score!</p>
+      <p class="text-sm text-green-600 dark:text-green-500">You got every word right.</p>
+    </div>
+  }
+
+  <!-- Wrong answers list -->
+  @if (!isPerfect()) {
+    <div class="vv-card p-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+          <i class="pi pi-refresh text-amber-500" aria-hidden="true"></i>
+          Review these words ({{ wrongWords().length }})
+        </h2>
+        @if (wrongWords().length > 1) {
+          <button
+            type="button"
+            (click)="reviewExpanded.set(!reviewExpanded())"
+            class="w-10 h-10 flex items-center justify-center rounded-full text-vv-brand hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 transition-colors"
+            [attr.aria-label]="reviewExpanded() ? 'Collapse' : 'Expand'"
+          >
+            <i [class]="(reviewExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down') + ' text-lg'" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+      <div class="space-y-2 mt-3">
+        @for (item of visibleWrongWords(); track item.word.id) {
+          <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-800">
+            <p class="font-semibold text-slate-800 dark:text-slate-100">{{ item.word.word }}</p>
+            @if (item.word.pronunciation) {
+              <p class="text-xs text-slate-400 mt-0.5">{{ item.word.pronunciation }}</p>
+            }
+            <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{{ item.definition }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Flagged for review section -->
+  @if (flaggedWords().length > 0) {
+    <div class="vv-card p-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+          <i class="pi pi-flag-fill text-amber-500" aria-hidden="true"></i>
+          Flagged for review ({{ flaggedWords().length }})
+        </h2>
+        @if (flaggedWords().length > 1) {
+          <button
+            type="button"
+            (click)="flaggedExpanded.set(!flaggedExpanded())"
+            class="w-10 h-10 flex items-center justify-center rounded-full text-vv-brand hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 transition-colors"
+            [attr.aria-label]="flaggedExpanded() ? 'Collapse' : 'Expand'"
+          >
+            <i [class]="(flaggedExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down') + ' text-lg'" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+      <div class="space-y-3 mt-3">
+        @for (word of visibleFlaggedWords(); track word.id) {
+          <div class="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800">
+            <p class="font-semibold text-slate-800 dark:text-slate-100">{{ word.word }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">{{ word.definition }}</p>
+            <!-- Category chips -->
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              @for (cat of FLAG_CATEGORIES; track cat.reason) {
+                <button
+                  type="button"
+                  [class]="'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors border vv-focus-ring ' +
+                    (selectedReasons().get(word.id) === cat.reason
+                      ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-600'
+                      : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700')"
+                  (click)="categorizeFlag(word.id, cat.reason)"
+                  [attr.aria-pressed]="selectedReasons().get(word.id) === cat.reason"
+                >
+                  <i [class]="cat.icon + ' text-[10px]'" aria-hidden="true"></i>
+                  {{ cat.label }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Leveled Up section -->
+  @if (promotedWords().length > 0) {
+    <div class="vv-card p-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+          <i class="pi pi-star-fill text-yellow-400 motion-safe:animate-pulse" aria-hidden="true"></i>
+          Leveled Up! ({{ promotedWords().length }})
+        </h2>
+        @if (promotedWords().length > 1) {
+          <button
+            type="button"
+            (click)="levelUpExpanded.set(!levelUpExpanded())"
+            class="w-10 h-10 flex items-center justify-center rounded-full text-vv-brand hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 transition-colors"
+            [attr.aria-label]="levelUpExpanded() ? 'Collapse' : 'Expand'"
+          >
+            <i [class]="(levelUpExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down') + ' text-lg'" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+      <div class="space-y-2 mt-3">
+        @for (word of visiblePromotedWords(); track word.id; let i = $index) {
+          <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 flex items-center gap-3 motion-safe:animate-fade-in"
+               [style.animation-delay]="i * 80 + 'ms'"
+               style="animation-fill-mode: both">
+            <i class="pi pi-star-fill text-green-500 motion-safe:animate-pulse" aria-hidden="true"></i>
+            <div>
+              <p class="font-semibold text-slate-800 dark:text-slate-100">{{ word.word }}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">{{ getMasteryLabel(word.masteryLevel) }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Sticky bottom action bar -->
+<div class="vv-sticky-footer">
+  <div class="vv-sticky-footer-content flex-col gap-2">
+    @if (parentQuizSetId()) {
+      <!-- Session quiz: "Next Session" is primary -->
+      <lib-button [fullWidth]="true" (click)="nextSession()">
+        <i class="pi pi-forward mr-2" aria-hidden="true"></i>
+        Next Session
+      </lib-button>
+      <lib-button variant="secondary" [fullWidth]="true" (click)="tryAgain()">
+        <i class="pi pi-refresh mr-2" aria-hidden="true"></i>
+        Retry These Words
+      </lib-button>
+    } @else {
+      <lib-button [fullWidth]="true" (click)="tryAgain()">
+        <i class="pi pi-refresh mr-2" aria-hidden="true"></i>
+        Try Again
+      </lib-button>
+    }
+    <lib-button variant="secondary" [fullWidth]="true" (click)="seeProgress()">
+      <i class="pi pi-chart-line mr-2" aria-hidden="true"></i>
+      See your progress
+    </lib-button>
+    @if (!isPerfect()) {
+      <button
+        type="button"
+        class="text-sm text-slate-500 hover:text-vv-brand dark:text-slate-400 dark:hover:text-vv-brand inline-flex items-center justify-center gap-1.5 py-1.5 transition-colors vv-focus-ring"
+        (click)="reviewInDictionary()"
+      >
+        <i class="pi pi-book text-xs" aria-hidden="true"></i>
+        Review in Dictionary
+      </button>
+    }
+  </div>
+</div>

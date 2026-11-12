@@ -1,0 +1,40 @@
+<lib-bottom-sheet [(visible)]="visible">
+  <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100 mb-1">{{ title() }}</h3>
+  <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Choose a folder</p>
+  <div class="space-y-1.5 max-h-[50vh] overflow-y-auto">
+    <button
+      type="button"
+      class="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 min-h-[2.75rem]"
+      [class.bg-slate-50]="!activeFolderId()"
+      [class.dark:bg-slate-700]="!activeFolderId()"
+      (click)="onSelect('')"
+    >
+      <i class="pi pi-times-circle text-slate-400" aria-hidden="true"></i>
+      <span class="text-sm text-slate-600 dark:text-slate-400">{{ noFolderLabel() }}</span>
+    </button>
+    @for (folder of folders(); track folder.id) {
+      <button
+        type="button"
+        class="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700 min-h-[2.75rem]"
+        [class.bg-slate-50]="activeFolderId() === folder.id"
+        [class.dark:bg-slate-700]="activeFolderId() === folder.id"
+        (click)="onSelect(folder.id)"
+      >
+        <span class="w-4 h-4 rounded-full flex-shrink-0" [style.background-color]="folder.color"></span>
+        <span class="text-sm font-medium text-slate-800 dark:text-slate-200 flex-1">{{ folder.name }}</span>
+        <span class="text-xs text-slate-400">{{ folderWordCounts().get(folder.id) ?? 0 }}</span>
+        @if (activeFolderId() === folder.id) {
+          <i class="pi pi-check text-vv-brand text-sm" aria-hidden="true"></i>
+        }
+      </button>
+    }
+  </div>
+  <button
+    type="button"
+    class="w-full flex items-center gap-3 p-3 mt-3 rounded-xl text-left border border-dashed border-slate-300 dark:border-slate-600 transition-colors hover:border-vv-brand hover:bg-vv-brandLight/30 min-h-[2.75rem] group"
+    (click)="onCreateFolder()"
+  >
+    <i class="pi pi-plus text-slate-400 group-hover:text-vv-brand transition-colors" aria-hidden="true"></i>
+    <span class="text-sm font-medium text-slate-500 dark:text-slate-400 group-hover:text-vv-brand transition-colors">New Folder</span>
+  </button>
+</lib-bottom-sheet>

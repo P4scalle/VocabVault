@@ -1,0 +1,311 @@
+<div class="space-y-4 md:space-y-6 pb-24 md:pb-8">
+
+  <!-- Onboarding Banner -->
+  @if (onboarding.currentStep(); as step) {
+    <div class="vv-card overflow-hidden animate-fade-in-up">
+      @if (step === 'add-word') {
+        <!-- Welcome banner — warm, inviting, zero words -->
+        <div class="bg-gradient-to-br from-vv-brand/10 via-vv-brandLight to-vv-brand/5 dark:from-vv-brand/20 dark:via-slate-800 dark:to-vv-brand/10 p-6 md:p-8">
+          <div class="flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-2xl bg-white/80 dark:bg-slate-700/80 shadow-sm flex items-center justify-center mb-4">
+              <i class="pi pi-sparkles text-3xl text-vv-brand" aria-hidden="true"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Welcome to VocaVault!</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-5 leading-relaxed">
+              Your personal vocabulary coach. Add your first word and start building mastery through smart quizzes.
+            </p>
+            <div class="flex flex-col xs:flex-row gap-2 w-full xs:w-auto">
+              <lib-button styleClass="px-6 vv-btn-press" (click)="navigateToAddWord()">
+                <i class="pi pi-plus mr-1.5 text-xs" aria-hidden="true"></i>
+                Add Your First Word
+              </lib-button>
+              <button
+                type="button"
+                class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 py-2 transition-colors"
+                (click)="onboarding.dismiss()"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Greyed-out app preview — shows what the app looks like when populated -->
+        <div class="px-5 pb-5 pt-4 space-y-3 opacity-40 dark:opacity-50 select-none pointer-events-none" aria-hidden="true">
+          <p class="text-2xs uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold">Preview of your future dashboard</p>
+          <!-- Fake recent words carousel -->
+          <div class="flex gap-3 overflow-hidden">
+            <div class="flex-shrink-0 w-[140px] rounded-xl bg-slate-100 dark:bg-slate-600/50 p-3 text-center">
+              <div class="h-3 w-16 mx-auto vv-skeleton mb-2"></div>
+              <div class="h-2 w-12 mx-auto vv-skeleton mb-1.5"></div>
+              <div class="h-2 w-20 mx-auto vv-skeleton"></div>
+            </div>
+            <div class="flex-shrink-0 w-[140px] rounded-xl bg-slate-100 dark:bg-slate-600/50 p-3 text-center">
+              <div class="h-3 w-20 mx-auto vv-skeleton mb-2"></div>
+              <div class="h-2 w-10 mx-auto vv-skeleton mb-1.5"></div>
+              <div class="h-2 w-24 mx-auto vv-skeleton"></div>
+            </div>
+            <div class="flex-shrink-0 w-[140px] rounded-xl bg-slate-100 dark:bg-slate-600/50 p-3 text-center">
+              <div class="h-3 w-14 mx-auto vv-skeleton mb-2"></div>
+              <div class="h-2 w-8 mx-auto vv-skeleton mb-1.5"></div>
+              <div class="h-2 w-18 mx-auto vv-skeleton"></div>
+            </div>
+          </div>
+          <!-- Fake quiz cards -->
+          <div class="grid grid-cols-4 gap-2">
+            @for (i of [1,2,3,4]; track i) {
+              <div class="aspect-square rounded-xl bg-slate-100 dark:bg-slate-600/50 flex flex-col items-center justify-center gap-1.5 p-2">
+                <div class="w-6 h-6 rounded-lg vv-skeleton"></div>
+                <div class="h-1.5 w-10 vv-skeleton"></div>
+              </div>
+            }
+          </div>
+          <!-- Fake progress circle -->
+          <div class="flex justify-center py-2">
+            <div class="w-20 h-20 rounded-full border-[6px] border-slate-200 dark:border-slate-500 flex items-center justify-center">
+              <span class="text-lg font-bold text-slate-300 dark:text-slate-400">0</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (step === 'try-quiz') {
+        <!-- Quiz nudge — celebratory, encouraging -->
+        <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-cyan-900/20 p-6 md:p-8">
+          <div class="flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-2xl bg-white/80 dark:bg-slate-700/80 shadow-sm flex items-center justify-center mb-4">
+              <i class="pi pi-bolt text-3xl text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Nice! Now try a quiz</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-5 leading-relaxed">
+              You've added {{ wordCount() }} word{{ wordCount() !== 1 ? 's' : '' }}. Take a quick quiz to lock them into memory.
+            </p>
+            <div class="flex flex-col xs:flex-row gap-2 w-full xs:w-auto">
+              <lib-button styleClass="px-6 vv-btn-press" (click)="startQuickQuiz()">
+                <i class="pi pi-bolt mr-1.5 text-xs" aria-hidden="true"></i>
+                Quick Quiz
+              </lib-button>
+              <button
+                type="button"
+                class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 py-2 transition-colors"
+                (click)="onboarding.dismiss()"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Quick Quiz CTA — shown when user has words and onboarding is done -->
+  @if (hasWords() && !onboarding.currentStep()) {
+    <button
+      type="button"
+      class="vv-card-cta w-full p-4 flex items-center gap-4 text-left vv-btn-press vv-focus-ring transition-all hover:shadow-md"
+      (click)="startQuickQuiz()"
+    >
+      <div class="w-11 h-11 rounded-xl bg-vv-brand/15 dark:bg-vv-brand/25 flex items-center justify-center flex-shrink-0">
+        <i class="pi pi-bolt text-lg text-vv-brand" aria-hidden="true"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">Quick Quiz</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Random mode, up to 20 words</p>
+      </div>
+      <i class="pi pi-chevron-right text-slate-400 text-sm" aria-hidden="true"></i>
+    </button>
+  }
+
+  <!-- Dictionary Highlight Card -->
+  <div class="vv-card p-5 md:p-6">
+    <button
+      type="button"
+      class="flex items-center gap-2 mb-4 cursor-pointer bg-transparent border-0 p-0 w-auto"
+      (click)="navigateToDictionary()"
+    >
+      <i class="pi pi-book text-xl text-vv-brand" aria-hidden="true"></i>
+      <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">Dictionary</h2>
+      <i class="pi pi-chevron-right text-sm text-slate-400" aria-hidden="true"></i>
+    </button>
+
+    @if (recentWords().length === 0) {
+    <!-- Empty dictionary — motivating CTA -->
+    <div class="flex flex-col items-center py-6 text-center">
+      <div class="w-14 h-14 rounded-full bg-vv-brandLight dark:bg-vv-brand/20 flex items-center justify-center mb-3">
+        <i class="pi pi-book text-2xl text-vv-brand" aria-hidden="true"></i>
+      </div>
+      <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Your vocabulary journey starts here</p>
+      <p class="text-xs text-slate-400 mb-4">Add words you encounter — we'll help you master them.</p>
+      <lib-button size="sm" styleClass="px-6 vv-btn-press" (click)="navigateToAddWord()">
+        Add Your First Word
+      </lib-button>
+    </div>
+    } @else {
+    <!-- Word carousel -->
+    <lib-carousel ariaLabel="Recent words" [showChevrons]="true" class="cursor-pointer" (click)="navigateToDictionary()">
+      @for (word of recentWords(); track word.id; let i = $index) {
+        <div libCarouselSlide [index]="i" [total]="recentWords().length" class="px-10">
+          <div class="text-center py-4">
+            <button
+              type="button"
+              class="text-2xl font-bold text-vv-brand mb-2 bg-transparent border-none cursor-pointer hover:underline focus:outline-none focus-visible:underline decoration-vv-brand/40 underline-offset-4"
+              (click)="navigateToDictionary(word.id); $event.stopPropagation()"
+            >
+              {{ word.word }}
+            </button>
+            @if (word.pronunciation) {
+              <p class="text-slate-500 dark:text-slate-400 text-xs mb-3">{{ word.pronunciation }}</p>
+            }
+            <p class="text-slate-700 dark:text-slate-300 text-sm">
+              <span class="font-semibold">Definition:</span>
+              <span class="italic"> {{ word.definition }}</span>
+            </p>
+          </div>
+        </div>
+      }
+    </lib-carousel>
+    }
+  </div>
+
+  <!-- Due for Review -->
+  @if (hasWords()) {
+  @if (dueCount() > 0) {
+  <div class="vv-card p-5 md:p-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+          <i class="pi pi-clock text-amber-600 dark:text-amber-400 text-lg" aria-hidden="true"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">Due for Review</h2>
+            <lib-info-button ariaLabel="What is Due for Review?" (click)="activeInfoDrawer.set('due-review')" />
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400">{{ dueCount() }} word{{ dueCount() !== 1 ? 's' : '' }} ready to practice</p>
+        </div>
+      </div>
+      <span
+        class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-500 text-white text-sm font-bold motion-safe:animate-pulse"
+      >
+        {{ dueCount() }}
+      </span>
+    </div>
+    <lib-button size="sm" [fullWidth]="true" styleClass="mt-4 vv-btn-press" (click)="startSmartReview()">
+      Start Review
+    </lib-button>
+  </div>
+  }
+
+  <!-- The Tough Ones -->
+  @if (toughCount() > 0) {
+  <div data-testid="tough-words-card" class="vv-card p-5 md:p-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+          <i class="pi pi-sync text-violet-600 dark:text-violet-400 text-lg" aria-hidden="true"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">The Tough Ones</h2>
+            <lib-info-button ariaLabel="About the tough ones" (click)="activeInfoDrawer.set('tough-ones')" />
+          </div>
+          <p class="text-sm text-slate-500 dark:text-slate-400">{{ toughCount() }} word{{ toughCount() !== 1 ? 's' : '' }} worth another round</p>
+        </div>
+      </div>
+      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-violet-500 text-white text-sm font-bold">
+        {{ toughCount() }}
+      </span>
+    </div>
+    <lib-button size="sm" [fullWidth]="true" styleClass="mt-4 vv-btn-press" (click)="startToughPractice()">Practice Now</lib-button>
+  </div>
+  }
+
+  <!-- Quiz Categories -->
+  <div>
+    <div class="flex items-center mb-4">
+      <button
+        type="button"
+        class="flex items-center gap-2 cursor-pointer bg-transparent border-0 p-0 w-auto"
+        (click)="navigateToQuiz()"
+      >
+        <i class="pi pi-bolt text-xl text-vv-brand" aria-hidden="true"></i>
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">Quizzes</h2>
+        <i class="pi pi-chevron-right text-sm text-slate-400" aria-hidden="true"></i>
+      </button>
+      <lib-info-button ariaLabel="About quiz types" (click)="$event.stopPropagation(); activeInfoDrawer.set('quiz-types')" />
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      @for (qt of quizTypes; track qt.mode) {
+      <button
+        type="button"
+        class="flex flex-col items-center justify-center aspect-square vv-card p-3 gap-1.5 vv-card-hover vv-btn-press vv-focus-ring"
+        [attr.data-testid]="'quiz-card-' + qt.mode"
+        (click)="navigateToQuizLaunch(qt.mode)"
+      >
+        <span
+          [class]="'rounded-xl p-2 ' + qt.colorClass"
+        >
+          <i
+            [class]="qt.iconClass + ' text-lg block'"
+            aria-hidden="true"
+          ></i>
+        </span>
+        <span class="text-2xs font-medium text-slate-700 dark:text-slate-300 text-center leading-tight">{{ qt.label }}</span>
+      </button>
+      }
+    </div>
+  </div>
+
+  <!-- Progress Section -->
+  <div
+    data-testid="progress-preview"
+    class="vv-card p-5 md:p-8 relative"
+  >
+    <div class="flex items-center mb-4">
+      <button
+        type="button"
+        class="flex items-center gap-2 cursor-pointer bg-transparent border-0 p-0 w-auto"
+        (click)="navigateToProgress()"
+      >
+        <i class="pi pi-chart-line text-xl text-vv-brand" aria-hidden="true"></i>
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">Progress</h2>
+        <i class="pi pi-chevron-right text-sm text-slate-400" aria-hidden="true"></i>
+      </button>
+      <lib-info-button ariaLabel="About progress and eloquence score" (click)="$event.stopPropagation(); activeInfoDrawer.set('eloquence')" />
+    </div>
+
+    <!-- Progress bubbles grid -->
+    <div class="grid grid-cols-2 xs:grid-cols-4 gap-3 mb-6">
+      @for (bar of progressCircles(); track bar.label) {
+      <lib-progress-bubble
+        [value]="bar.pct"
+        [max]="100"
+        [size]="64"
+        [color]="bar.color"
+        [label]="bar.label"
+      >
+        <span class="text-sm font-bold">{{ bar.count }}</span>
+      </lib-progress-bubble>
+      }
+    </div>
+
+    <!-- Eloquence Score -->
+    <div class="flex flex-col items-center animate-score-entrance">
+      <lib-score-ring [value]="eloquenceScore()" />
+      <div class="mt-4 px-4 py-1.5 rounded-full bg-vv-brandLight dark:bg-vv-brand/20">
+        <p class="font-medium text-base text-vv-brand">Eloquence score</p>
+      </div>
+      <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 text-center max-w-[16rem]">
+        Your overall vocabulary mastery
+      </p>
+    </div>
+  </div>
+
+  }
+
+</div>
+
+<!-- Info Drawer -->
+<lib-info-drawer [(topic)]="activeInfoDrawer" />

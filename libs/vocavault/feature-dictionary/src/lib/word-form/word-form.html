@@ -1,0 +1,202 @@
+<form class="flex flex-col gap-4 pb-28 lg:pb-0" (ngSubmit)="onSave()">
+  <lib-page-header [title]="isEditMode() ? 'Edit Term' : 'Add Term'" [showBack]="true" (backClicked)="onCancel()" />
+
+  <!-- Incomplete word guidance -->
+  @if (isIncomplete()) {
+    <div class="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40">
+      <i class="pi pi-exclamation-triangle text-amber-500 text-sm mt-0.5 shrink-0" aria-hidden="true"></i>
+      <p class="text-sm text-amber-700 dark:text-amber-300">
+        This word needs a definition. Try <strong>Look up</strong> to search automatically, or type one in below.
+      </p>
+    </div>
+  }
+
+  <!-- Word field with lookup button -->
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="vv-word">Term <span class="text-red-500">*</span></label>
+    <div class="flex gap-2">
+      <input
+        #termInput
+        id="vv-word"
+        type="text"
+        class="flex-1 vv-input"
+        [class.motion-safe:animate-shake]="lookupShake()"
+        (animationend)="resetShake()"
+        placeholder="e.g. Ephemeral"
+        maxlength="100"
+        aria-required="true"
+        [ngModel]="wordField()"
+        (ngModelChange)="wordField.set($event)"
+        name="word"
+      />
+      <button
+        type="button"
+        class="flex-shrink-0 px-4 py-2.5 text-sm font-medium rounded-xl bg-vv-brand/10 text-vv-brand hover:bg-vv-brand/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        [class.motion-safe:animate-pulse]="lookupLoading()"
+        [disabled]="!wordField().trim() || lookupLoading()"
+        (click)="onLookup()"
+      >
+        @if (lookupLoading()) {
+          <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+        } @else {
+          <i class="pi pi-search" aria-hidden="true"></i>
+        }
+        <span class="ml-1.5">Look up</span>
+      </button>
+    </div>
+    @if (lookupError()) {
+      <p class="text-xs text-red-500 mt-1" role="alert">{{ lookupError() }}</p>
+    }
+  </div>
+
+  <!-- Pronunciation field -->
+  <div class="flex flex-col gap-1" [class.vv-lookup-highlight]="isHighlighted('pronunciation')"
+       [class.motion-safe:animate-pulse-success]="lookupSuccess()">
+    <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="vv-pronunciation">Pronunciation</label>
+    <input
+      id="vv-pronunciation"
+      type="text"
+      class="vv-input"
+      placeholder="e.g. /ɪˈfem.ər.əl/"
+      maxlength="200"
+      [ngModel]="pronunciation()"
+      (ngModelChange)="pronunciation.set($event)"
+      name="pronunciation"
+    />
+  </div>
+
+  <!-- Definition field -->
+  <div class="flex flex-col gap-1" [class.vv-lookup-highlight]="isHighlighted('definition')"
+       [class.motion-safe:animate-pulse-success]="lookupSuccess()">
+    <label class="text-sm font-medium text-slate-700 dark:text-slate-300" for="vv-definition">Definition <span class="text-red-500">*</span></label>
+    <textarea
+      id="vv-definition"
+      rows="3"
+      class="vv-input resize-none"
+      placeholder="e.g. Lasting for only a short time"
+      maxlength="1000"
+      aria-required="true"
+      [ngModel]="definition()"
+      (ngModelChange)="definition.set($event)"
+      name="definition"
+    ></textarea>
+    @if (definitionInvalid()) {
+      <p class="text-xs text-red-500 mt-1" role="alert">
+        Enter a real definition or use <strong>Look up</strong> to search.
+      </p>
+    }
+    @if (definitionsFound() > 0) {
+      <button
+        type="button"
+        class="self-start inline-flex items-center gap-1.5 text-xs font-medium text-vv-brand bg-vv-brand/8 hover:bg-vv-brand/15 px-2.5 py-1 rounded-full transition-colors mt-1"
+        (click)="definitionPickerOpen.set(true)"
+        [attr.aria-label]="definitionsFound() + ' definitions found, tap to browse'"
+      >
+        <i class="pi pi-list text-xs" aria-hidden="true"></i>
+        {{ definitionsFound() }} definitions found ›
+      </button>
+    }
+  </div>
+
+  <!-- Examples field -->
+  <div class="flex flex-col gap-2" [class.vv-lookup-highlight]="isHighlighted('examples')"
+       [class.motion-safe:animate-pulse-success]="lookupSuccess()"
+       (animationend)="resetSuccess()">
+    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Examples</span>
+    @for (example of examples(); track $index; let i = $index) {
+      <div class="flex items-center gap-2">
+        <input
+          type="text"
+          class="flex-1 vv-input py-2.5"
+          aria-label="Example sentence"
+          placeholder="Example sentence..."
+          maxlength="500"
+          [ngModel]="example"
+          (ngModelChange)="updateExample(i, $event)"
+          [name]="'example-' + i"
+        />
+        @if (examples().length > 1) {
+          <button
+            type="button"
+            class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+            aria-label="Remove example"
+            (click)="removeExample(i)"
+          >
+            <i class="pi pi-times text-xs" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+    }
+    <button
+      type="button"
+      class="self-start inline-flex items-center gap-1.5 text-sm text-vv-brand hover:text-vv-brand/80 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vv-brand rounded-lg px-1"
+      (click)="addExample()"
+    >
+      <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+      Add example
+    </button>
+  </div>
+
+  <!-- Folder selector — bottom sheet (mobile) / centered dialog (desktop) -->
+  @if (folders().length > 0) {
+    <div class="flex flex-col gap-1">
+      <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Folder</span>
+      <button
+        type="button"
+        class="vv-input py-2.5 text-sm text-left flex items-center gap-2"
+        (click)="folderPickerOpen.set(true)"
+      >
+        @if (selectedFolder(); as folder) {
+          <span class="w-3 h-3 rounded-full flex-shrink-0" [style.background-color]="folder.color"></span>
+          <span class="flex-1 truncate text-slate-800 dark:text-slate-100">{{ folder.name }}</span>
+        } @else {
+          <span class="flex-1 text-slate-400 dark:text-slate-500">No folder</span>
+        }
+        <i class="pi pi-chevron-down text-xs text-slate-400 ml-auto" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <lib-folder-picker
+      [folders]="folders()"
+      [folderWordCounts]="folderWordCounts()"
+      [(visible)]="folderPickerOpen"
+      [activeFolderId]="selectedFolderId() ?? null"
+      title="Select folder"
+      noFolderLabel="No folder"
+      (folderSelected)="onFolderSelected($event)"
+    />
+  }
+
+  <lib-definition-picker
+    [meanings]="availableMeanings()"
+    [(visible)]="definitionPickerOpen"
+    [addedDefinitions]="addedDefinitions()"
+    [addedExamples]="addedExamples()"
+    (definitionAppended)="onDefinitionAppended($event)"
+    (definitionRemoved)="onDefinitionRemoved($event)"
+    (exampleAppended)="onExampleAppended($event)"
+    (exampleRemoved)="onExampleRemoved($event)"
+  />
+
+</form>
+
+<!-- Sticky bottom action bar -->
+<div class="vv-sticky-footer">
+  <div class="vv-sticky-footer-content flex-col gap-2">
+    <lib-button type="submit" [fullWidth]="true" [disabled]="!wordField().trim() || !definition().trim() || definitionInvalid()" (click)="onSave()">
+      {{ isEditMode() ? 'Save Changes' : 'Add Term' }}
+    </lib-button>
+
+    @if (isEditMode()) {
+      <lib-hold-button
+        styleClass="w-full vv-btn-danger vv-focus-ring text-sm"
+        ariaLabel="Hold to delete term"
+        (confirmed)="onDelete()"
+      >
+        <i class="pi pi-trash text-sm mr-1.5" aria-hidden="true"></i> Hold to Delete Term
+        <span holding><i class="pi pi-trash text-sm mr-1.5" aria-hidden="true"></i> Deleting...</span>
+        <span confirm>Press again to confirm</span>
+      </lib-hold-button>
+    }
+  </div>
+</div>

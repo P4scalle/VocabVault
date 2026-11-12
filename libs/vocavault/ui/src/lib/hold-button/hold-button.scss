@@ -1,0 +1,78 @@
+.vv-hold-button {
+  position: relative;
+  overflow: visible;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.vv-hold-ring {
+  position: absolute;
+  inset: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.vv-hold-button--holding .vv-hold-ring {
+  opacity: 1;
+}
+
+.vv-hold-ring__track {
+  fill: none;
+  stroke: rgb(239 68 68 / 0.15);
+  stroke-width: 2.5;
+}
+
+.vv-hold-ring__progress {
+  fill: none;
+  stroke: rgb(239 68 68 / 0.7);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  transition: none;
+}
+
+.vv-hold-button__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+.vv-hold-button--holding {
+  transform: scale(1.08);
+  transition: transform 150ms ease;
+}
+
+.vv-hold-button--confirming {
+  animation: vv-hold-pulse 600ms ease-in-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes vv-hold-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

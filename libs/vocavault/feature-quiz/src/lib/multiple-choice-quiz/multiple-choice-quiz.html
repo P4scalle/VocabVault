@@ -1,0 +1,83 @@
+@if (currentQuestion(); as q) {
+  <div class="flex flex-col gap-5 pt-4 pb-24 md:pb-8">
+
+    <!-- Progress bar -->
+    <lib-quiz-progress-bar
+      [label]="progress()"
+      [current]="currentIndex() + 1"
+      [total]="questions().length"
+    />
+
+    <!-- Word card -->
+    <div class="vv-card p-4 xs:p-5 md:p-6">
+      <p class="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500 mb-2">{{ q.promptLabel }}</p>
+      <p class="text-lg xs:text-xl md:text-2xl font-bold text-slate-800 dark:text-slate-100">{{ q.prompt }}</p>
+      @if (q.resolvedDirection === 'word-to-definition' && q.word.pronunciation) {
+        <p class="mt-0.5 text-sm text-slate-400">{{ q.word.pronunciation }}</p>
+      }
+    </div>
+
+    <!-- Options -->
+    <div class="space-y-2">
+      @for (option of q.options; track $index) {
+        <button
+          type="button"
+          (click)="selectOption($index)"
+          [disabled]="isAnswered()"
+          [class]="'w-full rounded-xl border-2 p-4 text-left text-sm transition-colors vv-focus-ring ' + optionClasses()[$index]"
+        >
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-700 text-xs font-bold text-slate-500 dark:text-slate-300 mr-2">{{ $index + 1 }}</span>
+          {{ option }}
+        </button>
+      }
+    </div>
+
+    <!-- Flag banner -->
+    <lib-quiz-flag-banner
+      [wordId]="q.word.id"
+      [wordLabel]="q.word.word"
+      [(flaggedIds)]="flaggedIds"
+    />
+
+    @if (isAnswered()) {
+      <div class="sr-only" role="status" aria-live="polite">{{ selectedOptionIndex() === currentQuestion()!.correctIndex ? 'Correct!' : 'Incorrect' }}</div>
+
+      @if (selectedOptionIndex() !== currentQuestion()!.correctIndex) {
+        <div class="rounded-xl border-2 border-red-400 bg-red-50 dark:bg-red-900/30 p-4" role="status">
+          <p class="flex items-center gap-2 font-semibold text-red-700 dark:text-red-400">
+            <i class="pi pi-times-circle" aria-hidden="true"></i> Incorrect
+          </p>
+          <p class="mt-2 text-sm text-slate-700 dark:text-slate-300">
+            <span class="font-medium">Correct answer:</span> {{ currentQuestion()!.options[currentQuestion()!.correctIndex] }}
+          </p>
+        </div>
+      } @else {
+        <div class="rounded-xl border-2 border-green-400 bg-green-50 dark:bg-green-900/30 p-4" role="status">
+          <p class="flex items-center gap-2 font-semibold text-green-700 dark:text-green-400">
+            <i class="pi pi-check-circle" aria-hidden="true"></i> Correct!
+          </p>
+        </div>
+      }
+
+      <div class="vv-sticky-footer-inline">
+        <div class="vv-sticky-footer-content flex-row justify-end">
+          @if (isLast()) {
+            <lib-button styleClass="px-8" (click)="finish()">
+              Finish
+            </lib-button>
+          } @else {
+            <lib-button styleClass="px-8" (click)="next()">
+              Next
+              <i class="pi pi-arrow-right ml-1" aria-hidden="true"></i>
+            </lib-button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <lib-empty-state
+    iconClass="pi pi-list-check"
+    heading="No words available for this quiz"
+  />
+}

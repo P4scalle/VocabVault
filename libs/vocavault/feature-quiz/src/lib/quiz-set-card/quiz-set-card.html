@@ -1,0 +1,82 @@
+<div
+  class="vv-card cursor-pointer vv-card-hover vv-focus-ring overflow-hidden"
+  role="button"
+  [attr.aria-label]="'Open ' + quizSet().name"
+  tabindex="0"
+  [style.border-left]="quizSet().color ? '4px solid ' + quizSet().color : null"
+  (click)="onCardClick()"
+  (keydown.enter)="onCardClick()"
+  (keydown.space)="onCardClick()"
+>
+  <div class="flex items-center gap-3 p-4">
+    <!-- Icon box -->
+    <div class="w-12 h-12 rounded-xl bg-vv-brandLight dark:bg-vv-brand/20 flex items-center justify-center flex-shrink-0">
+      <i class="pi pi-bolt text-vv-brand text-lg" aria-hidden="true"></i>
+    </div>
+
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 mb-0.5">
+        <span class="font-semibold text-slate-900 dark:text-slate-100 truncate">{{ quizSet().name }}</span>
+        @if (quizSet().color) {
+          <span
+            class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+            [style.background-color]="quizSet().color"
+            aria-hidden="true"
+          ></span>
+        }
+        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium bg-vv-brand text-white">
+          {{ playableCount() }} words
+        </span>
+        @if (quizSet().source === 'import') {
+          <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+            <i class="pi pi-upload text-[8px]" aria-hidden="true"></i>
+            Imported
+          </span>
+        }
+      </div>
+      @if (quizSet().description) {
+        <p class="m-0 mt-0.5 text-sm text-slate-500 dark:text-slate-400 line-clamp-1">{{ quizSet().description }}</p>
+      }
+    </div>
+
+    <!-- Play button -->
+    <button
+      type="button"
+      class="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-xl bg-vv-brand text-white hover:bg-vv-brand-dark transition-colors vv-focus-ring"
+      [attr.aria-label]="'Play ' + quizSet().name"
+      (click)="onCardClick()"
+    >
+      <i class="pi pi-play text-sm" aria-hidden="true"></i>
+    </button>
+
+    <!-- Delete button -->
+    <lib-hold-button
+      styleClass="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+      [ariaLabel]="'Hold to delete ' + quizSet().name"
+      title="Hold to delete"
+      (confirmed)="deleteRequested.emit(quizSet())"
+      (click)="$event.stopPropagation()"
+    >
+      <i class="pi pi-trash text-sm" aria-hidden="true"></i>
+      <i holding class="pi pi-trash text-sm text-red-500" aria-hidden="true"></i>
+      <span confirm><i class="pi pi-trash text-sm text-red-500" aria-hidden="true"></i></span>
+    </lib-hold-button>
+  </div>
+
+  <!-- Mastery distribution bar -->
+  @if (masterySegments().length > 0) {
+    <div
+      class="flex h-1.5"
+      role="img"
+      [attr.aria-label]="masteryAriaLabel()"
+    >
+      @for (seg of masterySegments(); track seg.level) {
+        <div
+          [class]="seg.color"
+          [style.width.%]="seg.pct"
+          [title]="seg.label"
+        ></div>
+      }
+    </div>
+  }
+</div>

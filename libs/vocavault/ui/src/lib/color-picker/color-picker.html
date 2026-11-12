@@ -1,0 +1,49 @@
+<div class="color-dots mt-3">
+  @for (preset of presetColors(); track preset) {
+    <button
+      type="button"
+      class="color-dot"
+      [class]="selectedColor() === preset && !showCustomSlider()
+        ? 'border-white dark:border-slate-200 ring-2 ring-offset-1 ring-offset-slate-900/5 dark:ring-offset-slate-100/5'
+        : 'border-transparent hover:border-slate-300 dark:hover:border-slate-600'"
+      [style.background-color]="preset"
+      [style.--tw-ring-color]="preset"
+      [attr.aria-label]="'Select color'"
+      (click)="selectPreset(preset)"
+    ></button>
+  }
+  <!-- Custom color pill -->
+  <button
+    type="button"
+    class="color-dot flex items-center justify-center"
+    [class]="showCustomSlider()
+      ? 'border-white dark:border-slate-200 ring-2 ring-offset-1 ring-offset-slate-900/5 dark:ring-offset-slate-100/5'
+      : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'"
+    [style.background]="showCustomSlider() ? selectedColor() : 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)'"
+    [style.--tw-ring-color]="showCustomSlider() ? selectedColor() : '#888'"
+    aria-label="Pick custom color"
+    (click)="toggleCustomSlider()"
+  >
+    @if (!showCustomSlider()) {
+      <i class="pi pi-palette text-[10px] text-white drop-shadow-sm" aria-hidden="true"></i>
+    }
+  </button>
+</div>
+
+@if (showCustomSlider()) {
+  <div class="flex items-center gap-3 pt-1">
+    <div
+      class="w-7 h-7 rounded-full shrink-0 border-2 border-white dark:border-slate-700 ring-2 ring-slate-200 dark:ring-slate-600 transition-colors"
+      [style.background-color]="selectedColor()"
+    ></div>
+    <input
+      type="range"
+      class="hue-slider flex-1"
+      min="0"
+      max="360"
+      [value]="hue()"
+      (input)="onHueChange(+$any($event.target).value)"
+      aria-label="Pick a custom color"
+    />
+  </div>
+}

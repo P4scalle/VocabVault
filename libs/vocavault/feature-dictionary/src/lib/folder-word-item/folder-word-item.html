@@ -1,0 +1,26 @@
+<div
+  class="flex items-center gap-2 px-3 py-2.5 rounded-xl border transition-colors vv-focus-ring cursor-pointer
+    bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700
+    hover:bg-slate-50 dark:hover:bg-slate-700/60"
+  role="button"
+  [attr.aria-label]="'Edit ' + word().word"
+  tabindex="0"
+  (click)="selected.emit(word())"
+  (keydown.enter)="selected.emit(word())"
+>
+  <div class="flex-1 min-w-0 flex items-baseline gap-1.5">
+    <span class="text-sm font-medium text-slate-800 dark:text-slate-100 shrink-0" [innerHTML]="word().word | searchHighlight:searchQuery()"></span>
+    @if (word().definition) {
+      <span class="text-xs text-slate-400 dark:text-slate-500 truncate">&mdash; {{ word().definition }}</span>
+    }
+  </div>
+  <span [class]="'vv-badge text-2xs shrink-0 ' + badgeClass()">{{ masteryLabel() }}</span>
+  <button
+    type="button"
+    class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-md text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors vv-focus-ring"
+    [attr.aria-label]="'Remove ' + word().word + ' from folder'"
+    (click)="$event.stopPropagation(); removeFromFolder.emit(word())"
+  >
+    <i class="pi pi-times text-2xs" aria-hidden="true"></i>
+  </button>
+</div>

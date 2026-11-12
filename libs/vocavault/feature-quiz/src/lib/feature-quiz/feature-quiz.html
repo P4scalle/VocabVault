@@ -1,0 +1,144 @@
+<div class="space-y-4 pb-8">
+
+  <!-- Header -->
+  <div class="flex items-center gap-2 mb-4">
+    <i class="pi pi-bolt text-xl text-vv-brand" aria-hidden="true"></i>
+    <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">Quizzes</h1>
+    @if (allQuizSets().length > 0) {
+      <lib-info-button ariaLabel="What do the colors mean?" (click)="infoTopic.set('mastery-colors')" />
+    }
+  </div>
+
+  <!-- Filter pills (data-driven, only when both types exist) -->
+  @if (pills().length > 0) {
+    <div class="flex items-center gap-2 mb-4" role="tablist" aria-label="Filter quiz sets">
+      @for (pill of pills(); track pill.value) {
+        <button
+          role="tab"
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors border vv-focus-ring"
+          [class]="activeFilter() === pill.value
+            ? 'bg-vv-brand text-white border-vv-brand'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600'"
+          [attr.aria-selected]="activeFilter() === pill.value"
+          (click)="activeFilter.set(pill.value)"
+        >
+          @if (pill.icon) {
+            <i [class]="pill.icon + ' text-[10px]'" aria-hidden="true"></i>
+          }
+          {{ pill.label }} ({{ pill.count }})
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Folder filter pills -->
+  @if (folders().length > 0 && allQuizSets().length > 0) {
+    <div class="flex items-center gap-2 mb-3 flex-wrap">
+      <span class="text-xs text-slate-400 dark:text-slate-500">Folder:</span>
+      <button
+        type="button"
+        class="px-2.5 py-1 rounded-full text-xs font-medium border transition-colors vv-focus-ring"
+        [class]="!folderFilter()
+          ? 'bg-vv-brand text-white border-vv-brand'
+          : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600'"
+        (click)="folderFilter.set('')"
+      >All</button>
+      @for (folder of folders(); track folder.id) {
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors vv-focus-ring"
+          [style.border-color]="folder.color"
+          [style.color]="folderFilter() === folder.id ? 'white' : folder.color"
+          [style.background-color]="folderFilter() === folder.id ? folder.color : 'transparent'"
+          (click)="folderFilter.set(folderFilter() === folder.id ? '' : folder.id)"
+        >
+          <i class="pi pi-folder text-2xs" aria-hidden="true"></i>
+          {{ folder.name }}
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Search + Sort bar -->
+  @if (allQuizSets().length > 3) {
+    <div class="flex items-center gap-2 mb-3">
+      <div class="relative flex-1">
+        <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xs pointer-events-none" aria-hidden="true"></i>
+        <input
+          type="text"
+          class="vv-input py-2 pl-9 pr-3 text-sm w-full"
+          placeholder="Search quizzes..."
+          aria-label="Search quizzes"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+        />
+      </div>
+      <select
+        class="vv-input py-2 text-sm w-40 cursor-pointer"
+        aria-label="Sort quiz sets"
+        [ngModel]="activeSort()"
+        (ngModelChange)="activeSort.set($event)"
+      >
+        @for (opt of sortOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+  }
+
+  <!-- The Tough Ones Banner -->
+  @if (toughCount() > 0) {
+  <div data-testid="tough-words-banner"
+       class="vv-card px-4 py-3 flex items-center gap-3 mb-4">
+    <div class="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+      <i class="pi pi-sync text-violet-600 dark:text-violet-400" aria-hidden="true"></i>
+    </div>
+    <p class="flex-1 text-sm text-slate-700 dark:text-slate-300">
+      <span class="font-semibold">{{ toughCount() }}</span> tough one{{ toughCount() !== 1 ? 's' : '' }} worth another round
+    </p>
+    <button
+      type="button"
+      class="text-sm font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 whitespace-nowrap vv-focus-ring rounded px-2 py-1"
+      (click)="startToughPractice()"
+    >
+      Practice
+    </button>
+  </div>
+  }
+
+  @if (allQuizSets().length === 0) {
+    <lib-empty-state
+      iconClass="pi pi-bolt"
+      heading="No quiz sets yet"
+      body="Create a quiz set to start practicing your vocabulary."
+      actionLabel="Create Quiz"
+      (action)="onCreateQuiz()"
+    />
+  } @else if (displayedQuizSets().length === 0) {
+    <div class="text-center py-10">
+      <i class="pi pi-filter-slash text-3xl text-slate-300 dark:text-slate-600 mb-3 block" aria-hidden="true"></i>
+      <p class="text-sm text-slate-500 dark:text-slate-400">No quizzes match your filters.</p>
+      <button
+        class="mt-2 text-sm text-vv-brand hover:underline vv-focus-ring"
+        (click)="searchQuery.set(''); folderFilter.set(''); activeFilter.set('all')"
+      >
+        Clear all filters
+      </button>
+    </div>
+  } @else {
+    <div class="flex flex-col gap-3 vv-stagger-children">
+      @for (qs of displayedQuizSets(); track qs.id) {
+        <lib-quiz-set-card
+          [quizSet]="qs"
+          (selected)="onSelectQuizSet($event)"
+          (deleteRequested)="onDeleteQuizSet($event)"
+        />
+      }
+    </div>
+  }
+
+  <router-outlet />
+</div>
+
+<!-- Mastery legend info drawer -->
+<lib-info-drawer [(topic)]="infoTopic" />

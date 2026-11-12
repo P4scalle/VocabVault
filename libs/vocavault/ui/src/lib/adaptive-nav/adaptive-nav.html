@@ -1,0 +1,112 @@
+@switch (breakpoint()) {
+  @case ('mobile') {
+    <!-- Mobile: fixed bottom bar with centered spacer for floating + button -->
+    <nav
+      class="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 dark:border-slate-700 bg-vv-bg dark:bg-slate-900"
+      aria-label="Main navigation"
+    >
+      <div class="max-w-mobile mx-auto px-4 py-2 pb-[calc(0.5rem+var(--vv-safe-bottom,0px))]">
+        <div class="flex items-center justify-around">
+
+          <!-- Left items -->
+          @for (item of leftItems(); track item.path) {
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="vv-nav-active"
+              #rla="routerLinkActive"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
+              class="vv-mobile-nav-item flex flex-col items-center flex-1 min-w-0 py-2 text-slate-500 dark:text-slate-400 transition-colors hover:text-vv-brand vv-focus-ring rounded-xl"
+            >
+              <span class="vv-mobile-nav-icon relative flex items-center justify-center w-12 h-8 rounded-full transition-all duration-200">
+                <i [class]="item.iconClass + ' text-xl'" aria-hidden="true"></i>
+              </span>
+              <span class="text-2xs mt-0.5 truncate w-full text-center transition-colors duration-200">{{ item.label }}</span>
+            </a>
+          }
+
+          <!-- Center spacer for the floating + button -->
+          <div class="w-14 flex-shrink-0" aria-hidden="true"></div>
+
+          <!-- Right items -->
+          @for (item of rightItems(); track item.path) {
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="vv-nav-active"
+              #rla="routerLinkActive"
+              [attr.aria-current]="rla.isActive ? 'page' : null"
+              class="vv-mobile-nav-item flex flex-col items-center flex-1 min-w-0 py-2 text-slate-500 dark:text-slate-400 transition-colors hover:text-vv-brand vv-focus-ring rounded-xl"
+            >
+              <span class="vv-mobile-nav-icon relative flex items-center justify-center w-12 h-8 rounded-full transition-all duration-200">
+                <i [class]="item.iconClass + ' text-xl'" aria-hidden="true"></i>
+              </span>
+              <span class="text-2xs mt-0.5 truncate w-full text-center transition-colors duration-200">{{ item.label }}</span>
+            </a>
+          }
+        </div>
+      </div>
+    </nav>
+  }
+
+  @case ('tablet') {
+    <!-- Tablet: left navigation rail -->
+    <nav
+      class="fixed inset-y-0 left-0 z-20 w-20 flex flex-col border-r border-slate-200 dark:border-slate-700 bg-vv-surface/95 dark:bg-slate-800/95 backdrop-blur"
+      aria-label="Main navigation"
+    >
+      <button type="button" aria-label="Vocavault home" class="flex h-14 items-center justify-center border-b border-slate-200 dark:border-slate-700 cursor-pointer" (click)="logoClicked.emit()">
+        <img src="favicon.svg" alt="VocaVault" class="h-8 w-8" />
+      </button>
+      <ul class="m-0 mt-2 flex list-none flex-col items-center gap-1 px-2">
+        @for (item of items(); track item.path) {
+          <li class="w-full">
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="text-vv-brand bg-vv-brand/10"
+              #rlaTablet="routerLinkActive"
+              [attr.aria-current]="rlaTablet.isActive ? 'page' : null"
+              class="flex w-full flex-col items-center rounded-xl px-1 py-3 text-2xs text-slate-500 dark:text-slate-400 transition-colors hover:bg-vv-brand/10 hover:text-vv-brand vv-focus-ring-offset"
+            >
+              <i [class]="item.iconClass + ' mb-1 text-lg'" aria-hidden="true"></i>
+              <span>{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+      <!-- Utility slot pinned to bottom of rail (settings gear) -->
+      <div class="mt-auto mb-3 px-2">
+        <ng-content select="[navUtility]" />
+      </div>
+    </nav>
+  }
+
+  @case ('desktop') {
+    <!-- Desktop: horizontal top navbar -->
+    <nav
+      class="fixed top-0 inset-x-0 z-20 h-16 flex items-center border-b border-slate-200 dark:border-slate-700 bg-vv-surface/95 dark:bg-slate-800/95 backdrop-blur px-6"
+      aria-label="Main navigation"
+    >
+      <button type="button" aria-label="Vocavault home" class="flex items-center gap-2 text-lg font-bold tracking-[0.18em] text-vv-brand vv-focus-ring-offset cursor-pointer" (click)="logoClicked.emit()">
+        <img src="favicon.svg" alt="" class="h-8 w-8" aria-hidden="true" />
+        VOCAVAULT
+      </button>
+      <ul class="m-0 flex list-none items-center gap-1 ml-auto">
+        @for (item of items(); track item.path) {
+          <li>
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="text-vv-brand bg-vv-brand/10"
+              [routerLinkActiveOptions]="{ exact: false }"
+              #rlaDesktop="routerLinkActive"
+              [attr.aria-current]="rlaDesktop.isActive ? 'page' : null"
+              class="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 transition-colors hover:bg-vv-brand/10 hover:text-vv-brand vv-focus-ring-offset"
+            >
+              <i [class]="item.iconClass + ' text-base'" aria-hidden="true"></i>
+              <span>{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+      <ng-content select="[navAction]" />
+    </nav>
+  }
+}

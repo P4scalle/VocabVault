@@ -1,0 +1,30 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "bundler",
+    "importHelpers": true,
+    "target": "es2022",
+    "module": "esnext",
+    "lib": ["es2022", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "paths": {
+      "@vocavault/feature-shell": ["./libs/vocavault/feature-shell/src/index.ts"],
+      "@vocavault/data-access": ["./libs/vocavault/data-access/src/index.ts"],
+      "@vocavault/ui": ["./libs/vocavault/ui/src/index.ts"],
+      "@vocavault/feature-home": ["./libs/vocavault/feature-home/src/index.ts"],
+      "@vocavault/feature-dictionary": [
+        "./libs/vocavault/feature-dictionary/src/index.ts"
+      ],
+      "@vocavault/feature-quiz": ["./libs/vocavault/feature-quiz/src/index.ts"],
+      "@vocavault/feature-progress": [
+        "./libs/vocavault/feature-progress/src/index.ts"
+      ],
+      "@vocavault/util": ["./libs/vocavault/util/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}

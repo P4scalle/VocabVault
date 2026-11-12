@@ -1,0 +1,144 @@
+<lib-bottom-sheet [(visible)]="visible">
+  <!-- Header -->
+  <div class="flex items-center gap-2.5 mb-4">
+    <span class="w-3 h-3 rounded-full flex-shrink-0" [style.background-color]="folder().color"></span>
+    <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100 flex-1 truncate">Add to {{ folder().name }}</h3>
+    <button
+      type="button"
+      class="w-7 h-7 inline-flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors vv-focus-ring"
+      aria-label="Close"
+      (click)="onCancel()"
+    >
+      <i class="pi pi-times text-xs" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <!-- Search input -->
+  <div class="relative mb-3">
+    <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" aria-hidden="true"></i>
+    <input
+      type="search"
+      class="vv-input bg-vv-surface pl-9 pr-4 text-sm"
+      placeholder="Search words..."
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+      aria-label="Search words to add"
+    />
+  </div>
+
+  <!-- Quick actions -->
+  <div class="flex gap-2 mb-3">
+    <button
+      type="button"
+      class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors vv-focus-ring"
+      (click)="onAddNewWord()"
+    >
+      <i class="pi pi-plus text-[10px]" aria-hidden="true"></i>
+      Add new word
+    </button>
+    <button
+      type="button"
+      class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/60 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors vv-focus-ring"
+      (click)="onBulkImport()"
+    >
+      <i class="pi pi-upload text-[10px]" aria-hidden="true"></i>
+      Bulk import
+    </button>
+  </div>
+
+  <!-- Select all -->
+  @if (selectableWords().length > 0) {
+    <button
+      type="button"
+      role="checkbox"
+      [attr.aria-checked]="allSelected()"
+      class="w-full flex items-center gap-3 px-3 py-2 mb-1 rounded-xl text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer border-b border-slate-100 dark:border-slate-700"
+      (click)="toggleSelectAll()"
+    >
+      <span
+        class="w-5 h-5 rounded-md flex-shrink-0 flex items-center justify-center border-2 transition-colors"
+        [class]="allSelected()
+          ? 'bg-vv-brand border-vv-brand'
+          : 'border-slate-300 dark:border-slate-600 bg-transparent'"
+      >
+        @if (allSelected()) {
+          <i class="pi pi-check text-white text-[10px]" aria-hidden="true"></i>
+        }
+      </span>
+      <span class="text-sm font-medium text-slate-600 dark:text-slate-300">Select all</span>
+      <span class="text-xs text-slate-400 dark:text-slate-500 ml-auto">{{ selectableWords().length }}</span>
+    </button>
+  }
+
+  <!-- Word list -->
+  <div class="space-y-1 max-h-[50vh] overflow-y-auto">
+    @for (word of filteredWords(); track word.id) {
+      <button
+        type="button"
+        role="checkbox"
+        [attr.aria-checked]="isSelected(word)"
+        [attr.aria-disabled]="isAlreadyInFolder(word)"
+        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors"
+        [class]="isAlreadyInFolder(word)
+          ? 'opacity-60 cursor-default'
+          : 'hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer'"
+        (click)="toggleWord(word)"
+      >
+        <!-- Checkbox visual -->
+        <span
+          class="w-5 h-5 rounded-md flex-shrink-0 flex items-center justify-center border-2 transition-colors"
+          [class]="isSelected(word)
+            ? 'bg-vv-brand border-vv-brand'
+            : 'border-slate-300 dark:border-slate-600 bg-transparent'"
+        >
+          @if (isSelected(word)) {
+            <i class="pi pi-check text-white text-[10px]" aria-hidden="true"></i>
+          }
+        </span>
+
+        <!-- Word info -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">{{ word.word }}</span>
+            @if (word.pronunciation) {
+              <span class="text-xs text-slate-400 dark:text-slate-500 truncate">/{{ word.pronunciation }}/</span>
+            }
+          </div>
+          @if (word.definition) {
+            <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ word.definition }}</p>
+          }
+        </div>
+
+        @if (isAlreadyInFolder(word)) {
+          <span class="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0">Already added</span>
+        }
+      </button>
+    } @empty {
+      <div class="flex flex-col items-center justify-center py-8 text-center">
+        <i class="pi pi-search text-3xl text-slate-400 dark:text-slate-500 mb-2" aria-hidden="true"></i>
+        <p class="text-sm text-slate-500 dark:text-slate-400">No words found.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="mt-4 flex items-center gap-3">
+    <span class="text-xs text-slate-500 dark:text-slate-400 flex-1" aria-live="polite">
+      @if (newSelectionCount() > 0) {
+        {{ newSelectionCount() }} word{{ newSelectionCount() !== 1 ? 's' : '' }} selected
+      }
+    </span>
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-sm font-semibold bg-vv-brand text-white hover:bg-vv-brand/90 transition-colors vv-focus-ring disabled:opacity-50 disabled:cursor-not-allowed"
+      [disabled]="newSelectionCount() === 0"
+      (click)="onConfirm()"
+    >
+      @if (newSelectionCount() > 0) {
+        Add {{ newSelectionCount() }} word{{ newSelectionCount() !== 1 ? 's' : '' }}
+      } @else {
+        Add words
+      }
+    </button>
+  </div>
+</lib-bottom-sheet>

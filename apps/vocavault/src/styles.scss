@@ -1,0 +1,499 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'primeicons/primeicons.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --vv-color-bg: #f5f5f7;
+    --vv-color-surface: #ffffff;
+    --vv-color-brand: #3a7ca5;
+    --vv-track-color: #d1d5db;
+    /* RGB channels for Tailwind opacity modifiers */
+    --vv-rgb-bg: 245 245 247;
+    --vv-rgb-surface: 255 255 255;
+    --vv-rgb-brand: 58 124 165;
+    --vv-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --vv-content-max: 30rem;
+
+    /* Fluid design tokens — scale smoothly from 320px to 768px viewport */
+    --vv-space-card: clamp(0.75rem, 0.5rem + 0.75vw, 1rem);
+    --vv-space-gap: clamp(0.5rem, 0.25rem + 0.75vw, 0.75rem);
+    --vv-size-icon: clamp(2rem, 1.5rem + 1.5vw, 2.5rem);
+    --vv-size-btn: clamp(1.75rem, 1.5rem + 0.75vw, 2rem);
+    --vv-space-scroller: clamp(3.5rem, 2rem + 4vw, 6rem);
+
+    /* Fluid typography — scales between 320px and 1024px viewport */
+    --vv-font-h1: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    --vv-font-h2: clamp(1.125rem, 0.95rem + 0.5vw, 1.375rem);
+    --vv-font-body: clamp(0.875rem, 0.825rem + 0.2vw, 1rem);
+    --vv-font-sm: clamp(0.8125rem, 0.775rem + 0.15vw, 0.875rem);
+    --vv-font-xs: clamp(0.6875rem, 0.65rem + 0.1vw, 0.75rem);
+  }
+
+  /* Dark mode overrides */
+  .dark {
+    --vv-color-bg: #0f172a;
+    --vv-color-surface: #1e293b;
+    --vv-color-brand: #5ba3ca;
+    --vv-track-color: #475569;
+    --vv-rgb-bg: 15 23 42;
+    --vv-rgb-surface: 30 41 59;
+    --vv-rgb-brand: 91 163 202;
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply m-0 bg-vv-bg dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-200;
+    overflow-x: hidden;
+    width: 100%;
+  }
+}
+
+@layer components {
+  .vv-content-width {
+    @apply mx-auto w-full max-w-app md:max-w-desktop-content;
+  }
+
+  /* Card hover micro-interaction: subtle lift + shadow */
+  .vv-card-hover {
+    @apply hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 motion-reduce:transition-none motion-reduce:transform-none;
+  }
+
+  /* Button press micro-interaction: scale down on active */
+  .vv-btn-press {
+    @apply active:scale-95 transition-transform duration-100 motion-reduce:transform-none;
+  }
+
+  /* Stagger children entrance animation */
+  .vv-stagger-children > * {
+    @apply animate-fade-in-up;
+  }
+  .vv-stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .vv-stagger-children > *:nth-child(2) { animation-delay: 40ms; }
+  .vv-stagger-children > *:nth-child(3) { animation-delay: 80ms; }
+  .vv-stagger-children > *:nth-child(4) { animation-delay: 120ms; }
+  .vv-stagger-children > *:nth-child(5) { animation-delay: 160ms; }
+  .vv-stagger-children > *:nth-child(6) { animation-delay: 200ms; }
+  .vv-stagger-children > *:nth-child(7) { animation-delay: 240ms; }
+  .vv-stagger-children > *:nth-child(8) { animation-delay: 280ms; }
+  .vv-stagger-children > *:nth-child(n+9) { animation-delay: 300ms; }
+
+  /* Primary action button — confirm, save, create, continue */
+  .vv-btn-primary {
+    @apply bg-vv-brand hover:bg-vv-brand-dark text-white font-semibold px-5 py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary action button — cancel, back, dismiss, skip */
+  .vv-btn-secondary {
+    @apply border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold px-5 py-3 rounded-xl transition-colors;
+  }
+
+  /* Danger button — destructive actions */
+  .vv-btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-3 rounded-xl transition-colors;
+  }
+
+  /* Focus ring utility */
+  .vv-focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vv-brand;
+  }
+
+  .vv-focus-ring-offset {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vv-brand focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900;
+  }
+
+  /* Standard text input — text-base (16px) on mobile prevents iOS Safari auto-zoom,
+     text-sm (14px) on md+ where zoom isn't an issue */
+  .vv-input {
+    @apply w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 text-base md:text-sm text-slate-900 dark:text-slate-100 dark:bg-slate-800 placeholder-slate-400 dark:placeholder-slate-500 focus:border-vv-brand focus:outline-none focus:ring-2 focus:ring-vv-brand/20;
+  }
+
+  /* Card base */
+  .vv-card {
+    @apply bg-vv-surface dark:bg-slate-800 rounded-2xl shadow-sm dark:shadow-slate-900/20;
+  }
+
+  /* Card with left accent border — for urgent/active items */
+  .vv-card-accent {
+    @apply bg-vv-surface dark:bg-slate-800 rounded-2xl shadow-sm dark:shadow-slate-900/20 border-l-4;
+  }
+
+  /* Card with tinted background — for primary CTA cards */
+  .vv-card-cta {
+    @apply bg-vv-brandLight/50 dark:bg-vv-brand/10 rounded-2xl shadow-sm border border-vv-brand/10 dark:border-vv-brand/20;
+  }
+
+  /* Skeleton loading — CSS-only shimmer, zero JS */
+  .vv-skeleton {
+    @apply relative overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700;
+
+    &::after {
+      content: '';
+      @apply absolute inset-0 animate-shimmer;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    }
+  }
+
+  :root.dark .vv-skeleton::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  }
+
+  .vv-skeleton-text {
+    @apply vv-skeleton h-4 w-3/4;
+  }
+
+  .vv-skeleton-text-sm {
+    @apply vv-skeleton h-3 w-1/2;
+  }
+
+  .vv-skeleton-circle {
+    @apply vv-skeleton rounded-full;
+  }
+
+  .vv-skeleton-card {
+    @apply vv-skeleton rounded-2xl h-24;
+  }
+
+  /* Skip to content — visible only on focus */
+  .vv-skip-link {
+    @apply absolute -top-full left-4 z-[10000] rounded-b-xl bg-vv-brand px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all;
+
+    &:focus {
+      @apply top-0;
+    }
+  }
+
+  /* Badge pill — base class for status/mastery badges */
+  .vv-badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium;
+  }
+
+  /* Fixed footer — same pattern as the adaptive-nav bottom bar.
+     position:fixed + content pb-24 = proven on all mobile browsers.
+     Desktop: becomes inline card in content flow. */
+  .vv-sticky-footer {
+    @apply fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 dark:border-slate-700 bg-vv-surface/95 dark:bg-slate-800/95 backdrop-blur;
+    @apply lg:static lg:z-auto lg:border-t-0 lg:bg-transparent lg:dark:bg-transparent lg:backdrop-blur-none lg:mt-6;
+  }
+
+  .vv-sticky-footer-content {
+    @apply max-w-mobile mx-auto px-4 py-3 flex;
+    /* Bottom padding matches the adaptive-nav pattern exactly */
+    padding-bottom: calc(0.5rem + var(--vv-safe-bottom, 0px));
+    @apply lg:max-w-md lg:mx-auto lg:px-0 lg:py-0 lg:pb-0;
+  }
+
+  /* Inline footer variant — fixed on mobile, inline earlier on tablet.
+     md:dark:bg-transparent is required because dark:bg-slate-800/95 otherwise
+     wins over md:bg-transparent (variant source order), leaving a dark box
+     behind the buttons on desktop — same fix as .vv-sticky-footer above. */
+  .vv-sticky-footer-inline {
+    @apply fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 dark:border-slate-700 bg-vv-surface/95 dark:bg-slate-800/95 backdrop-blur;
+    @apply md:static md:border-t-0 md:bg-transparent md:dark:bg-transparent md:backdrop-blur-none md:z-auto;
+  }
+
+  .vv-sticky-footer-inline .vv-sticky-footer-content {
+    @apply md:max-w-none md:px-0 md:py-0 md:pt-2;
+  }
+
+  /* Quiz content column — single source of truth for the width that the
+     flashcard card, its flag banner, and (via md: variants) the sticky footers
+     all share, so they stay vertically aligned on desktop. If the card width
+     changes, update it here; the footers mirror this width with md:max-w-md
+     because they are fixed/full-width on mobile and only constrain on desktop. */
+  .vv-quiz-col {
+    @apply w-full max-w-sm md:max-w-md mx-auto;
+  }
+
+  /* Icon button — square tap target for toolbar actions (44px minimum for accessibility) */
+  .vv-icon-btn {
+    @apply w-11 h-11 flex items-center justify-center rounded-lg transition-colors;
+  }
+
+  /* Compact inline input — for inline edit rows */
+  .vv-input-inline {
+    @apply text-sm px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg vv-focus-ring;
+  }
+}
+
+/* Global reduced-motion override */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Info drawer animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Safe area bottom padding for fixed footers — handles iPhone home indicator.
+   Same pattern as the adaptive-nav bottom bar. */
+.safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+}
+
+/* Prevent iOS Safari auto-zoom on input focus (triggers when font < 16px).
+   Must use !important to beat inline Tailwind text-sm classes on inputs.
+   Only applies on mobile where the zoom is an issue. */
+@media screen and (max-width: 767px) {
+  input, textarea, select {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+/* No need to hide fixed footer on keyboard open — the keyboard
+   naturally overlays it. Hiding caused race conditions where the
+   footer stayed hidden after keyboard dismissal. */
+
+/* Bulk import: textarea auto-grow on content */
+textarea[style*="height"] {
+  max-height: 50vh;
+}
+
+/* Paste Splash — empty state elements scatter on paste */
+.vv-splash-scatter .vv-splash-icon {
+  animation: splashScatter 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  --tx: 0px;
+  --ty: -40px;
+  --rot: -15deg;
+}
+.vv-splash-scatter .vv-splash-title {
+  animation: splashScatter 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 60ms forwards;
+  --tx: -30px;
+  --ty: -20px;
+  --rot: 5deg;
+}
+.vv-splash-scatter .vv-splash-subtitle {
+  animation: splashScatter 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 120ms forwards;
+  --tx: 20px;
+  --ty: 10px;
+  --rot: -3deg;
+}
+.vv-splash-scatter .vv-splash-example {
+  animation: splashScatter 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94) 180ms forwards;
+  --tx: 0px;
+  --ty: 30px;
+  --rot: 8deg;
+}
+
+@keyframes splashScatter {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot)) scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* SVG border draw animation */
+.vv-border-draw {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: borderDraw 600ms ease-out forwards;
+}
+
+@keyframes borderDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Format badge domino flip out */
+.vv-badge-flip-out {
+  animation: badgeFlipOut 300ms ease-in forwards;
+  transform-origin: top center;
+}
+
+@keyframes badgeFlipOut {
+  0% { transform: perspective(200px) rotateX(0deg); opacity: 1; }
+  100% { transform: perspective(200px) rotateX(90deg) translateY(4px); opacity: 0; }
+}
+
+/* Status chip spring entrance */
+.vv-chip-spring {
+  animation: chipSpring 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes chipSpring {
+  from { transform: translateY(8px) scale(0.85); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Button enabled pop */
+.vv-btn-enabled-pop {
+  animation: btnEnabledPop 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes btnEnabledPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* Row entrance — wave from right (ready) */
+.vv-row-enter-right {
+  animation: rowEnterRight 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes rowEnterRight {
+  from { transform: translate3d(30px, 0, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+/* Row entrance — wave from left (attention) */
+.vv-row-enter-left {
+  animation: rowEnterLeft 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes rowEnterLeft {
+  from { transform: translate3d(-30px, 0, 0); opacity: 0; }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+/* Row deletion — shredder effect */
+.vv-row-shred {
+  animation: rowShred 250ms ease-in forwards;
+  transform-origin: center;
+}
+
+@keyframes rowShred {
+  0% { transform: scaleX(1); opacity: 1; max-height: 80px; }
+  50% { transform: scaleX(0.3); opacity: 0.5; }
+  100% { transform: scaleX(0); opacity: 0; max-height: 0; padding: 0; margin: 0; overflow: hidden; }
+}
+
+/* Duplicate resolution flash */
+.vv-resolution-flash {
+  animation: resolutionFlash 400ms ease-out;
+}
+
+@keyframes resolutionFlash {
+  0% { box-shadow: inset 0 0 0 0 rgba(34, 197, 94, 0); }
+  30% { box-shadow: inset 0 0 0 2px rgba(34, 197, 94, 0.3); }
+  100% { box-shadow: inset 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* Preview row performance: skip rendering off-screen rows */
+.vv-preview-row {
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 72px;
+}
+
+/* Step transition crossfade */
+.vv-step-crossfade-enter {
+  animation: stepFadeIn 350ms ease-out both;
+}
+
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Back button hint — pulse glow when user taps disabled FAB */
+.vv-back-hint {
+  animation: backHintPulse 1.2s ease-out;
+  @apply bg-vv-brand/15 text-vv-brand scale-125;
+}
+
+@keyframes backHintPulse {
+  0% { box-shadow: 0 0 0 0 rgba(58, 124, 165, 0.5); }
+  40% { box-shadow: 0 0 0 8px rgba(58, 124, 165, 0.2); }
+  100% { box-shadow: 0 0 0 0 rgba(58, 124, 165, 0); }
+}
+
+/* Scroll progress indicator bar */
+.vv-scroll-progress {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: 2px;
+  background: var(--vv-color-brand);
+  transform-origin: left;
+  transition: transform 100ms ease-out;
+}
+
+/* Eloquence score entrance — scale up with slight bounce */
+.animate-score-entrance {
+  animation: scoreEntrance 800ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 200ms;
+}
+
+@keyframes scoreEntrance {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Success checkmark scale-in */
+.animate-scale-in {
+  animation: scaleIn 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Celebration burst for large imports (50+ words) */
+.vv-celebration-burst {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.vv-celebration-burst::before,
+.vv-celebration-burst::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.vv-celebration-burst::before {
+  background: #10b981;
+  top: 30%;
+  left: 20%;
+  animation: confettiFall 2s ease-out forwards;
+}
+.vv-celebration-burst::after {
+  background: #3a7ca5;
+  top: 25%;
+  right: 25%;
+  animation: confettiFall 2s ease-out 0.15s forwards;
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-100px) rotate(0deg) scale(0); opacity: 0; }
+  20% { transform: translateY(0) rotate(180deg) scale(1.5); opacity: 1; }
+  100% { transform: translateY(300px) rotate(720deg) scale(0.5); opacity: 0; }
+}
+
+/* Row status transition: amber → green flash */
+.vv-row-resolved {
+  animation: rowResolved 600ms ease-out;
+}
+
+@keyframes rowResolved {
+  0% { background-color: rgba(245, 158, 11, 0.1); }
+  40% { background-color: rgba(16, 185, 129, 0.15); }
+  100% { background-color: transparent; }
+}

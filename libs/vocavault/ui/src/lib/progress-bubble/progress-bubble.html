@@ -1,0 +1,24 @@
+<div class="flex flex-col items-center gap-1.5">
+  <div
+    #bubble
+    class="vv-progress-bubble"
+    [class.vv-progress-bubble--filled]="filled()"
+    [class.vv-progress-bubble--high-fill]="pct() >= 50"
+    [style.--bubble-size]="size() + 'px'"
+    [style.--bubble-color]="color()"
+    [style.--bubble-fill-pct]="pct() + '%'"
+    role="meter"
+    [attr.aria-valuenow]="value()"
+    [attr.aria-valuemin]="0"
+    [attr.aria-valuemax]="max()"
+    [attr.aria-label]="label() ? label() + ' ' + pct() + '%' : pct() + '% progress'"
+  >
+    <div class="vv-progress-bubble__content">
+      <ng-content />
+    </div>
+  </div>
+
+  @if (label()) {
+    <span class="text-[10px] text-slate-500 dark:text-slate-400 text-center">{{ label() }}</span>
+  }
+</div>

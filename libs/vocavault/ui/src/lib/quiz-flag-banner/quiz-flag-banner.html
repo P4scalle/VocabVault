@@ -1,0 +1,13 @@
+<div class="quiz-flag-banner">
+  <button
+    type="button"
+    class="flag-toggle"
+    [class.flagged]="isFlagged()"
+    [attr.aria-pressed]="isFlagged()"
+    [attr.aria-label]="isFlagged() ? 'Remove flag from ' + wordLabel() : 'Flag ' + wordLabel()"
+    (click)="toggle()"
+  >
+    <i [class]="isFlagged() ? 'pi pi-flag-fill' : 'pi pi-flag'" aria-hidden="true"></i>
+    <span class="flag-label">{{ isFlagged() ? 'Flagged' : 'Flag this word' }}</span>
+  </button>
+</div>

@@ -1,0 +1,69 @@
+name: CI
+
+# Automated gate for VocaVault. Mirrors the local `npm run verify` plus the
+# functional e2e suite. Runs on PRs and on direct pushes to master.
+#
+# Install uses `npm ci --legacy-peer-deps` to match vercel.json exactly, so CI
+# reproduces the production install. The e2e job serves a STATIC build (not the
+# HMR dev server) and excludes visual.spec.ts, whose screenshot baselines are
+# machine-dependent — run those where the baselines were generated.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: lint + test + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      # build is the real AOT/template gate — lib-level builds are no-ops; the
+      # app build (vocavault) is what type-checks every consumed template.
+      - run: npx nx run-many -t lint test build
+
+  e2e:
+    name: functional e2e (chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+      - run: npx playwright install --with-deps chromium
+      - run: npx nx build vocavault
+      - name: Serve static build and run functional specs (excl. visual)
+        run: |
+          npx serve -s dist/apps/vocavault/browser -l 4200 &
+          timeout 60 bash -c 'until curl -sf http://localhost:4200 > /dev/null; do sleep 1; done'
+          cd apps/vocavault-e2e
+          npx playwright test --project=chromium \
+            src/bulk-import.spec.ts \
+            src/dictionary-nav.spec.ts \
+            src/dictionary.spec.ts \
+            src/folder-management.spec.ts \
+            src/folder-scroller.spec.ts \
+            src/navigation.spec.ts \
+            src/progress.spec.ts \
+            src/quiz-management.spec.ts \
+            src/quiz.spec.ts \
+            src/responsive.spec.ts \
+            src/user-journey.spec.ts
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/vocavault-e2e/playwright-report/
+          retention-days: 7

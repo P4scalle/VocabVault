@@ -1,0 +1,239 @@
+@if (!importComplete()) {
+  <div class="pb-28 lg:pb-4">
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-4">
+      <button class="vv-icon-btn" aria-label="Cancel import" (click)="onCancel()">
+        <i class="pi pi-arrow-left text-xl" aria-hidden="true"></i>
+      </button>
+      <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Import Words</h2>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="flex items-center gap-2 mb-4">
+      <div class="flex items-center gap-1.5">
+        <span
+          class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-300"
+          [class]="step() === 'input' ? 'bg-vv-brand text-white' : 'bg-green-500 text-white'"
+        >
+          @if (step() === 'preview') {
+            <i class="pi pi-check text-xs" aria-hidden="true"></i>
+          } @else {
+            1
+          }
+        </span>
+        <span
+          class="text-sm font-medium transition-colors duration-300"
+          [class]="step() === 'input' ? 'text-slate-800 dark:text-slate-100' : 'text-green-600 dark:text-green-400'"
+        >Add Words</span>
+      </div>
+      <div
+        class="h-0.5 flex-1 rounded-full transition-colors duration-500"
+        [class]="step() === 'preview' ? 'bg-green-400' : 'bg-slate-200 dark:bg-slate-700'"
+      ></div>
+      <div class="flex items-center gap-1.5">
+        <span
+          class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-300"
+          [class]="step() === 'preview' ? 'bg-vv-brand text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'"
+        >
+          2
+        </span>
+        <span
+          class="text-sm font-medium transition-colors duration-300"
+          [class]="step() === 'preview' ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400'"
+        >Review &amp; Import</span>
+      </div>
+    </div>
+
+    <!-- Draft restored banner (inline, not overlay) -->
+    @if (draftBanner()) {
+      <div class="flex items-center gap-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 px-3 py-2 mb-4 animate-fade-in-up">
+        <i class="pi pi-history text-blue-500 dark:text-blue-400 text-sm flex-shrink-0" aria-hidden="true"></i>
+        <span class="text-sm text-blue-700 dark:text-blue-300 font-medium">Draft restored from your last session</span>
+        <button
+          type="button"
+          class="ml-auto text-blue-400 hover:text-blue-600 dark:hover:text-blue-200 flex-shrink-0"
+          aria-label="Dismiss"
+          (click)="draftBanner.set(false)"
+        >
+          <i class="pi pi-times text-xs" aria-hidden="true"></i>
+        </button>
+      </div>
+    }
+
+    <!-- Step: Input -->
+    @if (step() === 'input') {
+      <lib-bulk-input />
+    }
+
+    <!-- Step: Preview -->
+    @if (step() === 'preview') {
+      <div class="animate-fade-in-up">
+        <button
+          type="button"
+          class="text-sm text-slate-500 dark:text-slate-400 hover:text-vv-brand inline-flex items-center gap-1 mb-3 vv-focus-ring"
+          (click)="onBackToInput()"
+        >
+          <i class="pi pi-pencil text-xs" aria-hidden="true"></i>
+          Back to editing (your words are saved)
+        </button>
+
+        <lib-bulk-preview />
+
+        <!-- Folder selector — opens bottom sheet (mobile/tablet) or centered dialog (desktop) -->
+        @if (folders().length > 0) {
+          <div class="flex items-center gap-2 mt-4 px-1">
+            <span class="text-sm text-slate-500 dark:text-slate-400 shrink-0">
+              <i class="pi pi-folder text-xs mr-1" aria-hidden="true"></i>
+              Add to folder
+            </span>
+            <button
+              type="button"
+              class="vv-input py-1.5 text-sm flex-1 text-left flex items-center gap-2"
+              aria-label="Add to folder"
+              (click)="folderPickerOpen.set(true)"
+            >
+              @if (selectedFolder(); as folder) {
+                <span class="w-3 h-3 rounded-full flex-shrink-0" [style.background-color]="folder.color"></span>
+                <span class="flex-1 truncate text-slate-800 dark:text-slate-100">{{ folder.name }}</span>
+              } @else {
+                <span class="flex-1 text-slate-400 dark:text-slate-500">No folder</span>
+              }
+              <i class="pi pi-chevron-down text-xs text-slate-400 ml-auto" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <lib-folder-picker
+            [folders]="folders()"
+            [folderWordCounts]="folderWordCounts()"
+            [(visible)]="folderPickerOpen"
+            [activeFolderId]="selectedFolderId()"
+            title="Add to folder"
+            noFolderLabel="No folder"
+            (folderSelected)="onFolderSelected($event)"
+          />
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Sticky bottom: Review button (input step) or Import button (preview step) -->
+  <div class="vv-sticky-footer">
+    <div class="vv-sticky-footer-content flex-col gap-2">
+      @if (step() === 'input') {
+        @if (showPreview()) {
+          <lib-button [fullWidth]="true" (click)="onReview()">
+            Review {{ bulkService.rows().length }} Word{{ bulkService.rows().length !== 1 ? 's' : '' }}
+          </lib-button>
+        }
+      } @else {
+        @if (importableCount() > 0) {
+          @if (importableCount() < bulkService.rows().length) {
+            <p class="text-xs text-slate-400 dark:text-slate-500 text-center mb-2">
+              {{ bulkService.rows().length - importableCount() }} word{{ bulkService.rows().length - importableCount() !== 1 ? 's' : '' }} without definitions will be skipped
+            </p>
+          }
+          <lib-button [fullWidth]="true" (click)="onImport()">
+            Add {{ importableCount() }} Word{{ importableCount() !== 1 ? 's' : '' }}
+          </lib-button>
+        } @else {
+          <p class="text-xs text-slate-400 dark:text-slate-500 text-center mb-2">
+            All words are already in your dictionary
+          </p>
+          <lib-button [fullWidth]="true" (click)="onDoneNoImport()">
+            Back to Dictionary
+          </lib-button>
+        }
+      }
+    </div>
+  </div>
+} @else {
+  <!-- Success state (Zone 4 from UI-SPEC) -->
+  <div class="flex flex-col items-center justify-center py-16 animate-fade-in-up">
+    <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 animate-scale-in">
+      <i class="pi pi-check-circle text-4xl text-green-500" aria-hidden="true"></i>
+    </div>
+    <p class="text-2xl font-bold text-slate-800 dark:text-slate-100">
+      {{ showCount() }} word{{ importedCount() !== 1 ? 's' : '' }} added!
+    </p>
+
+    @if (incompleteImportedCount() > 0) {
+      <p class="text-sm text-amber-600 dark:text-amber-400 mt-3 text-center max-w-xs">
+        {{ incompleteImportedCount() }} word{{ incompleteImportedCount() !== 1 ? 's' : '' }} still need{{ incompleteImportedCount() === 1 ? 's a definition' : ' definitions' }} before {{ incompleteImportedCount() === 1 ? 'it appears' : 'they appear' }} in quizzes.
+      </p>
+      <button
+        class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors vv-focus-ring"
+        (click)="onGoToIncomplete()"
+      >
+        <i class="pi pi-exclamation-triangle text-sm" aria-hidden="true"></i>
+        Fix them now
+      </button>
+      <button
+        class="mt-2 text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+        (click)="onBackToDictionary()"
+      >
+        I'll do it later
+      </button>
+    }
+
+    <div class="flex flex-col items-center gap-3 mt-6 w-full max-w-xs">
+      @if (completeWordCount() > 0) {
+        <button
+          class="vv-btn-primary px-5 py-2.5 flex items-center gap-2 w-full justify-center"
+          (click)="onQuizImported()"
+        >
+          <i class="pi pi-play text-sm" aria-hidden="true"></i>
+          @if (completeWordCount() > quizSampleSize()) {
+            Quick quiz ({{ quizSampleSize() }} words)
+          } @else {
+            Quiz these words now
+          }
+        </button>
+        @if (completeWordCount() > quizSampleSize()) {
+          <p class="text-xs text-slate-400 dark:text-slate-500 text-center -mt-1">
+            Full set saved to your quizzes for later
+          </p>
+        }
+      }
+      <div class="flex items-center gap-3 w-full justify-center">
+        <button class="vv-btn-secondary px-5 py-2.5" (click)="onAddMore()">Add more words</button>
+        @if (incompleteImportedCount() === 0) {
+          <button class="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 px-4 py-2.5 transition-colors" (click)="onBackToDictionary()">Back to dictionary</button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Leave confirmation overlay -->
+@if (showLeaveConfirm()) {
+  <div
+    class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+    tabindex="-1"
+    (click)="cancelLeave()"
+    (keydown.escape)="cancelLeave()"
+  >
+    <div
+      class="bg-vv-surface dark:bg-slate-800 rounded-2xl shadow-xl max-w-sm w-full p-6"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="leave-import-title"
+      cdkTrapFocus
+      [cdkTrapFocusAutoCapture]="true"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      (keydown.escape)="cancelLeave()"
+    >
+      <h3 id="leave-import-title" class="text-base font-semibold text-slate-800 dark:text-slate-100 mb-2">Leave import?</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Your word list hasn't been imported yet. If you leave now, your progress will be lost.</p>
+      <div class="flex items-center gap-3 justify-end">
+        <button cdkFocusInitial class="text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-4 py-2" (click)="cancelLeave()">
+          Stay
+        </button>
+        <button class="text-sm font-medium text-red-600 hover:text-red-700 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 px-4 py-2 rounded-xl transition-colors" (click)="confirmLeave()">
+          Leave & discard
+        </button>
+      </div>
+    </div>
+  </div>
+}

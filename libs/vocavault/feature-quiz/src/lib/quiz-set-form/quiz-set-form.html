@@ -1,0 +1,189 @@
+<form (ngSubmit)="onSave()">
+<!-- Page header with back button -->
+<lib-page-header
+  [title]="isEditMode() ? 'Edit Quiz Set' : 'New Quiz Set'"
+  [showBack]="true"
+  (backClicked)="onCancel()"
+/>
+
+<div class="space-y-5 pb-28 lg:pb-0">
+
+  <!-- Name field -->
+  <div class="vv-card p-5 space-y-4">
+    <div class="space-y-1.5">
+      <label for="vv-quiz-name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+        Name <span class="text-red-500">*</span>
+      </label>
+      <input
+        id="vv-quiz-name"
+        type="text"
+        class="vv-input"
+        placeholder="e.g. Spanish Basics"
+        maxlength="100"
+        name="quizName"
+        [ngModel]="name()"
+        (ngModelChange)="name.set($event)"
+      />
+    </div>
+
+    <div class="space-y-1.5">
+      <label for="vv-quiz-desc" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
+      <textarea
+        id="vv-quiz-desc"
+        rows="3"
+        name="quizDescription"
+        class="vv-input resize-none"
+        placeholder="Optional description..."
+        maxlength="500"
+        [ngModel]="description()"
+        (ngModelChange)="description.set($event)"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Color (optional) -->
+  <div class="vv-card p-5">
+    @if (!showColorPicker()) {
+      <button
+        type="button"
+        class="text-sm text-vv-brand hover:text-vv-brand-dark font-medium transition-colors vv-focus-ring inline-flex items-center gap-1.5"
+        (click)="showColorPicker.set(true)"
+      >
+        <i class="pi pi-palette text-xs" aria-hidden="true"></i>
+        Add color label
+      </button>
+    } @else {
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="block text-sm font-medium text-slate-700 dark:text-slate-300">Color</span>
+          <button
+            type="button"
+            class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 vv-focus-ring"
+            (click)="showColorPicker.set(false); color.set('')"
+          >
+            Remove
+          </button>
+        </div>
+        <lib-color-picker
+          [color]="color()"
+          (colorChange)="color.set($event)"
+        />
+      </div>
+    }
+  </div>
+
+  <!-- Word selection -->
+  <div class="vv-card p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+        Choose Words <span class="text-red-500">*</span>
+        @if (selectedWordIds().length > 0) {
+          <span class="ml-2 text-xs font-medium text-vv-brand bg-vv-brandLight dark:bg-vv-brand/15 rounded-full px-2 py-0.5">
+            {{ selectedWordIds().length }} of {{ availableWords().length }} selected
+          </span>
+        }
+      </h3>
+      @if (availableWords().length > 0) {
+        <button
+          type="button"
+          class="text-xs font-medium text-vv-brand hover:text-vv-brand-dark transition-colors vv-focus-ring"
+          (click)="toggleAll()"
+        >
+          {{ allFilteredSelected() ? 'Deselect All' : 'Select All' }}
+        </button>
+      }
+    </div>
+
+    <!-- Folder quick-select -->
+    @if (folders().length > 0 && availableWords().length > 0) {
+      <p class="text-xs text-slate-400 dark:text-slate-500 mb-2">Quick-add by folder:</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        @for (folder of folders(); track folder.id) {
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all vv-focus-ring"
+            [style.border-color]="folder.color"
+            [style.color]="selectedFolderIds().has(folder.id) ? 'white' : folder.color"
+            [style.background-color]="selectedFolderIds().has(folder.id) ? folder.color : 'transparent'"
+            (click)="selectFolder(folder.id)"
+          >
+            <i class="pi pi-folder text-2xs" aria-hidden="true"></i>
+            {{ folder.name }}
+            @if (selectedFolderIds().has(folder.id)) {
+              <i class="pi pi-check text-2xs" aria-hidden="true"></i>
+            }
+          </button>
+        }
+      </div>
+    }
+
+    @if (availableWords().length === 0) {
+      <div class="flex flex-col items-center py-8 text-center">
+        <i class="pi pi-book text-3xl text-slate-400 dark:text-slate-500 mb-2" aria-hidden="true"></i>
+        <p class="text-sm text-slate-500 dark:text-slate-400">No words yet. Add some words to your dictionary first.</p>
+      </div>
+    } @else {
+      <!-- Search filter -->
+      @if (availableWords().length > 5) {
+        <div class="relative mb-3">
+          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-xs pointer-events-none" aria-hidden="true"></i>
+          <input
+            type="search"
+            class="vv-input py-2 pl-9 pr-3 text-sm"
+            aria-label="Filter words"
+            placeholder="Filter words..."
+            [ngModel]="wordFilter()"
+            (ngModelChange)="wordFilter.set($event)"
+            name="wordFilter"
+          />
+        </div>
+      }
+
+      <div class="space-y-1 max-h-[20rem] overflow-y-auto">
+        @for (word of filteredWords(); track word.id) {
+          <label
+            class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors vv-focus-ring"
+            [class]="isWordSelected(word.id)
+              ? 'bg-vv-brandLight/50 dark:bg-vv-brand/10 ring-1 ring-vv-brand/20'
+              : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'"
+          >
+            <input
+              type="checkbox"
+              class="w-4.5 h-4.5 rounded border-slate-300 dark:border-slate-600 text-vv-brand focus:ring-vv-brand dark:bg-slate-700 cursor-pointer"
+              [checked]="isWordSelected(word.id)"
+              (change)="toggleWord(word.id)"
+            />
+            <div class="flex-1 min-w-0">
+              <span class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ word.word }}</span>
+              <p class="text-xs text-slate-400 dark:text-slate-500 truncate">{{ word.definition.slice(0, 60) }}{{ word.definition.length > 60 ? '...' : '' }}</p>
+            </div>
+          </label>
+        }
+        @if (filteredWords().length === 0) {
+          <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-4">No words match your filter.</p>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Sticky bottom action bar -->
+<div class="vv-sticky-footer">
+  <div class="vv-sticky-footer-content flex-col gap-2">
+    <lib-button type="submit" [fullWidth]="true" [disabled]="!canSave()">
+      {{ isEditMode() ? 'Save Changes' : 'Create Quiz Set' }}
+    </lib-button>
+    @if (isEditMode()) {
+      <lib-hold-button
+        styleClass="w-full vv-btn-danger vv-focus-ring text-sm"
+        ariaLabel="Hold to delete quiz set"
+        (confirmed)="onDelete()"
+      >
+        <i class="pi pi-trash text-sm mr-1.5" aria-hidden="true"></i> Hold to Delete Quiz Set
+        <span holding><i class="pi pi-trash text-sm mr-1.5" aria-hidden="true"></i> Deleting...</span>
+        <span confirm>Press again to confirm</span>
+      </lib-hold-button>
+    }
+  </div>
+</div>
+</form>

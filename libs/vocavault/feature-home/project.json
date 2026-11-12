@@ -1,0 +1,20 @@
+{
+  "name": "feature-home",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vocavault/feature-home/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:vocavault", "type:feature"],
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../../coverage/libs/vocavault/feature-home"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

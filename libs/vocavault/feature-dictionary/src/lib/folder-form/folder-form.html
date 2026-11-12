@@ -1,0 +1,27 @@
+<div class="space-y-3 py-2">
+  <input
+    #nameInput
+    type="text"
+    class="vv-input py-2 text-sm"
+    aria-label="Folder name"
+    placeholder="Folder name..."
+    maxlength="50"
+    [value]="name()"
+    (input)="name.set($any($event.target).value)"
+    (keydown.enter)="onSave()"
+  />
+
+  <lib-color-picker
+    [color]="selectedColor()"
+    (colorChange)="onColorChange($event)"
+  />
+
+  <div class="flex items-center gap-2 pt-1">
+    <lib-button variant="secondary" size="sm" styleClass="flex-1" (click)="cancelled.emit()">
+      Cancel
+    </lib-button>
+    <lib-button variant="primary" size="sm" styleClass="flex-1" [disabled]="!canSave" (click)="onSave()">
+      {{ folder() ? 'Save' : 'Create' }}
+    </lib-button>
+  </div>
+</div>

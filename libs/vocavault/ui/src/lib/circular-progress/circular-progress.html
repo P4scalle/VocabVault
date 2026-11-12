@@ -1,0 +1,26 @@
+<div class="relative inline-flex" [style.width.px]="size()" [style.height.px]="size()">
+  <svg class="w-full h-full -rotate-90" [attr.viewBox]="viewBox()" role="progressbar" [attr.aria-valuenow]="value()" [attr.aria-valuemin]="0" [attr.aria-valuemax]="max()" [attr.aria-label]="value() + '% progress'">
+    <!-- Track circle -->
+    <circle
+      [attr.cx]="center()" [attr.cy]="center()" [attr.r]="radius()"
+      fill="none" [attr.stroke]="trackColor()" [attr.stroke-width]="strokeWidth()"
+    />
+    <!-- Progress arc -->
+    <circle
+      [attr.cx]="center()" [attr.cy]="center()" [attr.r]="radius()"
+      fill="none" [attr.stroke]="color()" [attr.stroke-width]="strokeWidth()"
+      [attr.stroke-dasharray]="circumference()"
+      [attr.stroke-dashoffset]="dashOffset()"
+      stroke-linecap="round"
+      class="transition-[stroke-dashoffset] duration-700 ease-out"
+    />
+    <!-- Inner circle (donut cutout) — adapts to light/dark theme -->
+    <circle
+      [attr.cx]="center()" [attr.cy]="center()" [attr.r]="innerRadius()"
+      class="fill-white dark:fill-slate-800"
+    />
+  </svg>
+  <div class="absolute inset-0 flex flex-col items-center justify-center">
+    <ng-content />
+  </div>
+</div>

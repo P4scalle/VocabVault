@@ -1,0 +1,122 @@
+{
+  "name": "vocavault",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/vocavault/src",
+  "tags": ["scope:vocavault", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/vocavault",
+        "browser": "apps/vocavault/src/main.ts",
+        "tsConfig": "apps/vocavault/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/vocavault/public"
+          },
+          "apps/vocavault/src/manifest.webmanifest"
+        ],
+        "styles": ["apps/vocavault/src/styles.scss"],
+        "serviceWorker": "apps/vocavault/ngsw-config.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "sourceMap": {
+            "scripts": true,
+            "hidden": true
+          },
+          "namedChunks": false,
+          "extractLicenses": true,
+          "fileReplacements": [
+            {
+              "replace": "apps/vocavault/src/environments/environment.ts",
+              "with": "apps/vocavault/src/environments/environment.prod.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "acc": {
+          "fileReplacements": [
+            {
+              "replace": "apps/vocavault/src/environments/environment.ts",
+              "with": "apps/vocavault/src/environments/environment.acc.ts"
+            }
+          ],
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "vocavault:build:production"
+        },
+        "acc": {
+          "buildTarget": "vocavault:build:acc"
+        },
+        "development": {
+          "buildTarget": "vocavault:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/apps/vocavault"
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "vocavault:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/vocavault/browser",
+        "spa": true
+      }
+    }
+  }
+}

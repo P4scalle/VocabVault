@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npx nx build vocavault --configuration=production",
+  "outputDirectory": "dist/apps/vocavault/browser",
+  "installCommand": "npm ci --legacy-peer-deps",
+  "framework": null,
+  "rewrites": [
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+  ],
+  "github": {
+    "autoAlias": false
+  }
+}

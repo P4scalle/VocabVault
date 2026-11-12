@@ -1,0 +1,699 @@
+<div
+  [class]="view() === 'list' ? 'pb-8' : 'flex-1 flex flex-col'"
+>
+  @if (view() === 'list') {
+
+    <div class="flex items-center gap-2 mb-4">
+      <i class="pi pi-book text-xl text-vv-brand" aria-hidden="true"></i>
+      <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">Dictionary</h1>
+      <lib-info-button ariaLabel="About dictionary features" (click)="infoTopic.set('dictionary')" />
+      <div class="flex-1"></div>
+      <button class="vv-icon-btn !w-8 !h-8 text-slate-400 hover:text-vv-brand" aria-label="Import words in bulk" (click)="onBulkImport()">
+        <i class="pi pi-upload text-sm" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2 mb-4">
+      <div class="relative flex-1">
+        <i class="pi pi-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" aria-hidden="true"></i>
+        <input
+          type="text"
+          class="vv-input bg-vv-surface pl-10 pr-[4.5rem]"
+          placeholder="Search words..."
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          aria-label="Search dictionary words"
+        />
+        @if (searchQuery()) {
+          <button
+            type="button"
+            class="absolute right-9 top-1/2 -translate-y-1/2 w-7 h-7 inline-flex items-center justify-center rounded-full text-vv-brand hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 transition-colors vv-focus-ring"
+            aria-label="Look up word"
+            (click)="onLookupFromSearch()"
+          >
+            <i class="pi pi-search text-xs" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 w-7 h-7 inline-flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors vv-focus-ring"
+            aria-label="Clear search"
+            (click)="searchQuery.set('')"
+          >
+            <i class="pi pi-times text-sm" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+      @if (searchQuery() && filteredWords().length === 0) {
+        <button
+          type="button"
+          class="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-100 dark:bg-slate-800 text-vv-brand hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 transition-colors vv-focus-ring"
+          (click)="onLookupFromSearch()"
+        >
+          <i class="pi pi-search text-xs" aria-hidden="true"></i>
+          Look up
+        </button>
+      }
+    </div>
+
+    @if (incompleteCount() > 0) {
+      <div class="flex items-center gap-2 mb-3">
+        <button
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors border vv-focus-ring"
+          [class]="incompleteFilter()
+            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600'"
+          (click)="toggleIncompleteFilter()"
+          [attr.aria-pressed]="incompleteFilter()"
+        >
+          <i class="pi pi-exclamation-triangle text-[10px]" aria-hidden="true"></i>
+          Needs attention ({{ incompleteCount() }})
+        </button>
+        @if (incompleteFilter()) {
+          <button
+            class="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors vv-focus-ring"
+            (click)="toggleIncompleteFilter()"
+            aria-label="Clear incomplete filter"
+          >
+            Clear
+          </button>
+        }
+      </div>
+    }
+
+    @if (flaggedCount() > 0) {
+      <div class="flex items-center gap-2 mb-3">
+        <button
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors border vv-focus-ring"
+          [class]="flagFilter()
+            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-700'
+            : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600'"
+          (click)="toggleFlagFilter()"
+          [attr.aria-pressed]="flagFilter()"
+        >
+          <i class="pi pi-flag-fill text-[10px]" aria-hidden="true"></i>
+          Flagged ({{ flaggedCount() }})
+        </button>
+        @if (flagFilter()) {
+          <button
+            class="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors vv-focus-ring"
+            (click)="toggleFlagFilter()"
+            aria-label="Clear flag filter"
+          >
+            Clear
+          </button>
+        }
+      </div>
+    }
+
+    @if (incompleteFilter() && incompleteCount() > 0) {
+      <div class="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 mb-3">
+        <i class="pi pi-info-circle text-amber-500 text-sm mt-0.5 shrink-0" aria-hidden="true"></i>
+        <div class="text-sm text-amber-700 dark:text-amber-300">
+          <p class="font-medium">These words are missing a definition</p>
+          <p class="text-xs text-amber-600/80 dark:text-amber-400/70 mt-0.5">We couldn't find one automatically. Tap a word to add a definition yourself — once added, it will be ready for quizzes.</p>
+        </div>
+      </div>
+    }
+
+    @if (words().length === 0) {
+      <lib-empty-state
+        data-testid="empty-state"
+        iconClass="pi pi-book"
+        heading="Your dictionary is empty"
+        body="Start building your vocabulary by adding your first term."
+        actionLabel="Add Your First Term"
+        (action)="onAddWord()"
+      />
+    } @else {
+
+      <div class="flex items-center gap-2 mb-4">
+        <div class="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5" role="tablist">
+          <button type="button" role="tab"
+            class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors vv-focus-ring"
+            [class]="dictTab() === 'words'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+            [attr.aria-selected]="dictTab() === 'words'"
+            (click)="dictTab.set('words'); selectedFolderId.set(null)"
+          >
+            <i class="pi pi-list text-2xs mr-1" aria-hidden="true"></i>
+            Words
+          </button>
+          <button type="button" role="tab"
+            class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors vv-focus-ring"
+            [class]="dictTab() === 'folders'
+              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+            [attr.aria-selected]="dictTab() === 'folders'"
+            (click)="switchToFoldersTab()"
+          >
+            <i class="pi pi-folder text-2xs mr-1" aria-hidden="true"></i>
+            Folders
+          </button>
+        </div>
+
+        <div class="flex-1"></div>
+
+        @if (!selectMode() && dictTab() === 'words' && filteredWords().length > 0) {
+          <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors vv-focus-ring" aria-label="Select words to manage" (click)="toggleSelectMode()">
+            <i class="pi pi-check-square text-2xs" aria-hidden="true"></i>
+            Select
+          </button>
+        }
+      </div>
+
+      @if (quizReviewFilter().length > 0) {
+        <div class="flex items-center gap-2 mb-4 px-3 py-2 rounded-xl bg-vv-brandLight dark:bg-vv-brand/15 border border-vv-brand/30">
+          <i class="pi pi-book text-sm text-vv-brand flex-shrink-0" aria-hidden="true"></i>
+          <span class="text-sm text-vv-brand font-medium flex-1">Showing {{ filteredWords().length }} word{{ filteredWords().length !== 1 ? 's' : '' }} from quiz review</span>
+          <button
+            type="button"
+            class="w-7 h-7 inline-flex items-center justify-center rounded-full text-vv-brand hover:bg-vv-brand/20 transition-colors vv-focus-ring"
+            aria-label="Clear quiz review filter"
+            (click)="clearQuizReviewFilter()"
+          >
+            <i class="pi pi-times text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+      }
+
+      @if (selectMode() && view() === 'list') {
+        <div class="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+          <span class="text-xs text-slate-500 dark:text-slate-400" aria-live="polite">{{ selectedWordCount() }} selected</span>
+          <button type="button" class="text-xs font-medium text-vv-brand hover:underline vv-focus-ring" (click)="selectAllVisible()">
+            {{ selectAllLabel() }}
+          </button>
+          <div class="flex-1"></div>
+          @if (selectedWordCount() > 0) {
+            <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors vv-focus-ring" (click)="bulkPickerOpen.set(true)">
+              <i class="pi pi-folder text-[10px]" aria-hidden="true"></i>
+              Move
+            </button>
+            <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors vv-focus-ring" (click)="confirmBulkDelete.set(true)">
+              <i class="pi pi-trash text-[10px]" aria-hidden="true"></i>
+              Delete
+            </button>
+          }
+          <button type="button" class="w-7 h-7 inline-flex items-center justify-center rounded-full text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors vv-focus-ring" aria-label="Exit select mode" (click)="toggleSelectMode()">
+            <i class="pi pi-times text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+      }
+
+      @if (dictTab() === 'words') {
+        @if (filteredWords().length === 0) {
+          <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <i class="pi pi-search text-4xl text-slate-400 dark:text-slate-500 mb-3" aria-hidden="true"></i>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mb-1">No words found in your dictionary.</p>
+            @if (searchQuery()) {
+              <p class="text-slate-400 dark:text-slate-500 text-xs mb-4">Use the "Look up" button in the search bar to add "{{ searchQuery() }}" from the dictionary.</p>
+            }
+          </div>
+        } @else {
+          <div [class]="showScroller() ? 'pr-scroller' : ''" class="flex flex-col gap-4 vv-stagger-children" role="list" aria-label="Word list" #wordList>
+            @for (group of groupedWords(); track group.letter; let firstGroup = $first) {
+              <div [attr.data-letter]="group.letter">
+                <div class="sticky top-0 z-10 bg-vv-bg/95 dark:bg-slate-900/95 backdrop-blur-sm px-1 py-1.5" [class.pt-0]="firstGroup">
+                  <span class="text-xs font-bold text-vv-brand uppercase tracking-wider">{{ group.letter }}</span>
+                </div>
+                @for (word of group.words; track word.id; let first = $first; let last = $last) {
+                  <div role="listitem" [class.mb-2]="!last" [class.mt-1]="first">
+                    <lib-word-card
+                      [word]="word"
+                      [folder]="getWordFolder(word)"
+                      [selectable]="selectMode()"
+                      [isSelected]="selectedWordIds().has(word.id)"
+                      [searchQuery]="searchQuery()"
+                      (selected)="onSelectWord($event)"
+                      (deleteRequested)="onDeleteWord($event)"
+                      (folderRequested)="onFolderRequested($event)"
+                      (selectionToggled)="toggleWordSelection($event)"
+                      (flagToggled)="onFlagToggle($event)"
+                    />
+                  </div>
+                }
+              </div>
+            }
+          </div>
+          @if (showScroller()) {
+            <lib-alphabet-scroller
+              [validLetters]="validLetters()"
+              [activeLetter]="activeLetter()"
+              [anchorEl]="wordList"
+              (letterSelected)="onLetterSelected($event)"
+              (scrubbingChange)="onScrubbing($event)"
+            />
+          }
+        }
+      }
+
+      @if (dictTab() === 'folders') {
+        @if (showNewFolderForm()) {
+          <div class="mb-3 rounded-xl bg-slate-50/50 dark:bg-slate-800/30 ring-1 ring-slate-200/50 dark:ring-slate-700/50 px-3 py-2 overflow-hidden">
+            <lib-folder-form
+              [defaultColor]="nextFolderColor()"
+              (saved)="onCreateFolderFromForm($event)"
+              (cancelled)="onCancelNewFolder()"
+            />
+          </div>
+        }
+
+        @if (folders().length === 0 && !showNewFolderForm()) {
+          <div class="flex flex-col items-center py-10 text-center" data-testid="folders-empty-state">
+            <div class="w-14 h-14 rounded-full bg-vv-brandLight dark:bg-vv-brand/20 flex items-center justify-center mb-3">
+              <i class="pi pi-folder text-2xl text-vv-brand" aria-hidden="true"></i>
+            </div>
+            @if (words().length === 0) {
+              <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">No folders yet</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 max-w-xs mb-4">Add some words to your dictionary first, then organize them into folders.</p>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-vv-brand text-white hover:bg-vv-brandDark transition-colors vv-focus-ring"
+                (click)="onAddWord()"
+              >
+                <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+                Add your first word
+              </button>
+            } @else {
+              <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">No folders yet</p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 max-w-xs mb-4">
+                You have {{ words().length }} word{{ words().length === 1 ? '' : 's' }} ready to organize. Group them by topic, language, or any way you like.
+              </p>
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-vv-brand text-white hover:bg-vv-brandDark transition-colors vv-focus-ring"
+                (click)="openNewFolderForm()"
+              >
+                <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+                Create Your First Folder
+              </button>
+            }
+          </div>
+        }
+
+        @if (folders().length > 0) {
+        @if (!editingFolderId() && !showNewFolderForm()) {
+          <button
+            type="button"
+            class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-slate-400 dark:text-slate-500 border border-dashed border-slate-200 dark:border-slate-700 hover:border-vv-brand hover:text-vv-brand transition-colors vv-focus-ring mb-3"
+            (click)="openNewFolderForm()"
+          >
+            <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+            <span class="text-sm font-medium">New Folder</span>
+          </button>
+        }
+
+        <div class="space-y-1 pb-6">
+          @for (folder of folders(); track folder.id) {
+            @let isExpanded = expandedFolderIds().has(folder.id);
+            @let folderWords = (wordsByFolder().get(folder.id) ?? []);
+            @let folderGroups = (groupedWordsByFolder().get(folder.id) ?? []);
+            <div class="rounded-xl overflow-hidden transition-all"
+              [class]="isExpanded ? 'bg-slate-50/50 dark:bg-slate-800/30 ring-1 ring-slate-200/50 dark:ring-slate-700/50' : ''"
+            >
+              <button
+                type="button"
+                class="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl transition-colors vv-focus-ring"
+                [class]="isExpanded
+                  ? 'bg-slate-100/80 dark:bg-slate-800'
+                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'"
+                (click)="toggleFolderExpand(folder.id)"
+                [attr.aria-expanded]="isExpanded"
+              >
+                <span class="w-3 h-3 rounded-full flex-shrink-0" [style.background-color]="folder.color"></span>
+                <span class="text-sm font-medium text-slate-800 dark:text-slate-200 flex-1 truncate">{{ folder.name }}</span>
+                <span class="text-xs tabular-nums text-slate-400 dark:text-slate-500">{{ folderWords.length }}</span>
+                <i [class]="(isExpanded ? 'pi pi-chevron-up' : 'pi pi-chevron-down') + ' text-xs text-slate-400 dark:text-slate-500 transition-transform duration-200'" aria-hidden="true"></i>
+              </button>
+
+              <div class="vv-collapsible" [class.expanded]="isExpanded">
+                <div class="vv-collapsible-inner">
+                  @if (editingFolderId() === folder.id) {
+                    <div class="px-3 pb-3 overflow-hidden">
+                      <lib-folder-form
+                        [folder]="folder"
+                        (saved)="onSaveEditFolderFromForm($event)"
+                        (cancelled)="onCancelEditFolder()"
+                      />
+                    </div>
+                  } @else {
+                    <div class="flex items-center justify-end gap-1 px-3 py-1.5">
+                      <button type="button"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-vv-brand hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 transition-colors vv-focus-ring"
+                        (click)="$event.stopPropagation(); onSelectWordsForFolder(folder)">
+                        <i class="pi pi-plus text-2xs" aria-hidden="true"></i> Add words
+                      </button>
+                      <div
+                        class="relative"
+                        tabindex="-1"
+                        (click)="$event.stopPropagation()"
+                        (keydown)="$event.stopPropagation()"
+                      >
+                        <button type="button"
+                          class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors vv-focus-ring"
+                          aria-label="Folder options"
+                          [attr.aria-expanded]="overflowMenuFolderId() === folder.id"
+                          (click)="toggleOverflowMenu(folder.id, $event)">
+                          <i class="pi pi-ellipsis-v text-sm" aria-hidden="true"></i>
+                        </button>
+                        @if (overflowMenuFolderId() === folder.id) {
+                          <!-- Plain button popover — intentionally not role="menu" to avoid unmet roving-focus keyboard contract -->
+                          <div class="absolute right-0 top-full mt-1 z-20 min-w-[140px] rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg py-1 overflow-hidden"
+                            tabindex="-1"
+                            (click)="$event.stopPropagation()"
+                            (keydown)="$event.stopPropagation()"
+                          >
+                            <button type="button"
+                              class="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                              (click)="onEditFolder(folder); closeOverflowMenu()">
+                              <i class="pi pi-pencil text-2xs" aria-hidden="true"></i> Rename
+                            </button>
+                            <lib-hold-button
+                              class="vv-hold-menu-item"
+                              styleClass="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                              [ariaLabel]="'Hold to delete ' + folder.name"
+                              (confirmed)="confirmDeleteFolder(folder); closeOverflowMenu()"
+                              (click)="$event.stopPropagation()"
+                            >
+                              <i class="pi pi-trash text-2xs" aria-hidden="true"></i> Delete
+                              <i holding class="pi pi-trash text-2xs" aria-hidden="true"></i> <span holding>Deleting...</span>
+                              <span confirm><i class="pi pi-trash text-2xs" aria-hidden="true"></i> Confirm</span>
+                            </lib-hold-button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    @if (folderWords.length > 0) {
+                      <div [class]="folderGroups.length >= 5 ? 'pr-scroller' : ''" class="px-2 pb-3 pt-1.5 flex flex-col gap-2" #folderWordList>
+                        @for (group of folderGroups; track group.letter; let firstGroup = $first) {
+                          <div [attr.data-folder-letter]="group.letter">
+                            <div class="sticky top-0 z-10 bg-vv-bg/95 dark:bg-slate-900/95 backdrop-blur-sm px-1 py-1.5" [class.pt-0]="firstGroup">
+                              <span class="text-xs font-bold text-vv-brand uppercase tracking-wider">{{ group.letter }}</span>
+                            </div>
+                            @for (word of group.words; track word.id; let last = $last) {
+                              <div [class.mb-2]="!last">
+                                <lib-folder-word-item
+                                  [word]="word"
+                                  [searchQuery]="searchQuery()"
+                                  (selected)="onSelectWord($event)"
+                                  (removeFromFolder)="onRemoveFromFolder($event)"
+                                />
+                              </div>
+                            }
+                          </div>
+                        }
+                      </div>
+                      @if (isExpanded && folderGroups.length >= 5) {
+                        <lib-alphabet-scroller
+                          [validLetters]="folderLetters(folderGroups)"
+                          [activeLetter]="activeLetter()"
+                          [anchorEl]="folderWordList"
+                          (letterSelected)="onFolderLetterSelected($event)"
+                          (scrubbingChange)="onScrubbing($event)"
+                        />
+                      }
+                    } @else {
+                      <div class="flex flex-col items-center px-4 pb-5 pt-3 text-center">
+                        <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                          <i class="pi pi-folder-open text-lg text-slate-400 dark:text-slate-500" aria-hidden="true"></i>
+                        </div>
+                        @if (words().length > 0) {
+                          <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">This folder is empty</p>
+                          <p class="text-xs text-slate-400 dark:text-slate-500 mb-3">Pick words from your dictionary to organize them here.</p>
+                          <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-vv-brand text-white hover:bg-vv-brand/90 transition-colors vv-focus-ring"
+                            (click)="$event.stopPropagation(); onSelectWordsForFolder(folder)"
+                          >
+                            <i class="pi pi-check-square text-2xs" aria-hidden="true"></i>
+                            Pick words to add
+                          </button>
+                        } @else {
+                          <p class="text-sm text-slate-500 dark:text-slate-400 mb-1">This folder is empty</p>
+                          <p class="text-xs text-slate-400 dark:text-slate-500 mb-4">Add some words to your dictionary first, then you can organize them into folders.</p>
+                          <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-vv-brand text-white hover:bg-vv-brand/90 transition-colors vv-focus-ring"
+                            (click)="$event.stopPropagation(); onAddWord()"
+                          >
+                            <i class="pi pi-plus text-2xs" aria-hidden="true"></i>
+                            Add your first word
+                          </button>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+        </div>
+        }
+
+        @if (unfolderedWords().length > 0) {
+          <button
+            type="button"
+            class="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-xl transition-colors vv-focus-ring"
+            [class]="uncategorizedExpanded()
+              ? 'bg-slate-100/80 dark:bg-slate-800'
+              : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'"
+            (click)="toggleUncategorizedExpanded()"
+            [attr.aria-expanded]="uncategorizedExpanded()"
+          >
+            <span class="w-3 h-3 rounded-full flex-shrink-0 bg-slate-300 dark:bg-slate-600"></span>
+            <span class="text-sm font-medium text-slate-800 dark:text-slate-200 flex-1">Uncategorized</span>
+            <span class="text-xs tabular-nums text-slate-400 dark:text-slate-500">{{ unfolderedWords().length }}</span>
+            <i [class]="(uncategorizedExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down') + ' text-xs text-slate-400 dark:text-slate-500 transition-transform duration-200'" aria-hidden="true"></i>
+          </button>
+
+          <div class="vv-collapsible" [class.expanded]="uncategorizedExpanded()">
+            <div class="vv-collapsible-inner">
+              <div [class]="showUncategorizedScroller() ? 'pr-scroller' : ''" class="flex flex-col gap-4 pt-2" role="list" aria-label="Uncategorized words" #uncategorizedWordList>
+                @for (group of groupedUncategorizedWords(); track group.letter; let firstGroup = $first) {
+                  <div [attr.data-uncat-letter]="group.letter">
+                    <div class="sticky top-0 z-10 bg-vv-bg/95 dark:bg-slate-900/95 backdrop-blur-sm px-1 py-1.5" [class.pt-0]="firstGroup">
+                      <span class="text-xs font-bold text-vv-brand uppercase tracking-wider">{{ group.letter }}</span>
+                    </div>
+                    @for (word of group.words; track word.id; let first = $first; let last = $last) {
+                      <div role="listitem" [class.mb-2]="!last" [class.mt-1]="first">
+                        <lib-word-card
+                          [word]="word"
+                          [folder]="getWordFolder(word)"
+                          [selectable]="selectMode()"
+                          [isSelected]="selectedWordIds().has(word.id)"
+                          [searchQuery]="searchQuery()"
+                          (selected)="onSelectWord($event)"
+                          (deleteRequested)="onDeleteWord($event)"
+                          (folderRequested)="onFolderRequested($event)"
+                          (selectionToggled)="toggleWordSelection($event)"
+                        />
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+              @if (showUncategorizedScroller()) {
+                <lib-alphabet-scroller
+                  [validLetters]="uncategorizedValidLetters()"
+                  [activeLetter]="activeLetter()"
+                  [anchorEl]="uncategorizedWordList"
+                  (letterSelected)="onUncategorizedLetterSelected($event)"
+                  (scrubbingChange)="onScrubbing($event)"
+                />
+              }
+            </div>
+          </div>
+        }
+
+        @if (searchQuery() && unfolderedWords().length === 0 && wordsByFolder().size === 0) {
+          <div class="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <i class="pi pi-search text-4xl text-slate-400 dark:text-slate-500 mb-3" aria-hidden="true"></i>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">No words found. Try a different search term.</p>
+          </div>
+        }
+      }
+    }
+  }
+
+
+  @if (view() === 'add') {
+    <lib-word-form
+      [initialData]="selectedWord()"
+      [isEditMode]="false"
+      [autoLookup]="autoLookupNext()"
+      [defaultFolderId]="selectedFolderId() ?? undefined"
+      [resetKey]="addFormResetKey()"
+      (saved)="onSaveWord($event)"
+      (cancelled)="onDoneAdding()"
+      (deleted)="onDeleteFromForm()"
+    />
+  }
+
+  @if (view() === 'edit') {
+    <lib-word-form
+      [initialData]="selectedWord()"
+      [isEditMode]="true"
+      [autoLookup]="autoLookupNext()"
+      [defaultFolderId]="selectedFolderId() ?? undefined"
+      (saved)="onSaveWord($event)"
+      (cancelled)="onCancelForm()"
+      (deleted)="onDeleteFromForm()"
+    />
+  }
+
+  @defer (when view() === 'import'; prefetch on idle) {
+    <lib-bulk-add (cancelled)="onBulkCancel()" (imported)="onBulkImported()" (viewIncomplete)="onViewIncomplete()" />
+  } @loading (minimum 150ms) {
+    <div class="space-y-3 animate-pulse p-1" aria-label="Loading import view" role="status">
+      <div class="h-56 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+      <div class="h-10 w-28 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+      <div class="flex items-center gap-2">
+        <div class="h-4 w-10 rounded bg-slate-200 dark:bg-slate-700"></div>
+        <div class="h-9 w-56 rounded-lg bg-slate-200 dark:bg-slate-700"></div>
+      </div>
+      <div class="h-5 w-24 rounded bg-slate-200 dark:bg-slate-700"></div>
+    </div>
+  } @error {
+    <div class="flex flex-col items-center gap-3 py-12 text-center">
+      <i class="pi pi-cloud-off text-3xl text-slate-400" aria-hidden="true"></i>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Failed to load the import module.</p>
+      <button type="button" class="vv-btn-secondary text-sm" (click)="reloadPage()">
+        <i class="pi pi-refresh mr-1" aria-hidden="true"></i> Reload
+      </button>
+    </div>
+  }
+
+</div>
+
+@if (confirmBulkDelete()) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+    tabindex="-1"
+    (click)="confirmBulkDelete.set(false)"
+    (keydown.escape)="confirmBulkDelete.set(false)"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl mx-4 max-w-sm w-full p-5"
+      role="alertdialog"
+      aria-modal="true"
+      aria-label="Confirm delete"
+      cdkTrapFocus
+      [cdkTrapFocusAutoCapture]="true"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      (keydown.escape)="confirmBulkDelete.set(false)"
+    >
+      <div class="flex items-start gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center flex-shrink-0">
+          <i class="pi pi-exclamation-triangle text-red-500 text-lg" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">{{ deleteConfirmTitle() }}</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            This will permanently remove the selected words from your dictionary.
+            @if (deleteQuizImpact() > 0) {
+              <span class="text-amber-600 dark:text-amber-400 font-medium">
+                {{ deleteQuizImpact() }} of these {{ deleteQuizImpact() === 1 ? 'is' : 'are' }} used in quiz sets and will be removed from them too.
+              </span>
+            }
+            You can undo this action.
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <lib-button cdkFocusInitial variant="secondary" size="sm" styleClass="flex-1" (click)="confirmBulkDelete.set(false)">
+          Cancel
+        </lib-button>
+        <lib-button variant="danger" size="sm" styleClass="flex-1" (click)="onConfirmBulkDelete()">
+          Yes, delete
+        </lib-button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (folderDeleteTarget(); as targetFolder) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+    tabindex="-1"
+    (click)="cancelDeleteFolder()"
+    (keydown.escape)="cancelDeleteFolder()"
+  >
+    <div
+      class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl mx-4 max-w-sm w-full p-5"
+      role="alertdialog"
+      aria-modal="true"
+      aria-label="Delete folder with words"
+      cdkTrapFocus
+      [cdkTrapFocusAutoCapture]="true"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      (keydown.escape)="cancelDeleteFolder()"
+    >
+      <div class="flex items-start gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+          <i class="pi pi-exclamation-triangle text-amber-600 text-lg" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">Delete "{{ targetFolder.name }}"?</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            This folder contains <strong>{{ folderDeleteWordCount() }}</strong> word{{ folderDeleteWordCount() !== 1 ? 's' : '' }}.
+            The words won't be deleted — they'll just be unassigned from this folder.
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <lib-button cdkFocusInitial variant="secondary" size="sm" styleClass="flex-1" (click)="cancelDeleteFolder()">
+          Cancel
+        </lib-button>
+        <lib-button variant="danger" size="sm" styleClass="flex-1" (click)="executeDeleteFolder(targetFolder)">
+          Delete folder
+        </lib-button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (folderPickerWord(); as pickWord) {
+  <lib-folder-picker
+    [folders]="folders()"
+    [folderWordCounts]="folderWordCounts()"
+    [(visible)]="folderPickerVisible"
+    [activeFolderId]="pickWord.folderId ?? null"
+    [title]="'Move &quot;' + pickWord.word + '&quot;'"
+    noFolderLabel="No folder"
+(folderSelected)="assignFolder($event || null)"
+    (createFolder)="openNewFolderForm()"
+  />
+}
+
+<lib-folder-picker
+  [folders]="folders()"
+  [folderWordCounts]="folderWordCounts()"
+  [(visible)]="bulkPickerOpen"
+  [title]="bulkMoveTitle()"
+  noFolderLabel="Remove from folder"
+  (folderSelected)="bulkAssignFolder($event || null)"
+  (createFolder)="openNewFolderForm()"
+/>
+
+@defer (when wordPickerFolder(); prefetch on idle) {
+  @if (wordPickerFolder(); as folder) {
+    <lib-folder-word-picker
+      [words]="words()"
+      [folder]="folder"
+      [(visible)]="wordPickerOpen"
+      (wordsAdded)="onWordsAddedToFolder($event)"
+      (addNewWord)="onAddWordToFolder(folder)"
+      (bulkImport)="onBulkImportToFolder(folder)"
+    />
+  }
+} @error {
+  <!-- Modal load failed silently — user can retry by reopening -->
+}
+
+<lib-info-drawer [(topic)]="infoTopic" />

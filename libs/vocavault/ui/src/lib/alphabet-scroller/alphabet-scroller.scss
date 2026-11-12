@@ -1,0 +1,98 @@
+// Fixed position scroller — same pattern as iOS sectionIndexTitles.
+// :host is a fixed overlay with pointer-events:none so touches pass
+// through to content underneath. The inner nav captures pointer events.
+:host {
+  position: fixed;
+  // top and right are set dynamically via host bindings —
+  // top tracks the word list's top edge, right tracks its right edge.
+  // On mobile right ≈ 0, on desktop it hugs the content container.
+  bottom: var(--vv-bottom-nav-height, 5rem);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+
+  // Tablet (768px+): no bottom nav (sidebar instead)
+  @media (min-width: 768px) {
+    bottom: 0;
+  }
+}
+
+.vv-alphabet-scroller {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  // 44px wide strip for easy finger acquisition (Apple HIG)
+  width: 2.75rem;
+  padding: 0.25rem 0;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+
+  &__letter {
+    @apply flex items-center justify-center font-medium rounded-sm transition-colors duration-150 border-0 bg-transparent cursor-pointer leading-none;
+    width: 100%;
+    // Each letter gets an equal share of the scroller height
+    height: calc(100% / var(--letter-count, 26));
+    // Responsive font: small on phones, bigger on desktop
+    font-size: 0.5rem;
+    padding: 0;
+
+    @media (min-width: 375px) {
+      font-size: 0.5625rem;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 0.625rem;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 0.6875rem;
+    }
+
+    &--valid {
+      @apply text-vv-brand dark:text-sky-400 font-semibold;
+    }
+
+    &--invalid {
+      @apply text-slate-400 dark:text-slate-500;
+    }
+
+    &--active {
+      @apply font-bold scale-110 bg-vv-brand text-white rounded-full;
+    }
+
+    &--hovered:not(.vv-alphabet-scroller__letter--active) {
+      @apply bg-vv-brandLight text-vv-brand rounded;
+    }
+
+    @media (max-height: 420px) {
+      &--condensed-hide {
+        display: none;
+      }
+    }
+  }
+
+  &__dot {
+    display: none;
+
+    @media (max-height: 420px) {
+      @apply w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600 mx-auto;
+      display: block;
+    }
+  }
+
+  &__bubble {
+    position: fixed;
+    right: 3.5rem;
+    transform: translateY(-50%);
+    @apply w-10 h-10 rounded-full bg-vv-brand text-white flex items-center justify-center text-lg font-bold shadow-lg z-40 pointer-events-none;
+
+    @media (min-width: 768px) {
+      right: 4.75rem;
+      @apply w-12 h-12 text-xl;
+    }
+  }
+}

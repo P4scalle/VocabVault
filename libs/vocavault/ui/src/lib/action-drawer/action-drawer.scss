@@ -1,0 +1,403 @@
+.vv-action-drawer-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  pointer-events: none;
+
+  // Tablet: offset for nav rail so modal centers within content area
+  @media (min-width: 768px) {
+    left: 5rem;
+  }
+
+  // Desktop: no side rail, top bar instead — full width
+  @media (min-width: 1024px) {
+    left: 0;
+  }
+}
+
+.vv-action-drawer-shell--bottom {
+  align-items: flex-end;
+  justify-content: center;
+
+  // Tablet/Desktop: centered modal instead of bottom sheet
+  @media (min-width: 768px) {
+    align-items: center;
+  }
+}
+
+.vv-action-drawer-shell--top {
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.vv-action-drawer-shell--left {
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.vv-action-drawer-shell--right {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.vv-action-drawer-shell--full {
+  padding: 0;
+}
+
+.vv-action-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: rgb(15 23 42 / 0.45);
+  pointer-events: auto;
+  cursor: default;
+  animation: vv-drawer-backdrop-in 180ms ease-out;
+}
+
+.vv-action-drawer {
+  position: relative;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--vv-color-surface);
+  border: 1px solid rgb(226 232 240 / 1);
+  box-shadow: 0 2px 10px rgb(15 23 42 / 0.08);
+  color: rgb(15 23 42 / 1);
+  overflow: hidden;
+
+  .dark & {
+    border-color: rgb(51 65 85 / 1);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+    color: rgb(241 245 249 / 1);
+  }
+  max-height: min(70dvh, calc(100dvh - 1rem));
+  outline: none;
+}
+
+.vv-action-drawer-shell--closing .vv-action-drawer__backdrop,
+.vv-action-drawer-shell--closing .vv-action-drawer {
+  pointer-events: none;
+}
+
+.vv-action-drawer--bottom {
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  max-height: min(
+    80dvh,
+    calc(100dvh - var(--vv-bottom-nav-height, 0px) - 1rem)
+  );
+  animation: vv-drawer-slide-up 180ms ease-out;
+
+  // Tablet/Desktop: centered modal with all corners rounded
+  @media (min-width: 768px) {
+    border-radius: 1.5rem;
+    animation: vv-drawer-fade-in 180ms ease-out;
+  }
+}
+
+.vv-action-drawer--top {
+  border-bottom-left-radius: 1.5rem;
+  border-bottom-right-radius: 1.5rem;
+  animation: vv-drawer-slide-down 180ms ease-out;
+}
+
+.vv-action-drawer--left,
+.vv-action-drawer--right {
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+}
+
+.vv-action-drawer--left {
+  animation: vv-drawer-slide-left 180ms ease-out;
+}
+
+.vv-action-drawer--right {
+  animation: vv-drawer-slide-right 180ms ease-out;
+}
+
+.vv-action-drawer--full {
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  border: 0;
+  animation: vv-drawer-fade-in 180ms ease-out;
+}
+
+.vv-action-drawer--bottom.vv-action-drawer--closing {
+  animation: vv-drawer-slide-down-out 180ms ease-in forwards;
+
+  @media (min-width: 768px) {
+    animation: vv-drawer-fade-out 180ms ease-in forwards;
+  }
+}
+
+.vv-action-drawer--top.vv-action-drawer--closing {
+  animation: vv-drawer-slide-up-out 180ms ease-in forwards;
+}
+
+.vv-action-drawer--left.vv-action-drawer--closing {
+  animation: vv-drawer-slide-left-out 180ms ease-in forwards;
+}
+
+.vv-action-drawer--right.vv-action-drawer--closing {
+  animation: vv-drawer-slide-right-out 180ms ease-in forwards;
+}
+
+.vv-action-drawer--full.vv-action-drawer--closing {
+  animation: vv-drawer-fade-out 180ms ease-in forwards;
+}
+
+.vv-action-drawer-shell--closing .vv-action-drawer__backdrop {
+  animation: vv-drawer-backdrop-out 180ms ease-in forwards;
+}
+
+.vv-action-drawer--bottom.vv-action-drawer--size-sm,
+.vv-action-drawer--top.vv-action-drawer--size-sm {
+  width: min(22rem, 100vw);
+}
+.vv-action-drawer--bottom.vv-action-drawer--size-md,
+.vv-action-drawer--top.vv-action-drawer--size-md {
+  width: min(30rem, 100vw);
+}
+
+// Tablet/Desktop: cap width for centered modal (match info drawer max-w-lg)
+@media (min-width: 768px) {
+  .vv-action-drawer--bottom.vv-action-drawer--size-md {
+    width: min(32rem, calc(100vw - 2rem));
+  }
+}
+
+.vv-action-drawer--bottom.vv-action-drawer--size-lg,
+.vv-action-drawer--top.vv-action-drawer--size-lg {
+  width: min(40rem, 100vw);
+}
+
+.vv-action-drawer--bottom.vv-action-drawer--size-full,
+.vv-action-drawer--top.vv-action-drawer--size-full {
+  width: calc(100vw - 1rem);
+}
+
+.vv-action-drawer--left.vv-action-drawer--size-sm,
+.vv-action-drawer--right.vv-action-drawer--size-sm {
+  width: min(20rem, calc(100vw - 1rem));
+}
+
+.vv-action-drawer--left.vv-action-drawer--size-md,
+.vv-action-drawer--right.vv-action-drawer--size-md {
+  width: min(24rem, calc(100vw - 1rem));
+}
+
+.vv-action-drawer--left.vv-action-drawer--size-lg,
+.vv-action-drawer--right.vv-action-drawer--size-lg {
+  width: min(30rem, calc(100vw - 1rem));
+}
+
+.vv-action-drawer--left.vv-action-drawer--size-full,
+.vv-action-drawer--right.vv-action-drawer--size-full {
+  width: 100vw;
+}
+
+.vv-action-drawer__header,
+.vv-action-drawer__content {
+  background: var(--vv-color-surface);
+}
+
+.vv-action-drawer__header {
+  position: relative;
+  padding: 1rem 1rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+}
+
+.vv-action-drawer__header h2 {
+  text-align: center;
+  padding-inline: 2.5rem;
+}
+
+.vv-action-drawer__close-button {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--vv-color-brand);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.vv-action-drawer__close-button:hover {
+  background: color-mix(in srgb, var(--vv-color-brand) 12%, transparent);
+  color: var(--vv-color-brand);
+}
+
+.vv-action-drawer__close-button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--vv-color-brand),
+    0 0 0 4px var(--vv-color-surface);
+}
+
+.vv-action-drawer__content {
+  padding: 1rem 1rem 1rem;
+  overflow-y: auto;
+}
+
+.vv-action-drawer__actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.vv-action-drawer--bottom .vv-action-drawer__content {
+  padding-bottom: calc(
+    1rem + var(--vv-safe-bottom, env(safe-area-inset-bottom, 0px))
+  );
+}
+
+@keyframes vv-drawer-slide-up {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vv-drawer-slide-up-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}
+
+@keyframes vv-drawer-slide-down {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vv-drawer-slide-down-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+
+@keyframes vv-drawer-slide-left {
+  from {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vv-drawer-slide-left-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+}
+
+@keyframes vv-drawer-slide-right {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vv-drawer-slide-right-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+}
+
+@keyframes vv-drawer-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vv-drawer-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vv-drawer-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes vv-drawer-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-action-drawer,
+  .vv-action-drawer__backdrop {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,207 @@
+<div class="h-svh flex flex-col overflow-hidden bg-vv-bg dark:bg-slate-900 transition-colors duration-200">
+  <lib-toast-container />
+  <lib-keyboard-shortcuts />
+
+  <!-- Navigation progress bar: thin branded line at top during route changes -->
+  @if (isNavigating()) {
+    <div class="vv-nav-progress" aria-hidden="true"></div>
+  }
+
+  <!-- Top header: mobile only — shows VOCAVAULT branding (md: hidden since tablet/desktop has sidebar) -->
+  <header class="sticky top-0 z-20 border-b border-slate-200 dark:border-slate-700 bg-vv-surface/95 dark:bg-slate-800/95 backdrop-blur md:hidden" [class.hidden]="chrome.focusMode()">
+    <div class="max-w-mobile mx-auto flex h-14 items-center justify-between px-4 md:ml-20 md:max-w-none">
+      <button
+        type="button"
+        class="flex items-center gap-2 text-xl font-bold tracking-[0.18em] text-vv-brand vv-focus-ring-offset cursor-pointer"
+        aria-label="Vocavault home"
+        (click)="navigateHome()"
+      >
+        <img src="favicon.svg" alt="" class="h-7 w-7" aria-hidden="true" />
+        VOCAVAULT
+      </button>
+      <div class="relative vv-settings-dropdown">
+        <button
+          type="button"
+          class="w-9 h-9 flex items-center justify-center rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          aria-label="Settings menu"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="settingsOpen()"
+          (click)="toggleSettings(); $event.stopPropagation()"
+        >
+          <i class="pi pi-cog text-base" aria-hidden="true"></i>
+        </button>
+        @if (settingsOpen()) {
+          <div
+            role="menu"
+            class="absolute right-0 top-full mt-1 w-52 rounded-xl bg-vv-surface dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg py-1 z-50 animate-in fade-in slide-in-from-top-1"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              (click)="onExport(); settingsOpen.set(false)"
+            >
+              <i class="pi pi-download text-sm text-slate-400" aria-hidden="true"></i>
+              Export my words
+            </button>
+            <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
+            <button
+              type="button"
+              role="menuitem"
+              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              (click)="theme.toggle(); settingsOpen.set(false)"
+            >
+              <i [class]="theme.isDark() ? 'pi pi-sun text-sm text-slate-400' : 'pi pi-moon text-sm text-slate-400'" aria-hidden="true"></i>
+              {{ theme.isDark() ? 'Light mode' : 'Dark mode' }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Adaptive navigation (handles mobile bottom bar / tablet rail / desktop top bar) -->
+  <lib-adaptive-nav [items]="navItems" (logoClicked)="navigateHome()" [class.hidden]="chrome.focusMode()">
+    <!-- Desktop nav action area: Add button first, then divider, then settings gear -->
+    <div navAction class="flex items-center gap-2 ml-3">
+      <button
+        type="button"
+        class="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all vv-focus-ring-offset vv-btn-press"
+        [class]="fabDisabled() ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed' : 'bg-vv-brand text-white hover:bg-vv-brand-dark'"
+        aria-label="Add word or quiz"
+        aria-haspopup="dialog"
+        aria-controls="vv-add-drawer"
+        [attr.aria-expanded]="addDrawerVisible()"
+        [attr.aria-disabled]="fabDisabled()"
+        (click)="onFabClick()"
+      >
+        <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+        Add
+      </button>
+      <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" aria-hidden="true"></div>
+      <div class="relative vv-settings-dropdown">
+        <button
+          type="button"
+          class="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+          aria-label="Settings menu"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="settingsOpen()"
+          (click)="toggleSettings(); $event.stopPropagation()"
+        >
+          <i class="pi pi-cog text-lg" aria-hidden="true"></i>
+        </button>
+        @if (settingsOpen()) {
+          <div
+            role="menu"
+            class="absolute right-0 top-full mt-1 w-52 rounded-xl bg-vv-surface dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg py-1 z-50"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              (click)="onExport(); settingsOpen.set(false)"
+            >
+              <i class="pi pi-download text-sm text-slate-400" aria-hidden="true"></i>
+              Export my words
+            </button>
+            <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
+            <button
+              type="button"
+              role="menuitem"
+              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              (click)="theme.toggle(); settingsOpen.set(false)"
+            >
+              <i [class]="theme.isDark() ? 'pi pi-sun text-sm text-slate-400' : 'pi pi-moon text-sm text-slate-400'" aria-hidden="true"></i>
+              {{ theme.isDark() ? 'Light mode' : 'Dark mode' }}
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Tablet rail: settings gear pinned to bottom -->
+    <div navUtility class="relative vv-settings-dropdown">
+      <button
+        type="button"
+        class="w-full flex flex-col items-center rounded-xl px-1 py-3 text-slate-400 dark:text-slate-500 hover:bg-vv-brand/10 hover:text-vv-brand transition-colors"
+        aria-label="Settings menu"
+        aria-haspopup="menu"
+        [attr.aria-expanded]="settingsOpen()"
+        (click)="toggleSettings(); $event.stopPropagation()"
+      >
+        <i class="pi pi-cog text-lg mb-1" aria-hidden="true"></i>
+        <span class="text-2xs">Settings</span>
+      </button>
+      @if (settingsOpen()) {
+        <div
+          role="menu"
+          class="absolute left-full bottom-0 ml-1 w-52 rounded-xl bg-vv-surface dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg py-1 z-50"
+        >
+          <button
+            type="button"
+            role="menuitem"
+            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            (click)="onExport(); settingsOpen.set(false)"
+          >
+            <i class="pi pi-download text-sm text-slate-400" aria-hidden="true"></i>
+            Export my words
+          </button>
+          <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
+          <button
+            type="button"
+            role="menuitem"
+            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            (click)="theme.toggle(); settingsOpen.set(false)"
+          >
+            <i [class]="theme.isDark() ? 'pi pi-sun text-sm text-slate-400' : 'pi pi-moon text-sm text-slate-400'" aria-hidden="true"></i>
+            {{ theme.isDark() ? 'Light mode' : 'Dark mode' }}
+          </button>
+        </div>
+      }
+    </div>
+  </lib-adaptive-nav>
+
+  <!-- Main content area -->
+  <!-- Mobile: centered max-width 480px, bottom padding for nav, top padding for header -->
+  <!-- Tablet: left offset by rail width (w-20 = 5rem) -->
+  <!-- Desktop: top offset for navbar -->
+  <main id="main-content"
+    class="flex-1 flex flex-col overflow-y-auto overscroll-y-contain pb-24 pt-4"
+    [class.md:pb-6]="!chrome.focusMode()"
+    [class.md:pl-20]="!chrome.focusMode()"
+    [class.lg:pl-0]="!chrome.focusMode()"
+    [class.lg:pt-20]="!chrome.focusMode()"
+  >
+    <div class="flex-1 flex flex-col max-w-mobile mx-auto px-4 w-full md:max-w-2xl lg:max-w-4xl xl:max-w-5xl" style="--vv-content-px: 1rem">
+      <router-outlet #outlet="outlet" [@routeAnimations]="getRouteAnimationState(outlet)" />
+    </div>
+  </main>
+
+  <!-- Floating add button — mobile + tablet only (hidden on desktop where top nav has Add pill, hidden during add flows) -->
+  <div
+    class="fixed bottom-[calc(var(--vv-bottom-nav-height)-2.75rem)] left-1/2 z-30 -translate-x-1/2 md:bottom-6 md:right-6 md:left-auto md:translate-x-0 lg:hidden transition-all duration-200"
+    [class.hidden]="hideFab() || chrome.focusMode()"
+  >
+    <button
+      [id]="addTriggerId"
+      type="button"
+      class="flex h-14 w-14 items-center justify-center rounded-full border-4 border-vv-bg dark:border-slate-900 shadow-card transition-all vv-focus-ring-offset vv-btn-press"
+      [class]="fabDisabled() ? 'bg-slate-300 dark:bg-slate-600 text-slate-400 cursor-not-allowed' : 'bg-vv-brand text-vv-surface hover:scale-105'"
+      aria-label="Open add options"
+      aria-haspopup="dialog"
+      aria-controls="vv-add-drawer"
+      [attr.aria-expanded]="addDrawerVisible()"
+      [attr.aria-disabled]="fabDisabled()"
+      (click)="onFabClick()"
+    >
+      <i class="pi pi-plus text-lg" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <lib-action-drawer
+    [config]="addDrawerConfig()"
+    [(visible)]="addDrawerVisible"
+    [actions]="addActions()"
+    (actionSelected)="onAddActionSelected($event)"
+  />
+</div>

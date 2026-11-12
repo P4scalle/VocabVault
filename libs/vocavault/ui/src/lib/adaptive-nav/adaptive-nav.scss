@@ -1,0 +1,22 @@
+// Mobile bottom nav active indicator — Material 3 pill style
+.vv-mobile-nav-item.vv-nav-active {
+  color: var(--vv-color-brand, #3a7ca5);
+
+  .vv-mobile-nav-icon {
+    background: var(--vv-color-brand-light, rgba(58, 124, 165, 0.12));
+  }
+
+  span:last-child {
+    font-weight: 600;
+  }
+}
+
+:host-context(.dark) .vv-mobile-nav-item.vv-nav-active .vv-mobile-nav-icon {
+  background: rgba(58, 124, 165, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-mobile-nav-icon {
+    transition: none !important;
+  }
+}

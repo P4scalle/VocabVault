@@ -1,0 +1,234 @@
+<div class="space-y-4 md:space-y-6 pb-8">
+
+  <!-- Header -->
+  <div class="flex items-center gap-2 mb-4">
+    <i class="pi pi-chart-line text-xl text-vv-brand" aria-hidden="true"></i>
+    <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">Progress</h1>
+  </div>
+
+  @if (totalWords() === 0) {
+  <lib-empty-state
+    data-testid="empty-state"
+    iconClass="pi pi-chart-bar"
+    heading="No progress yet"
+    body="Add words and take quizzes to see your stats here."
+  />
+  } @else {
+
+  <!-- Streak + This Week row -->
+  <div class="flex items-center gap-1 mb-1">
+    <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Activity</h2>
+    <lib-info-button ariaLabel="About your stats" (click)="activeInfoDrawer.set('stats')" />
+  </div>
+  <div class="grid grid-cols-2 gap-3">
+    <div class="vv-card p-4 text-center">
+      <p class="text-3xl font-bold text-vv-brand">{{ streak().currentStreak }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Day Streak</p>
+      @if (streak().longestStreak > streak().currentStreak) {
+        <p class="text-2xs text-slate-400 mt-0.5">Best: {{ streak().longestStreak }}</p>
+      }
+    </div>
+    <div class="vv-card p-4 text-center">
+      <p class="text-3xl font-bold text-vv-brand">{{ wordsThisWeek() }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Words This Week</p>
+      @if (quizzesThisWeek() > 0) {
+        <p class="text-2xs text-slate-400 mt-0.5">{{ quizzesThisWeek() }} quizzes</p>
+      }
+    </div>
+  </div>
+
+  <!-- Week over week comparison -->
+  @if (weekOverWeek(); as wow) {
+    <div class="vv-card p-4">
+      <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">vs Last Week</p>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="text-center">
+          <p [class]="'text-lg font-bold ' + (wow.scoreChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500')">
+            {{ formatChange(wow.scoreChange) }}
+          </p>
+          <p class="text-2xs text-slate-400">Score</p>
+        </div>
+        <div class="text-center">
+          <p [class]="'text-lg font-bold ' + (wow.wordsChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500')">
+            {{ formatChange(wow.wordsChange) }}
+          </p>
+          <p class="text-2xs text-slate-400">Learned</p>
+        </div>
+        <div class="text-center">
+          <p [class]="'text-lg font-bold ' + (wow.accuracyChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500')">
+            {{ formatChange(wow.accuracyChange) }}%
+          </p>
+          <p class="text-2xs text-slate-400">Accuracy</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Flagged words nudge -->
+  @if (flaggedCount() > 0) {
+    <div class="vv-card p-4 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+        <i class="pi pi-flag-fill text-amber-500" aria-hidden="true"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">
+          {{ flaggedCount() }} word{{ flaggedCount() === 1 ? '' : 's' }} flagged for review
+        </p>
+        <a
+          routerLink="/dictionary"
+          [queryParams]="{ filter: 'flagged' }"
+          class="text-xs text-vv-brand hover:underline vv-focus-ring inline-flex items-center gap-1 mt-0.5"
+        >
+          View in dictionary
+          <i class="pi pi-arrow-right text-[10px]" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+  }
+
+  <!-- Review Schedule (SR Visibility) -->
+  @if (dueCount() > 0 || dueTomorrow() > 0) {
+    <div class="vv-card p-5">
+      <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">
+        <i class="pi pi-clock text-amber-500 mr-1.5" aria-hidden="true"></i>
+        Review Schedule
+      </h2>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="text-center p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20">
+          <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ dueCount() }}</p>
+          <p class="text-2xs text-slate-500 dark:text-slate-400 mt-0.5">Due Now</p>
+        </div>
+        <div class="text-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+          <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ dueTomorrow() }}</p>
+          <p class="text-2xs text-slate-500 dark:text-slate-400 mt-0.5">Tomorrow</p>
+        </div>
+        <div class="text-center p-3 rounded-xl bg-slate-50 dark:bg-slate-700">
+          <p class="text-2xl font-bold text-slate-600 dark:text-slate-300">{{ dueThisWeek() }}</p>
+          <p class="text-2xs text-slate-500 dark:text-slate-400 mt-0.5">This Week</p>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Eloquence Score card -->
+  <div
+    data-testid="eloquence-card"
+    class="vv-card p-8 flex flex-col items-center"
+  >
+    <lib-circular-progress
+      [value]="eloquenceScore()"
+      [max]="100"
+      [size]="140"
+      [strokeWidth]="18"
+    >
+      <span class="text-5xl font-bold dark:text-slate-100">{{ animatedScore() }}</span>
+    </lib-circular-progress>
+    <div class="mt-4 flex items-center gap-1">
+      <div class="px-4 py-1.5 rounded-full bg-vv-brandLight dark:bg-vv-brand/20">
+        <p class="font-medium text-base text-vv-brand">Eloquence score</p>
+      </div>
+      <lib-info-button ariaLabel="About eloquence score" (click)="activeInfoDrawer.set('eloquence')" />
+    </div>
+    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400 text-center max-w-[250px]">
+      Your overall vocabulary mastery across all quizzes
+    </p>
+  </div>
+
+  <!-- Stats row: 3 pills -->
+  <div class="grid grid-cols-3 gap-2 mobile:gap-3">
+    <div class="vv-card p-3 mobile:p-5 md:p-6 text-center">
+      <p class="text-xl mobile:text-2xl font-bold text-slate-800 dark:text-slate-100">{{ wordsLearned() }}</p>
+      <p class="text-2xs mobile:text-xs text-slate-500 dark:text-slate-400 mt-0.5">Words Learned</p>
+      <p class="text-[0.6rem] mobile:text-2xs text-slate-400 dark:text-slate-500">(Review + Mastered)</p>
+    </div>
+    <div class="vv-card p-3 mobile:p-5 md:p-6 text-center">
+      <p class="text-xl mobile:text-2xl font-bold text-slate-800 dark:text-slate-100">{{ accuracy() }}%</p>
+      <p class="text-2xs mobile:text-xs text-slate-500 dark:text-slate-400 mt-0.5">Accuracy</p>
+    </div>
+    <div class="vv-card p-3 mobile:p-5 md:p-6 text-center">
+      <p class="text-xl mobile:text-2xl font-bold text-slate-800 dark:text-slate-100">{{ quizzesTaken() }}</p>
+      <p class="text-2xs mobile:text-xs text-slate-500 dark:text-slate-400 mt-0.5">Quizzes Taken</p>
+    </div>
+  </div>
+
+  <!-- Mastery breakdown -->
+  <div class="vv-card overflow-hidden">
+    <button
+      type="button"
+      class="w-full flex items-center justify-between p-5 md:p-6 vv-focus-ring"
+      [attr.aria-expanded]="masteryExpanded()"
+      (click)="masteryExpanded.set(!masteryExpanded())"
+    >
+      <div class="flex items-center gap-2">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-100">Mastery Breakdown</h2>
+        <lib-info-button ariaLabel="About mastery levels" (click)="activeInfoDrawer.set('mastery-levels'); $event.stopPropagation()" />
+      </div>
+      <i
+        [class]="(masteryExpanded() ? 'pi pi-chevron-up' : 'pi pi-chevron-down') + ' text-sm text-slate-400 transition-transform'"
+        aria-hidden="true"
+      ></i>
+    </button>
+
+    @if (masteryExpanded()) {
+    <div class="px-5 pb-5 md:px-6 md:pb-6 motion-safe:animate-fade-in">
+      <!-- Stacked bar -->
+      <div class="flex h-5 rounded-full overflow-hidden mb-4">
+        @for (seg of masteryBarSegments(); track seg.label) {
+        <div
+          [style.width.%]="seg.pct"
+          [style.background-color]="seg.color"
+        ></div>
+        }
+      </div>
+
+      <!-- Level rows -->
+      <div class="divide-y divide-slate-100 dark:divide-slate-700">
+        @for (row of masteryRows(); track row.label) {
+        <div>
+          <button
+            type="button"
+            data-testid="mastery-row"
+            class="w-full flex items-center justify-between py-3 px-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 vv-focus-ring"
+            [attr.aria-expanded]="expandedLevel() === row.label"
+            (click)="toggleLevel(row.label)"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="w-3 h-3 rounded-full flex-shrink-0"
+                [style.background-color]="row.color"
+              ></span>
+              <span class="text-sm text-slate-700 dark:text-slate-300">{{ row.label }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ row.count }}</span>
+              <i
+                [class]="(expandedLevel() === row.label ? 'pi pi-chevron-up' : 'pi pi-chevron-down') + ' text-xs text-slate-400 transition-transform'"
+                aria-hidden="true"
+              ></i>
+            </div>
+          </button>
+          @if (expandedLevel() === row.label) {
+          <div class="pl-7 pr-1 pb-3 pt-1.5 space-y-1 motion-safe:animate-fade-in">
+            @for (word of wordsByLevel()[row.label]; track word.id) {
+            <div class="flex items-center gap-2 py-1.5 px-2 rounded-md bg-slate-50 dark:bg-slate-700/50">
+              <span class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ word.word }}</span>
+              <span class="text-xs text-slate-400 truncate">{{ word.definition }}</span>
+            </div>
+            } @empty {
+            <p class="text-xs text-slate-400 py-1">No words at this level yet — keep learning!</p>
+            }
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+    }
+  </div>
+
+  }
+
+</div>
+
+<!-- Info Drawer -->
+<lib-info-drawer [(topic)]="activeInfoDrawer" />

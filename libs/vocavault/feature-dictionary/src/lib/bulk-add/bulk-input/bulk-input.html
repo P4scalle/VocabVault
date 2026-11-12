@@ -1,0 +1,143 @@
+<div class="space-y-3">
+  <!-- Textarea with drag-drop overlay -->
+  <div
+    class="relative"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onFileDrop($event)"
+  >
+    <textarea
+      #textarea
+      class="vv-input resize-none min-h-[14rem] font-mono text-sm leading-relaxed w-full"
+      rows="8"
+      aria-label="Paste your words here"
+      placeholder="apple - a round fruit
+banana : a yellow fruit
+cherry	a small red fruit
+
+Or just words (we'll look up definitions):
+mango
+papaya"
+      [value]="rawText()"
+      (input)="onTextInput($event)"
+    ></textarea>
+    @if (dragOver()) {
+      <div class="absolute inset-0 bg-vv-brand/10 border-2 border-dashed border-vv-brand rounded-xl flex flex-col items-center justify-center z-10 pointer-events-none">
+        <i class="pi pi-download text-3xl text-vv-brand mb-2" aria-hidden="true"></i>
+        <p class="text-vv-brand font-medium">Drop file to import</p>
+        <p class="text-vv-brand/60 text-xs mt-1">.csv, .txt, .xlsx, .docx</p>
+      </div>
+    }
+  </div>
+
+  <!-- Paste button -->
+  <button
+    type="button"
+    class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl bg-vv-brand/10 text-vv-brand hover:bg-vv-brand/20 transition-colors vv-btn-press vv-focus-ring-offset w-full sm:w-auto"
+    (click)="onPasteClick()"
+  >
+    <i class="pi pi-clipboard text-sm" aria-hidden="true"></i>
+    Paste
+  </button>
+
+  <!-- Delimiter chip row -->
+  @if (delimiter()) {
+    <div class="flex flex-wrap items-center gap-2 vv-chip-spring">
+      <i class="pi pi-check text-green-500 text-xs" aria-hidden="true"></i>
+      <span class="text-xs text-slate-500 dark:text-slate-400">Detected separator:</span>
+      <div class="flex flex-wrap gap-1.5">
+        @for (opt of delimiterOptions; track opt.value) {
+          <button
+            type="button"
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors vv-focus-ring"
+            [class]="activeDelimiter() === opt.value
+              ? 'border-vv-brand text-vv-brand bg-vv-brand/10 ring-1 ring-vv-brand/30'
+              : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'"
+            (click)="onDelimiterSelect(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Mixed separator warning -->
+  @if (mixedSeparatorWarning()) {
+    <div class="flex items-start gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40">
+      <i class="pi pi-exclamation-triangle text-amber-500 text-sm mt-0.5 shrink-0" aria-hidden="true"></i>
+      <p class="text-xs text-amber-700 dark:text-amber-300">
+        {{ mixedSeparatorWarning() }}
+      </p>
+    </div>
+  }
+
+  <!-- Mode toggle -->
+  <div class="flex items-center gap-2">
+    <span class="text-xs text-slate-500 dark:text-slate-400">Mode:</span>
+    <div class="inline-flex rounded-lg bg-slate-100 dark:bg-slate-800 p-0.5" role="group" aria-label="Import mode">
+      <button
+        type="button"
+        class="transition-colors rounded-md px-3 py-1.5 text-sm font-medium vv-focus-ring"
+        [class]="!wordsOnly()
+          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+        (click)="wordsOnly() && toggleWordsOnly()"
+      >
+        Words + Defs
+      </button>
+      <button
+        type="button"
+        class="transition-colors rounded-md px-3 py-1.5 text-sm font-medium vv-focus-ring"
+        [class]="wordsOnly()
+          ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm'
+          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'"
+        (click)="!wordsOnly() && toggleWordsOnly()"
+      >
+        Words only
+      </button>
+    </div>
+  </div>
+
+  <!-- Words-only auto-detected hint (parser observation, not user toggle) -->
+  @if (bulkService.detectedWordsOnly() && wordCount() > 0) {
+    <div class="flex items-start gap-2 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/40">
+      <i class="pi pi-info-circle text-blue-500 text-sm mt-0.5 shrink-0" aria-hidden="true"></i>
+      <p class="text-xs text-blue-700 dark:text-blue-300">
+        We detected words without definitions. You can look up definitions automatically in the next step, or add a separator (e.g. <strong>apple - a round fruit</strong>) to include definitions.
+      </p>
+    </div>
+  }
+
+  <!-- File upload link -->
+  <div>
+    <button
+      type="button"
+      class="text-sm text-vv-brand hover:text-vv-brand/80 font-medium inline-flex items-center gap-1 vv-focus-ring"
+      (click)="onFileUploadClick()"
+    >
+      <i class="pi pi-upload text-xs" aria-hidden="true"></i>
+      Upload file
+    </button>
+    <input
+      #fileInput
+      type="file"
+      accept=".csv,.txt,.xlsx,.docx"
+      class="hidden"
+      (change)="onFileSelected($event)"
+      aria-label="Upload a word list file"
+    />
+  </div>
+
+  <!-- Live counter -->
+  @if (wordCount() > 0) {
+    <p class="text-sm text-slate-500 dark:text-slate-400">
+      {{ wordCount() }} word{{ wordCount() !== 1 ? 's' : '' }} detected
+      @if (defCount() > 0 && defCount() < wordCount()) {
+        <span class="text-amber-500"> · {{ defCount() }} with definitions</span>
+      } @else if (defCount() === wordCount()) {
+        <span class="text-green-500"> · all with definitions</span>
+      }
+    </p>
+  }
+</div>

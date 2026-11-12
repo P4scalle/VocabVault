@@ -1,0 +1,35 @@
+<button
+  type="button"
+  class="vv-hold-button"
+  [class]="styleClass()"
+  [class.vv-hold-button--holding]="holding()"
+  [class.vv-hold-button--confirming]="confirming()"
+  [attr.aria-label]="ariaLabel()"
+  (pointerdown)="onPointerDown($event)"
+  (pointerup)="onPointerUp()"
+  (pointercancel)="onPointerUp()"
+  (keydown)="onKeyDown($event)"
+>
+  <svg
+    class="vv-hold-ring"
+    #holdSvg
+    [attr.role]="holding() ? 'progressbar' : null"
+    [attr.aria-valuenow]="holding() ? progress() : null"
+    [attr.aria-valuemin]="holding() ? 0 : null"
+    [attr.aria-valuemax]="holding() ? 100 : null"
+    [attr.aria-hidden]="holding() ? null : 'true'"
+  >
+    <rect class="vv-hold-ring__track" #ringTrack />
+    <rect class="vv-hold-ring__progress" #ringProgress />
+  </svg>
+  <span class="vv-hold-button__content">
+    @if (confirming()) {
+      <ng-content select="[confirm]" />
+    } @else if (holding()) {
+      <ng-content select="[holding]" />
+    } @else {
+      <ng-content />
+    }
+  </span>
+  <span class="sr-only" aria-live="assertive">{{ completed() ? 'Deleted' : '' }}</span>
+</button>

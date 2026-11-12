@@ -1,0 +1,35 @@
+@if (visible()) {
+  <div
+    class="fixed inset-0 md:left-20 lg:left-0 z-50 flex items-end md:items-center justify-center"
+  >
+    <div
+      class="absolute inset-0 bg-black/40 dark:bg-black/60 animate-[fadeIn_200ms_ease-out]"
+      aria-hidden="true"
+      (click)="close()"
+    ></div>
+    <div
+      data-testid="bottom-sheet-panel"
+      class="relative w-full max-w-lg lg:max-w-2xl rounded-t-2xl md:rounded-2xl md:mx-4 bg-white dark:bg-slate-800 px-6 pb-8 pt-6 shadow-xl animate-[slideUp_250ms_ease-out] md:animate-[fadeIn_200ms_ease-out] duration-200 ease-out"
+      [class.transition-transform]="!dragging()"
+      [style.transform]="panelTransform"
+      role="dialog"
+      aria-modal="true"
+      cdkTrapFocus
+      [cdkTrapFocusAutoCapture]="true"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+      (keydown)="$event.stopPropagation()"
+      (keydown.escape)="close()"
+    >
+      <div
+        data-testid="drag-handle"
+        class="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-300 dark:bg-slate-600 md:hidden py-3 -my-3 cursor-grab"
+        libSwipeable
+        [axis]="'vertical'"
+        (swipeProgress)="onSwipeProgress($event)"
+        (swiped)="onSwiped($event)"
+      ></div>
+      <ng-content />
+    </div>
+  </div>
+}

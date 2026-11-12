@@ -1,0 +1,110 @@
+@if (words().length > 0) {
+  <div class="flex flex-col gap-5 pt-4 pb-8">
+
+    <!-- Screen reader feedback -->
+    <div class="sr-only" role="status" aria-live="polite">{{ matchFeedback() }}</div>
+
+    <!-- Header -->
+    <div>
+      @if (totalRounds() > 1) {
+        <p class="text-xs font-medium text-vv-brand dark:text-vv-brand mb-1">
+          Round {{ currentRound() + 1 }} of {{ totalRounds() }}
+        </p>
+      }
+      <p class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+        Match {{ words().length }} items
+      </p>
+      <!-- Overall progress -->
+      <lib-quiz-progress-bar
+        [current]="totalMatchedCount()"
+        [total]="totalWordCount()"
+      />
+      <p class="text-xs text-slate-400 mt-1">{{ totalMatchedCount() }} / {{ totalWordCount() }} matched</p>
+    </div>
+
+    @if (isComplete()) {
+      <div class="bg-green-50 dark:bg-green-900/30 rounded-2xl border-2 border-green-400 p-6 text-center">
+        <i class="pi pi-check-circle text-3xl text-green-500 mb-2 block" aria-hidden="true"></i>
+        <p class="font-semibold text-green-700 dark:text-green-400 text-lg">All matched!</p>
+        <lib-button styleClass="mt-4 px-8" (click)="finish()">
+          See Results
+        </lib-button>
+      </div>
+    } @else if (isRoundComplete() && !isLastRound()) {
+      <!-- Round complete, more rounds to go -->
+      <div class="bg-blue-50 dark:bg-blue-900/30 rounded-2xl border-2 border-blue-400 p-6 text-center">
+        <i class="pi pi-check-circle text-3xl text-blue-500 mb-2 block" aria-hidden="true"></i>
+        <p class="font-semibold text-blue-700 dark:text-blue-400 text-lg">Round complete!</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ totalRounds() - currentRound() - 1 }} round{{ totalRounds() - currentRound() - 1 > 1 ? 's' : '' }} remaining</p>
+        <lib-button styleClass="mt-4 px-8" (click)="nextRound()">
+          Next Round
+          <i class="pi pi-arrow-right ml-1" aria-hidden="true"></i>
+        </lib-button>
+      </div>
+    } @else {
+      <!-- Instruction banner — always visible, sticky at top -->
+      <div class="sticky top-0 z-10 -mx-4 px-4 py-2 border-b sm:relative sm:mx-0 sm:rounded-xl sm:border sm:py-2"
+        [class]="selectedLabel() ? 'bg-vv-brandLight dark:bg-vv-brand/10 border-vv-brand/20' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'">
+        <p class="text-center text-xs text-slate-500 dark:text-slate-400">
+          @if (selectedLabel()) {
+            Match: <span class="font-semibold text-vv-brand">{{ selectedLabel() }}</span>
+          } @else {
+            Tap any item to start matching
+          }
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 xs:gap-3">
+        <!-- Words column (left) — scrollable on mobile, padding for ring overflow -->
+        <div class="space-y-2 max-h-[55vh] overflow-y-auto overscroll-contain sm:max-h-none sm:overflow-visible py-0.5 px-0.5">
+          <p class="text-2xs xs:text-xs font-medium uppercase tracking-wide text-slate-400 sticky top-0 bg-vv-surface py-1 z-[1]">{{ columnLabels().left }}</p>
+          @for (word of words(); track word.id) {
+            <button
+              type="button"
+              [class]="'w-full rounded-xl border-2 p-2 xs:p-3 text-left text-xs xs:text-sm font-semibold transition-colors vv-focus-ring ' + tileClass(word.id, 'word')"
+              (click)="select(word.id, 'word')"
+              [disabled]="matchedPairIds().includes(word.id)"
+            >
+              @if (matchedPairIds().includes(word.id)) {
+                <i class="pi pi-check mr-1 text-green-600" aria-hidden="true"></i>
+              }
+              {{ getLeftText(word) }}
+            </button>
+          }
+        </div>
+
+        <!-- Definitions column (right, shuffled) — scrollable on mobile, padding for ring overflow -->
+        <div class="space-y-2 max-h-[55vh] overflow-y-auto overscroll-contain sm:max-h-none sm:overflow-visible py-0.5 px-0.5">
+          <p class="text-2xs xs:text-xs font-medium uppercase tracking-wide text-slate-400 sticky top-0 bg-vv-surface py-1 z-[1]">{{ columnLabels().right }}</p>
+          @for (defWordId of shuffledDefWordIds(); track defWordId) {
+            <button
+              type="button"
+              [class]="'w-full rounded-xl border-2 p-2 xs:p-3 text-left text-2xs xs:text-xs leading-snug transition-colors vv-focus-ring ' + tileClass(defWordId, 'def')"
+              (click)="select(defWordId, 'def')"
+              [disabled]="matchedPairIds().includes(defWordId)"
+            >
+              @if (matchedPairIds().includes(defWordId)) {
+                <i class="pi pi-check mr-1 text-green-600" aria-hidden="true"></i>
+              }
+              {{ getRightText(getWord(defWordId)!) }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Flag banner -->
+      @if (currentFlagWord(); as fw) {
+        <lib-quiz-flag-banner
+          [wordId]="fw.id"
+          [wordLabel]="fw.word"
+          [(flaggedIds)]="flaggedIds"
+        />
+      }
+    }
+  </div>
+} @else {
+  <lib-empty-state
+    iconClass="pi pi-th-large"
+    heading="No words available for this quiz"
+  />
+}

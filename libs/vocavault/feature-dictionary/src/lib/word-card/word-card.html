@@ -1,0 +1,130 @@
+<div
+  class="vv-card p-card vv-card-hover vv-focus-ring"
+  [class.cursor-pointer]="!selectable()"
+  [class.border-l-4]="!!folder()"
+  [class.border-l-transparent]="!folder()"
+  [style.border-left-color]="folder()?.color ?? ''"
+  [class.outline]="isSelected()"
+  [class.outline-2]="isSelected()"
+  [class.outline-vv-brand]="isSelected()"
+  role="button"
+  [attr.aria-label]="selectable() ? 'Select ' + word().word : 'Edit ' + word().word"
+  tabindex="0"
+  (click)="selectable() ? selectionToggled.emit(word()) : selected.emit(word())"
+  (keydown.enter)="selectable() ? selectionToggled.emit(word()) : selected.emit(word())"
+  (keydown.space)="selectable() ? selectionToggled.emit(word()) : selected.emit(word())"
+>
+  <div class="flex items-start gap-gap">
+    <!-- Checkbox for bulk select mode -->
+    @if (selectable()) {
+      <div class="flex items-center justify-center w-icon h-icon flex-shrink-0">
+        <div
+          class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors"
+          [class]="isSelected() ? 'bg-vv-brand border-vv-brand' : 'border-slate-300 dark:border-slate-600'"
+        >
+          @if (isSelected()) {
+            <i class="pi pi-check text-white text-2xs" aria-hidden="true"></i>
+          }
+        </div>
+      </div>
+    } @else {
+      <!-- Word icon box -->
+      <div class="w-icon h-icon rounded-xl bg-vv-brandLight dark:bg-vv-brand/20 flex items-center justify-center flex-shrink-0">
+        <i class="pi pi-book text-vv-brand text-xs" aria-hidden="true"></i>
+      </div>
+    }
+
+    <div class="flex-1 min-w-0">
+      <div class="flex flex-wrap items-center gap-1 mb-0.5">
+        <span class="font-semibold text-slate-900 dark:text-slate-100 truncate max-w-[min(10rem,60%)]" [innerHTML]="word().word | searchHighlight:searchQuery()"></span>
+        <span [class]="'vv-badge ' + badgeClass()">{{ masteryLabel() }}</span>
+        @if (word().incomplete) {
+          <span class="vv-badge bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-2xs px-1.5 py-0.5 rounded-full">
+            Needs attention
+          </span>
+        }
+        @if (word().flag) {
+          <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+            <i class="pi pi-flag-fill text-[8px]" aria-hidden="true"></i>
+            Flagged
+          </span>
+        }
+      </div>
+      @if (word().pronunciation) {
+        <p class="m-0 text-xs text-slate-400 dark:text-slate-500 truncate" [innerHTML]="word().pronunciation | searchHighlight:searchQuery()"></p>
+      }
+      <!-- Primary meaning -->
+      @if (primaryMeaning(); as primary) {
+        <p class="m-0 mt-1 text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
+          @if (primary.pos) {
+            <span
+              class="vv-pos-badge inline-flex items-center text-2xs font-medium px-1.5 py-0 rounded-full mr-1 align-middle whitespace-nowrap"
+              [class]="posBadgeClass(primary.pos)"
+            >{{ primary.pos }}</span>
+          }
+          <span [innerHTML]="primary.text | searchHighlight:searchQuery()"></span>
+        </p>
+      } @else {
+        <p class="m-0 mt-1 text-sm text-slate-400 dark:text-slate-500 italic">No definition</p>
+      }
+
+      <!-- Secondary meanings -->
+      @for (meaning of secondaryMeanings(); track $index) {
+        <p class="m-0 text-xs text-slate-400 dark:text-slate-500 truncate">
+          @if (meaning.pos) {
+            <span
+              class="vv-pos-badge inline-flex items-center text-2xs font-medium px-1.5 py-0 rounded-full mr-1 align-middle whitespace-nowrap"
+              [class]="posBadgeClass(meaning.pos)"
+            >{{ meaning.pos }}</span>
+          }
+          <span [innerHTML]="meaning.text | searchHighlight:searchQuery()"></span>
+        </p>
+      }
+
+      <!-- First example sentence -->
+      @if (firstExample(); as example) {
+        <p class="m-0 mt-0.5 text-xs text-slate-400 dark:text-slate-500 italic truncate">
+          "{{ example }}"
+        </p>
+      }
+    </div>
+
+    @if (!selectable()) {
+      <button
+        type="button"
+        class="flex-shrink-0 min-w-[2.75rem] min-h-[2.75rem] flex items-center justify-center rounded-lg transition-colors vv-focus-ring hover:bg-vv-brandLight dark:hover:bg-vv-brand/15"
+        [class]="folder() ? '' : 'text-slate-400 dark:text-slate-500 hover:text-vv-brand'"
+        [style.color]="folder()?.color ?? ''"
+        [attr.aria-label]="'Assign folder for ' + word().word"
+        (click)="$event.stopPropagation(); folderRequested.emit(word())"
+      >
+        <i class="pi pi-folder text-xs" aria-hidden="true"></i>
+      </button>
+
+      <button
+        type="button"
+        class="min-w-[2.75rem] h-11 flex items-center justify-center rounded-lg transition-colors vv-focus-ring"
+        [class]="isFlagged()
+          ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+          : 'text-slate-400 dark:text-slate-500 hover:text-amber-500 hover:bg-slate-100 dark:hover:bg-slate-700'"
+        [attr.aria-pressed]="isFlagged()"
+        [attr.aria-label]="isFlagged() ? 'Remove flag from ' + word().word : 'Flag ' + word().word"
+        (click)="flagToggled.emit(word()); $event.stopPropagation()"
+      >
+        <i [class]="isFlagged() ? 'pi pi-flag-fill' : 'pi pi-flag'" aria-hidden="true"></i>
+      </button>
+
+      <lib-hold-button
+        styleClass="flex-shrink-0 min-w-[2.75rem] min-h-[2.75rem] flex items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors vv-focus-ring"
+        [ariaLabel]="'Hold to delete ' + word().word"
+        title="Hold to delete"
+        (confirmed)="deleteRequested.emit(word())"
+        (click)="$event.stopPropagation()"
+      >
+        <i class="pi pi-trash text-xs" aria-hidden="true"></i>
+        <i holding class="pi pi-trash text-xs text-red-500" aria-hidden="true"></i>
+        <span confirm><i class="pi pi-trash text-xs text-red-500" aria-hidden="true"></i></span>
+      </lib-hold-button>
+    }
+  </div>
+</div>

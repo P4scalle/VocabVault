@@ -1,0 +1,83 @@
+<div class="space-y-5 pb-8">
+
+  <!-- Back header -->
+  <div class="flex items-center gap-3 mb-2">
+    <button
+      type="button"
+      class="w-10 h-10 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 hover:text-vv-brand transition-colors vv-focus-ring"
+      aria-label="Go back"
+      (click)="goBack()"
+    >
+      <i class="pi pi-arrow-left text-sm" aria-hidden="true"></i>
+    </button>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">Start {{ modeInfo().label }} Quiz</h1>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Choose a quiz set or create a new one</p>
+    </div>
+  </div>
+
+  <!-- Mode badge -->
+  <div class="vv-card p-5 flex items-center gap-4">
+    <div class="w-12 h-12 rounded-xl flex items-center justify-center" [class]="modeInfo().colorClass">
+      <i [class]="modeInfo().iconClass + ' text-xl'" aria-hidden="true"></i>
+    </div>
+    <div>
+      <h2 class="font-semibold text-slate-800 dark:text-slate-100">{{ modeInfo().label }}</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Select which words to practice</p>
+    </div>
+  </div>
+
+  <!-- Existing quiz sets -->
+  @if (quizSets().length > 0) {
+    <div>
+      <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Your Quiz Sets</h3>
+      <div class="space-y-3">
+        @for (qs of quizSets(); track qs.id) {
+          <button
+            type="button"
+            class="w-full vv-card p-4 text-left vv-card-hover vv-focus-ring transition-all"
+            (click)="startWithExisting(qs.id)"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-vv-brandLight dark:bg-vv-brand/20 flex items-center justify-center flex-shrink-0">
+                <i class="pi pi-bolt text-vv-brand" aria-hidden="true"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="font-semibold text-slate-900 dark:text-slate-100 truncate block">{{ qs.name }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400">{{ qs.wordIds.length }} words</span>
+              </div>
+              <div class="w-9 h-9 rounded-xl bg-vv-brand flex items-center justify-center flex-shrink-0">
+                <i class="pi pi-play text-white text-sm" aria-hidden="true"></i>
+              </div>
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Divider -->
+  @if (quizSets().length > 0) {
+    <div class="flex items-center gap-3">
+      <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+      <span class="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide">or</span>
+      <div class="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
+    </div>
+  }
+
+  <!-- Create new -->
+  <button
+    type="button"
+    class="w-full vv-card p-5 text-center vv-card-hover vv-focus-ring border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-vv-brand transition-colors"
+    (click)="createNew()"
+  >
+    <div class="flex flex-col items-center gap-2">
+      <div class="w-12 h-12 rounded-full bg-vv-brandLight dark:bg-vv-brand/20 flex items-center justify-center">
+        <i class="pi pi-plus text-vv-brand text-lg" aria-hidden="true"></i>
+      </div>
+      <span class="font-semibold text-vv-brand">Create New Quiz Set</span>
+      <span class="text-xs text-slate-500 dark:text-slate-400">Pick words from your dictionary</span>
+    </div>
+  </button>
+
+</div>

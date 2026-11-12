@@ -1,0 +1,263 @@
+@if (quizSet(); as qs) {
+  <div class="space-y-4 pb-8">
+
+    <!-- Back header -->
+    <div class="flex items-center gap-3 mb-2">
+      <button
+        type="button"
+        class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 hover:text-vv-brand transition-colors vv-focus-ring"
+        aria-label="Go back"
+        (click)="goBack()"
+      >
+        <i class="pi pi-arrow-left text-sm" aria-hidden="true"></i>
+      </button>
+      <div class="flex-1">
+        <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">{{ qs.name }}</h1>
+        <p class="text-xs text-slate-500">{{ words().length }} words</p>
+      </div>
+      <button
+        type="button"
+        class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-vv-brandLight dark:hover:bg-vv-brand/15 hover:text-vv-brand transition-colors vv-focus-ring"
+        aria-label="Edit quiz set"
+        (click)="editQuiz()"
+      >
+        <i class="pi pi-pencil text-sm" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Quiz type card -->
+    <div class="vv-card p-6">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center">
+          <i class="pi pi-bolt text-vv-brand text-2xl" aria-hidden="true"></i>
+        </div>
+        <div>
+          <h3 class="font-semibold text-lg text-slate-800 dark:text-slate-100">Quiz Set</h3>
+          @if (qs.description) {
+            <p class="text-sm text-slate-500 dark:text-slate-400">{{ qs.description }}</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Session progress (large sets only) -->
+    @if (sessionProgress(); as sp) {
+      <div class="vv-card p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">
+            @if (sp.allPracticed) {
+              All words practiced — reviewing
+            } @else {
+              {{ sp.practicedWords }} of {{ sp.totalWords }} words practiced
+            }
+          </span>
+          <span class="text-xs font-medium text-vv-brand">{{ sp.pct }}%</span>
+        </div>
+        <!-- Progress bar -->
+        <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+          <div
+            class="h-full rounded-full bg-vv-brand transition-all duration-500"
+            [style.width.%]="sp.pct"
+          ></div>
+        </div>
+        <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">
+          @if (sp.allPracticed) {
+            Each session focuses on words that need the most review
+          } @else {
+            Each session gives you 20 words — new ones mixed with review
+          }
+        </p>
+      </div>
+    }
+
+    <!-- Select mode: 2x2 grid -->
+    <div>
+      <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Choose a mode</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <button
+          (click)="startMode('flashcard')"
+          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          style="animation-delay: 0ms"
+        >
+          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+            <i class="pi pi-clone text-vv-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Flashcard</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Flip cards to reveal definitions</span>
+        </button>
+        <button
+          (click)="startMode('multiple-choice')"
+          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          style="animation-delay: 80ms"
+        >
+          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+            <i class="pi pi-list-check text-vv-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Multiple Choice</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Pick the correct definition</span>
+        </button>
+        <button
+          (click)="startMode('type')"
+          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          style="animation-delay: 160ms"
+        >
+          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+            <i class="pi pi-pen-to-square text-vv-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Type / Write</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Type the definition from memory</span>
+        </button>
+        <button
+          (click)="startMode('match')"
+          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          style="animation-delay: 240ms"
+        >
+          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+            <i class="pi pi-arrows-h text-vv-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Match</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Connect words to definitions</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Direction picker -->
+    <div>
+      <h2 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">Quiz direction</h2>
+      <div class="flex flex-wrap gap-2">
+        @for (dir of directionOptions(); track dir) {
+          <button
+            type="button"
+            (click)="selectDirection(dir)"
+            [class]="'px-3 py-1.5 rounded-full text-xs font-medium border transition-colors vv-focus-ring ' +
+              (selectedDirection() === dir
+                ? 'bg-vv-brand text-white border-vv-brand'
+                : 'bg-vv-surface text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:border-vv-brand hover:text-vv-brand')"
+          >
+            {{ directionLabels[dir] }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Words preview -->
+    <div class="vv-card p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-slate-800 dark:text-slate-100">Words in this quiz</h3>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 text-sm font-medium text-vv-brand hover:text-vv-brandDark transition-colors vv-focus-ring rounded-lg px-2 py-1"
+          (click)="openWordPicker()"
+        >
+          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+          Add Words
+        </button>
+      </div>
+      @if (words().length > 0) {
+        <div class="space-y-2">
+          @for (word of words().slice(0, 5); track word.id; let i = $index) {
+            <div class="flex items-start gap-3 p-3 bg-vv-bg dark:bg-slate-700/50 rounded-lg">
+              <span class="text-sm font-semibold text-vv-brand min-w-[20px]">{{ i + 1 }}</span>
+              <div class="flex-1">
+                <p class="font-medium text-slate-800 dark:text-slate-100 text-sm">{{ word.word }}</p>
+                @if (word.pronunciation) {
+                  <p class="text-xs text-slate-400">{{ word.pronunciation }}</p>
+                }
+              </div>
+            </div>
+          }
+          @if (words().length > 5) {
+            <p class="text-xs text-slate-400 text-center pt-1">+ {{ words().length - 5 }} more words</p>
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-slate-400 text-center py-4">No words yet. Tap "Add Words" to get started.</p>
+      }
+      <p class="text-xs text-slate-400 dark:text-slate-500 mt-3 text-center">Aim for 10-20 words per set for the best quiz experience.</p>
+    </div>
+  </div>
+
+  <!-- Word Picker Overlay -->
+  @if (showWordPicker()) {
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+      <!-- Backdrop -->
+      <div
+        class="absolute inset-0 bg-black/40 dark:bg-black/60"
+        tabindex="-1"
+        (click)="closeWordPicker()"
+        (keydown.escape)="closeWordPicker()"
+      ></div>
+
+      <!-- Panel -->
+      <div class="relative w-full sm:max-w-lg max-h-[85vh] bg-white dark:bg-slate-800 rounded-t-2xl sm:rounded-2xl flex flex-col motion-safe:animate-fade-in-up" role="dialog" aria-modal="true" aria-label="Select words" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" tabindex="-1" (keydown.escape)="closeWordPicker()">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-700">
+          <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">Select Words</h2>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-slate-500 dark:text-slate-400">{{ selectedWordIds().length }} selected</span>
+            <button
+              cdkFocusInitial
+              type="button"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              aria-label="Close"
+              (click)="closeWordPicker()"
+            >
+              <i class="pi pi-times text-sm" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+          <div class="relative">
+            <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" aria-hidden="true"></i>
+            <input
+              type="text"
+              class="vv-input pl-9 pr-4 py-2.5"
+              placeholder="Search words..."
+              [ngModel]="wordFilter()"
+              (ngModelChange)="wordFilter.set($event)"
+              name="wordFilter"
+            />
+          </div>
+        </div>
+
+        <!-- Word list -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-1">
+          @for (word of filteredWords(); track word.id) {
+            <button
+              type="button"
+              class="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors"
+              [class]="isWordSelected(word.id) ? 'bg-vv-brandLight dark:bg-vv-brand/15' : 'hover:bg-slate-50 dark:hover:bg-slate-700'"
+              (click)="toggleWord(word.id)"
+            >
+              <div
+                class="w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                [class]="isWordSelected(word.id) ? 'bg-vv-brand border-vv-brand' : 'border-slate-300 dark:border-slate-600'"
+              >
+                @if (isWordSelected(word.id)) {
+                  <i class="pi pi-check text-white text-2xs" aria-hidden="true"></i>
+                }
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-sm text-slate-800 dark:text-slate-100 truncate">{{ word.word }}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ word.definition }}</p>
+              </div>
+            </button>
+          } @empty {
+            <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-8">No words found.</p>
+          }
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-100 dark:border-slate-700">
+          <lib-button size="sm" [fullWidth]="true" styleClass="vv-btn-press" (click)="saveWordSelection()">
+            Save ({{ selectedWordIds().length }} words)
+          </lib-button>
+        </div>
+      </div>
+    </div>
+  }
+} @else {
+  <p class="text-slate-500 dark:text-slate-400">Quiz set not found.</p>
+}
