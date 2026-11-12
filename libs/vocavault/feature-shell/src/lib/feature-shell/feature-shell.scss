@@ -34,51 +34,5 @@
   }
 }
 
-/* First-run nudge: pulse the add button until the user adds their first word.
-   A box-shadow ring works on both the round FAB and the pill, and respects
-   their border-radius. */
-.vv-add-hint {
-  animation: vv-add-hint-pulse 2s ease-out infinite;
-}
-
-@keyframes vv-add-hint-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0.5);
-  }
-  70% {
-    box-shadow: 0 0 0 12px rgb(var(--vv-rgb-brand) / 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0);
-  }
-}
-
-/* Bounce the TOOLTIP cue (not the button), like React, so the tap target
-   stays still. The tooltip is centred with translateX(-50%); the keyframe keeps
-   that while nudging it vertically. */
-.vv-add-hint-tooltip {
-  animation: vv-add-hint-bounce 1.3s ease-in-out infinite;
-  z-index: 40;
-}
-
-@keyframes vv-add-hint-bounce {
-  0%,
-  100% {
-    transform: translate(-50%, 0);
-  }
-  50% {
-    transform: translate(-50%, -5px);
-  }
-}
-
-/* Respect users who prefer less motion: show the ring statically, no pulsing. */
-@media (prefers-reduced-motion: reduce) {
-  .vv-add-hint {
-    animation: none;
-    box-shadow: 0 0 0 3px rgb(var(--vv-rgb-brand) / 0.35);
-  }
-
-  .vv-add-hint-tooltip {
-    animation: none;
-  }
-}
+/* The first-run add-button cue now uses the shared global .vv-cue-pulse /
+   .vv-cue-tooltip mechanism (see apps/vocavault/src/styles.scss). */

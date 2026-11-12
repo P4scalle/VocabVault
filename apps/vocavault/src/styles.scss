@@ -235,23 +235,42 @@
   }
 }
 
-/* Reusable first-run cue: pulse a call-to-action (e.g. the quiz Finish button)
-   with a box-shadow ring. Box-shadow never shifts layout, so the target stays a
-   stable, clickable tap target (unlike a transform bounce). */
+/* The single first-run cue mechanism, shared app-wide (add button, quiz Finish
+   button, anywhere a call-to-action needs a nudge). Two parts:
+   - .vv-cue-pulse: a box-shadow ring on the target. Box-shadow never shifts
+     layout, so the target stays a stable, clickable tap target.
+   - .vv-cue-tooltip: a bouncing label above it (the real attention-grabber;
+     a ring alone is too easy to miss). */
 .vv-cue-pulse {
-  animation: vv-cue-pulse-ring 2s ease-out infinite;
+  animation: vv-cue-pulse-ring 1.8s ease-out infinite;
 }
 
 @keyframes vv-cue-pulse-ring {
-  0% { box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0.5); }
-  70% { box-shadow: 0 0 0 10px rgb(var(--vv-rgb-brand) / 0); }
+  0% { box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0.65); }
+  70% { box-shadow: 0 0 0 14px rgb(var(--vv-rgb-brand) / 0); }
   100% { box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0); }
+}
+
+/* Centre the tooltip at the call site with `left-1/2 -translate-x-1/2`; the
+   keyframe keeps that X offset while nudging it vertically, so only the tooltip
+   moves, never the tap target. */
+.vv-cue-tooltip {
+  animation: vv-cue-tooltip-bounce 1.3s ease-in-out infinite;
+  z-index: 40;
+}
+
+@keyframes vv-cue-tooltip-bounce {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -5px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .vv-cue-pulse {
     animation: none;
-    box-shadow: 0 0 0 3px rgb(var(--vv-rgb-brand) / 0.35);
+    box-shadow: 0 0 0 3px rgb(var(--vv-rgb-brand) / 0.4);
+  }
+  .vv-cue-tooltip {
+    animation: none;
   }
 }
 

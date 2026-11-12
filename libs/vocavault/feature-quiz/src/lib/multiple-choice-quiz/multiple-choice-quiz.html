@@ -62,9 +62,14 @@
       <div class="vv-sticky-footer-inline">
         <div class="vv-sticky-footer-content flex-row justify-end">
           @if (isLast()) {
-            <lib-button [styleClass]="showFinishCue() ? 'px-8 vv-cue-pulse' : 'px-8'" (click)="finish()">
-              Finish
-            </lib-button>
+            <span class="relative">
+              <lib-button [styleClass]="showFinishCue() ? 'px-8 vv-cue-pulse' : 'px-8'" (click)="finish()">
+                Finish
+              </lib-button>
+              @if (showFinishCue()) {
+                <span class="vv-cue-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">See how you did</span>
+              }
+            </span>
           } @else {
             <lib-button styleClass="px-8" (click)="next()">
               Next

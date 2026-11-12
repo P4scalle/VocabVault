@@ -357,12 +357,12 @@ describe('FeatureShell', () => {
   describe('first-run add hint', () => {
     it('pulses the add button when the dictionary is empty (off-home)', async () => {
       await navigateTo('/dictionary');
-      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(true);
     });
 
     it('shows a guiding "Add your first word" tooltip while the hint is active', async () => {
       await navigateTo('/dictionary');
-      const tooltips = fixture.nativeElement.querySelectorAll('.vv-add-hint-tooltip');
+      const tooltips = fixture.nativeElement.querySelectorAll('.vv-cue-tooltip');
       expect(tooltips.length).toBeGreaterThan(0);
       expect(tooltips[0].textContent).toContain('Add your first word');
     });
@@ -371,16 +371,16 @@ describe('FeatureShell', () => {
       // Use the mobile FAB (the reliably-rendered control in jsdom) like the rest
       // of this block; the projected desktop pill is not dependable here.
       await navigateTo('/dictionary');
-      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(true);
       await navigateTo('/home');
-      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(false);
     });
 
     it('keeps pulsing toward quiz creation once a quizzable word exists, with create-quiz copy', async () => {
       TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
       await navigateTo('/dictionary');
-      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
-      const tooltip = fixture.nativeElement.querySelector('.vv-add-hint-tooltip');
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(true);
+      const tooltip = fixture.nativeElement.querySelector('.vv-cue-tooltip');
       expect(tooltip).toBeTruthy();
       expect(tooltip.textContent).toContain('build your first quiz');
     });
@@ -391,19 +391,19 @@ describe('FeatureShell', () => {
       const quizzable = words.quizzableWords();
       TestBed.inject(QuizService).addQuizSet({ name: 'First Quiz', description: '', wordIds: quizzable.map((w) => w.id), color: '' });
       await navigateTo('/dictionary');
-      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
-      expect(fixture.nativeElement.querySelector('.vv-add-hint-tooltip')).toBeFalsy();
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(false);
+      expect(fixture.nativeElement.querySelector('.vv-cue-tooltip')).toBeFalsy();
     });
 
     it('stops pulsing once onboarding is dismissed', async () => {
       TestBed.inject(OnboardingService).dismiss();
       await navigateTo('/dictionary');
-      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(false);
     });
 
     it('does not pulse while the add button is disabled (on an add page)', async () => {
       await navigateTo('/dictionary?addWord=true');
-      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(false);
     });
   });
 
