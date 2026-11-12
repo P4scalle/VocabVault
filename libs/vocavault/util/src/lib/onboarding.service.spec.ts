@@ -146,4 +146,24 @@ describe('OnboardingService', () => {
       expect(service.dismissed()).toBe(true);
     });
   });
+
+  describe('reset', () => {
+    it('re-enables guidance so cues reappear for the current milestone', () => {
+      wireContext(service, { totalWords: 0 });
+      service.dismiss();
+      expect(service.currentStep()).toBeNull();
+
+      service.reset();
+      expect(service.dismissed()).toBe(false);
+      expect(service.currentStep()).toBe('add-word');
+    });
+
+    it('persists the un-dismissed state', () => {
+      service.dismiss();
+      service.reset();
+      TestBed.flushEffects();
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) as string);
+      expect(stored.dismissed).toBe(false);
+    });
+  });
 });

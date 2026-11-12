@@ -355,21 +355,30 @@ describe('FeatureShell', () => {
   // jsdom reports a mobile layout, so adaptive-nav only renders the mobile FAB
   // here; the desktop add pill is verified across viewports in the e2e suite.
   describe('first-run add hint', () => {
-    it('pulses the add button when the dictionary is empty', async () => {
-      await navigateTo('/home');
+    it('pulses the add button when the dictionary is empty (off-home)', async () => {
+      await navigateTo('/dictionary');
       expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
     });
 
     it('shows a guiding "Add your first word" tooltip while the hint is active', async () => {
-      await navigateTo('/home');
+      await navigateTo('/dictionary');
       const tooltips = fixture.nativeElement.querySelectorAll('.vv-add-hint-tooltip');
       expect(tooltips.length).toBeGreaterThan(0);
       expect(tooltips[0].textContent).toContain('Add your first word');
     });
 
+    it('does not pulse on home — the welcome banner guides there instead', async () => {
+      // Use the mobile FAB (the reliably-rendered control in jsdom) like the rest
+      // of this block; the projected desktop pill is not dependable here.
+      await navigateTo('/dictionary');
+      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
+      await navigateTo('/home');
+      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+    });
+
     it('keeps pulsing toward quiz creation once a quizzable word exists, with create-quiz copy', async () => {
       TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
-      await navigateTo('/home');
+      await navigateTo('/dictionary');
       expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
       const tooltip = fixture.nativeElement.querySelector('.vv-add-hint-tooltip');
       expect(tooltip).toBeTruthy();
@@ -381,20 +390,35 @@ describe('FeatureShell', () => {
       words.addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
       const quizzable = words.quizzableWords();
       TestBed.inject(QuizService).addQuizSet({ name: 'First Quiz', description: '', wordIds: quizzable.map((w) => w.id), color: '' });
-      await navigateTo('/home');
+      await navigateTo('/dictionary');
       expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
       expect(fixture.nativeElement.querySelector('.vv-add-hint-tooltip')).toBeFalsy();
     });
 
     it('stops pulsing once onboarding is dismissed', async () => {
       TestBed.inject(OnboardingService).dismiss();
-      await navigateTo('/home');
+      await navigateTo('/dictionary');
       expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
     });
 
     it('does not pulse while the add button is disabled (on an add page)', async () => {
       await navigateTo('/dictionary?addWord=true');
       expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+    });
+  });
+
+  describe('restart onboarding from settings', () => {
+    it('re-enables guidance and navigates home', async () => {
+      await navigateTo('/dictionary');
+      const onboarding = TestBed.inject(OnboardingService);
+      onboarding.dismiss();
+      expect(onboarding.dismissed()).toBe(true);
+
+      const navSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      (fixture.componentInstance as unknown as { restartOnboarding: () => void }).restartOnboarding();
+
+      expect(onboarding.dismissed()).toBe(false);
+      expect(navSpy).toHaveBeenCalledWith(['/home']);
     });
   });
 

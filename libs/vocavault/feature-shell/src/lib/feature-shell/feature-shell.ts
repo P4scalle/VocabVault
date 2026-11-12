@@ -46,6 +46,14 @@ export class FeatureShell implements OnInit {
     this.settingsOpen.update((v) => !v);
   }
 
+  /** Re-enable first-run guidance from Settings, then land on home where it shows. */
+  protected restartOnboarding(): void {
+    this.onboarding.reset();
+    this.settingsOpen.set(false);
+    this.toast.show('Getting-started tips are back on');
+    void this.router.navigate(['/home']);
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.settingsOpen() && !this.el.nativeElement.querySelector('.vv-settings-dropdown')?.contains(event.target as Node)) {
@@ -75,6 +83,19 @@ export class FeatureShell implements OnInit {
   protected readonly fabDisabled = computed(() => this.isOnAddPage());
 
   protected readonly hideFab = computed(() => this.isOnAddPage());
+
+  /** Home has its own onboarding banner, so the add-button hint is redundant there. */
+  protected readonly isHome = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map((e: NavigationEnd) => {
+        const path = new URL(e.urlAfterRedirects, 'http://x').pathname;
+        return path === '/' || path === '/home';
+      }),
+      startWith(false),
+    ),
+    { initialValue: false },
+  );
 
   protected readonly isNavigating = toSignal(
     merge(
@@ -141,7 +162,8 @@ export class FeatureShell implements OnInit {
    * is disabled there) and once onboarding is dismissed (currentStep is null).
    */
   protected readonly showAddHint = computed(() => {
-    if (this.fabDisabled()) return false;
+    // On home the onboarding banner already guides, so skip the redundant pulse.
+    if (this.fabDisabled() || this.isHome()) return false;
     const step = this.onboarding.currentStep();
     return step === 'add-word' || step === 'create-quiz';
   });

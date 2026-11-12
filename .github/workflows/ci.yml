@@ -52,6 +52,7 @@ jobs:
             src/bulk-import.spec.ts \
             src/dictionary-nav.spec.ts \
             src/dictionary.spec.ts \
+            src/guided-first-quiz.spec.ts \
             src/folder-management.spec.ts \
             src/folder-scroller.spec.ts \
             src/navigation.spec.ts \

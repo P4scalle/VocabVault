@@ -63,6 +63,16 @@ export class OnboardingService {
     this._dismissed.set(true);
   }
 
+  /**
+   * Re-enable first-run guidance (undo a dismiss). Because the current step is
+   * derived from live data, the contextual cues reappear for whatever milestone
+   * the user is currently at; a user who has already finished the loop simply
+   * sees nothing, which is correct.
+   */
+  reset(): void {
+    this._dismissed.set(false);
+  }
+
   private load(): boolean {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);

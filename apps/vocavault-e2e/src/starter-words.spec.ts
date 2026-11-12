@@ -53,7 +53,9 @@ test.describe('Starter words & first-run add hint', () => {
   });
 
   test('add button pulses for the first word, then guides toward the first quiz', async ({ page }) => {
-    await page.goto('/home');
+    // The add-button hint lives off-home (home has its own welcome banner), so
+    // assert it on /dictionary.
+    await page.goto('/dictionary');
     // Wait for the shell to render before asserting on the hint (avoids a load-time race).
     await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
     // Empty dictionary: at least one add control (mobile FAB or desktop pill)
@@ -61,17 +63,19 @@ test.describe('Starter words & first-run add hint', () => {
     await expect(page.locator('.vv-add-hint').first()).toBeAttached();
     await expect(page.locator('.vv-add-hint-tooltip').first()).toContainText('Add your first word');
 
-    await page.goto('/dictionary');
     await page.getByTestId('starter-words').getByRole('button').first().click();
     await expect(page.getByTestId('starter-words')).toBeHidden();
-    // Confirm the word actually landed before leaving, so the hint state is settled.
+    // Confirm the word actually landed before asserting the next state.
     await expect(page.locator('lib-word-card').first()).toBeVisible();
 
-    await page.goto('/home');
-    await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
-    // A quizzable word now exists but no quiz: the hint persists and steers to
-    // building the first quiz.
+    // Still on /dictionary: a quizzable word now exists but no quiz, so the hint
+    // persists and steers to building the first quiz.
     await expect(page.locator('.vv-add-hint').first()).toBeAttached();
     await expect(page.locator('.vv-add-hint-tooltip').first()).toContainText('build your first quiz');
+
+    // Home shows the onboarding banner instead, so the FAB hint is suppressed there.
+    await page.goto('/home');
+    await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
+    await expect(page.locator('.vv-add-hint')).toHaveCount(0);
   });
 });
