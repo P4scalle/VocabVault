@@ -12,7 +12,7 @@
         </p>
       }
       <p class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
-        Match {{ words().length }} items
+        Match {{ words().length }} {{ words().length === 1 ? 'item' : 'items' }}
       </p>
       <!-- Overall progress -->
       <lib-quiz-progress-bar

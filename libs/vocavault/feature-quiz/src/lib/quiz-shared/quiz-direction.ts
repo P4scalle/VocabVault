@@ -8,9 +8,20 @@ const VALID_DIRECTIONS: readonly QuizDirection[] = [
   'mixed',
 ];
 
-/** Coerces any invalid/undefined direction to DEFAULT_QUIZ_DIRECTION */
-export function normalizeDirection(direction: QuizDirection): QuizDirection {
-  return VALID_DIRECTIONS.includes(direction) ? direction : DEFAULT_QUIZ_DIRECTION;
+/**
+ * Coerces any invalid/undefined direction to DEFAULT_QUIZ_DIRECTION.
+ *
+ * Use this as the `transform` of every quiz component's `direction` input:
+ * `input(DEFAULT_QUIZ_DIRECTION, { transform: normalizeDirection })`. Angular's
+ * `withComponentInputBinding()` sets a routed input to `undefined` when its query
+ * param is absent — overriding the declared default — so routing `?mode=match`
+ * (no direction) yields `direction() === undefined`, which is not a valid
+ * QuizDirection. Normalizing at the input boundary means no downstream code can
+ * ever observe an invalid direction. (`input()` itself must be declared inline in
+ * each component — the AOT compiler forbids wrapping it in a factory.)
+ */
+export function normalizeDirection(direction: QuizDirection | undefined): QuizDirection {
+  return direction && VALID_DIRECTIONS.includes(direction) ? direction : DEFAULT_QUIZ_DIRECTION;
 }
 
 export function getPromptLabel(direction: QuizDirection): string {

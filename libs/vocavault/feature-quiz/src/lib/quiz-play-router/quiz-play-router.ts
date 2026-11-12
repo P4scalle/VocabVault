@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, Signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection } from '@vocavault/data-access';
+import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges } from '@vocavault/data-access';
 import { PageHeader } from '@vocavault/ui';
 import { ChromeService } from '@vocavault/util';
 import { FlashcardQuiz } from '../flashcard-quiz/flashcard-quiz';
 import { MultipleChoiceQuiz } from '../multiple-choice-quiz/multiple-choice-quiz';
 import { TypeQuiz } from '../type-quiz/type-quiz';
 import { MatchQuiz } from '../match-quiz/match-quiz';
+import { normalizeDirection } from '../quiz-shared/quiz-direction';
 
 @Component({
   selector: 'lib-quiz-play-router',
@@ -46,7 +47,7 @@ export class QuizPlayRouter implements HasUnsavedChanges {
 
   readonly id = input.required<string>();
   readonly mode = input<string>('flashcard');
-  readonly direction = input<QuizDirection>(DEFAULT_QUIZ_DIRECTION);
+  readonly direction = input(DEFAULT_QUIZ_DIRECTION, { transform: normalizeDirection });
 
   protected readonly modeLabel = computed(() => ({
     flashcard: 'Flashcard',

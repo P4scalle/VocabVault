@@ -98,6 +98,30 @@ describe('QuizCreate', () => {
     });
   });
 
+  it('onSaved lands on detail (not play) when the preselected mode needs more words than the new set has', async () => {
+    // Match needs 4 words; the mock set has only 1, so a degenerate match must not launch.
+    await setup('match');
+    const formData = { name: 'Tiny', description: '', wordIds: ['w1'] };
+
+    (component as unknown as QuizCreateInternals).onSaved(formData);
+
+    expect(router.navigate).toHaveBeenCalledWith(['/quiz', 'new-qs-1']);
+  });
+
+  it('onSaved goes straight to play when the new set meets the preselected mode minimum', async () => {
+    await setup('match');
+    mockQuizService.addQuizSet.mockReturnValue({
+      quizSet: { id: 'new-qs-1', name: 'Big', wordIds: ['a', 'b', 'c', 'd'] }, ok: true,
+    });
+    const formData = { name: 'Big', description: '', wordIds: ['a', 'b', 'c', 'd'] };
+
+    (component as unknown as QuizCreateInternals).onSaved(formData);
+
+    expect(router.navigate).toHaveBeenCalledWith(['/quiz', 'new-qs-1', 'play'], {
+      queryParams: { mode: 'match', direction: 'definition-to-word' },
+    });
+  });
+
   it('onSaved shows error toast when storage fails', async () => {
     await setup('flashcard');
     mockQuizService.addQuizSet.mockReturnValue({ quizSet: null, ok: false });

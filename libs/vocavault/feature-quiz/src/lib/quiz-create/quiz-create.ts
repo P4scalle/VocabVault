@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizService } from '@vocavault/data-access';
+import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizMode, QUIZ_MODE_MIN_WORDS, QuizService } from '@vocavault/data-access';
 import { ToastService } from '@vocavault/ui';
 import { ChromeService, OnboardingService } from '@vocavault/util';
 import { QuizSetForm, QuizSetFormData } from '../quiz-set-form/quiz-set-form';
@@ -61,7 +61,11 @@ export class QuizCreate implements HasUnsavedChanges {
     this.hasUnsavedChanges.set(false);
     this.toast.show('Quiz created!');
     const preselectedMode = this.mode();
-    if (preselectedMode && quizSet) {
+    // Only jump straight into the preselected mode if the new set actually has
+    // enough words for it; otherwise land on the detail page, where the mode
+    // buttons are gated and the user can pick a viable mode or add more words.
+    const minWords = QUIZ_MODE_MIN_WORDS[preselectedMode as QuizMode] ?? 1;
+    if (preselectedMode && quizSet && quizSet.wordIds.length >= minWords) {
       void this.router.navigate(['/quiz', quizSet.id, 'play'], {
         queryParams: { mode: preselectedMode, direction: DEFAULT_QUIZ_DIRECTION },
       });

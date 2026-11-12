@@ -35,6 +35,12 @@ const mockQuizService = {
   startQuickQuiz: vi.fn().mockReturnValue({
     quizSet: { id: '__quick_quiz__', name: 'Quick Quiz', wordIds: [], createdAt: new Date(), updatedAt: new Date() },
     mode: 'flashcard',
+    direction: 'definition-to-word',
+  }),
+  startToughPractice: vi.fn().mockReturnValue({
+    quizSet: { id: '__tough-ones__', name: 'The Tough Ones', wordIds: [], createdAt: new Date(), updatedAt: new Date() },
+    mode: 'flashcard',
+    direction: 'definition-to-word',
   }),
 };
 const mockOnboardingStep = signal<'add-word' | 'create-quiz' | 'start-quiz' | null>(null);
@@ -74,10 +80,12 @@ describe('FeatureHome', () => {
     mockEloquenceScore.set(0);
     mockOnboardingStep.set(null);
     mockQuizService.createTempQuizSet.mockClear();
+    mockQuizService.startToughPractice.mockClear();
     mockQuizService.startQuickQuiz.mockClear();
     mockQuizService.startQuickQuiz.mockReturnValue({
       quizSet: { id: '__quick_quiz__', name: 'Quick Quiz', wordIds: [], createdAt: new Date(), updatedAt: new Date() },
       mode: 'flashcard',
+      direction: 'definition-to-word',
     });
     mockMasteryDist.set({
       [MasteryLevel.New]: 0,
@@ -277,7 +285,7 @@ describe('FeatureHome', () => {
       expect(mockQuizService.startQuickQuiz).toHaveBeenCalledOnce();
       expect(navigateSpy).toHaveBeenCalledWith(
         ['/quiz', '__quick_quiz__', 'play'],
-        { queryParams: { mode: 'flashcard' } },
+        { queryParams: { mode: 'flashcard', direction: 'definition-to-word' } },
       );
     });
 
@@ -285,6 +293,7 @@ describe('FeatureHome', () => {
       mockQuizService.startQuickQuiz.mockReturnValue({
         quizSet: { id: '__custom_id__', name: 'Quick Quiz', wordIds: [] },
         mode: 'match',
+        direction: 'word-to-definition',
       });
       mockWordsSignal.set([makeWord()]);
       fixture.detectChanges();
@@ -296,7 +305,7 @@ describe('FeatureHome', () => {
 
       expect(navigateSpy).toHaveBeenCalledWith(
         ['/quiz', '__custom_id__', 'play'],
-        { queryParams: { mode: 'match' } },
+        { queryParams: { mode: 'match', direction: 'word-to-definition' } },
       );
     });
 
@@ -345,7 +354,7 @@ describe('FeatureHome', () => {
       const practiceBtn = card.querySelector('lib-button') as HTMLElement;
       practiceBtn.click();
 
-      expect(mockQuizService.createTempQuizSet).toHaveBeenCalledWith(['s1', 's2'], 'The Tough Ones', '__tough-ones__');
+      expect(mockQuizService.startToughPractice).toHaveBeenCalledOnce();
       expect(navigateSpy).toHaveBeenCalledWith(
         ['/quiz', '__tough-ones__', 'play'],
         { queryParams: { mode: 'flashcard', direction: 'definition-to-word' } },

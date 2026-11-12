@@ -23,8 +23,8 @@
       @for (mode of quizModes; track mode.value) {
         <button type="button"
           class="flex flex-col items-center justify-center aspect-square md:aspect-auto md:py-10 vv-card p-3 xs:p-4 gap-2 vv-card-hover vv-btn-press vv-focus-ring disabled:opacity-40 disabled:pointer-events-none"
-          [disabled]="mode.value === 'multiple-choice' && dueCount() < 4"
-          [attr.title]="mode.value === 'multiple-choice' && dueCount() < 4 ? 'Needs at least 4 words' : null"
+          [disabled]="isModeDisabled(mode.value)"
+          [attr.title]="isModeDisabled(mode.value) ? 'Needs at least 4 words' : null"
           (click)="startMode(mode.value)"
         >
           <span [class]="'rounded-xl p-3 ' + mode.colorClass">

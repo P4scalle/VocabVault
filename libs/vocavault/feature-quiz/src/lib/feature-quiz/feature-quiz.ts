@@ -197,10 +197,9 @@ export class FeatureQuiz {
   }
 
   protected startToughPractice(): void {
-    const ids = this.wordService.toughWords().map((w) => w.id);
-    this.quizService.createTempQuizSet(ids, 'The Tough Ones', '__tough-ones__');
-    void this.router.navigate(['/quiz', '__tough-ones__', 'play'], {
-      queryParams: { mode: 'flashcard', direction: 'definition-to-word' },
+    const { quizSet, mode, direction } = this.quizService.startToughPractice();
+    void this.router.navigate(['/quiz', quizSet.id, 'play'], {
+      queryParams: { mode, direction },
     });
   }
 }

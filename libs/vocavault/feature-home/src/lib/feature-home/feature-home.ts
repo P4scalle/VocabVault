@@ -73,10 +73,9 @@ export class FeatureHome {
   protected readonly toughCount = computed(() => this.wordService.toughWords().length);
 
   protected startToughPractice(): void {
-    const ids = this.wordService.toughWords().map((w) => w.id);
-    this.quizService.createTempQuizSet(ids, 'The Tough Ones', '__tough-ones__');
-    void this.router.navigate(['/quiz', '__tough-ones__', 'play'], {
-      queryParams: { mode: 'flashcard', direction: 'definition-to-word' },
+    const { quizSet, mode, direction } = this.quizService.startToughPractice();
+    void this.router.navigate(['/quiz', quizSet.id, 'play'], {
+      queryParams: { mode, direction },
     });
   }
 
@@ -97,9 +96,9 @@ export class FeatureHome {
   }
 
   protected startQuickQuiz(): void {
-    const { quizSet, mode } = this.quizService.startQuickQuiz();
+    const { quizSet, mode, direction } = this.quizService.startQuickQuiz();
     void this.router.navigate(['/quiz', quizSet.id, 'play'], {
-      queryParams: { mode },
+      queryParams: { mode, direction },
     });
   }
 

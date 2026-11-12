@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { StorageService } from './storage.service';
-import { MasteryLevel, QuizSet, Word } from './models';
+import { DEFAULT_QUIZ_DIRECTION, MasteryLevel, QuizDirection, QuizMode, QuizSet, Word } from './models';
 import { WordService } from './word.service';
 import { persistedSignal } from './persisted-signal';
+import { pickQuickQuiz } from './quiz-capabilities';
 import { ISO_DATE_RE } from './serialization';
 import { shuffle } from '@vocavault/util';
 
@@ -52,7 +53,6 @@ export class QuizService {
   private static readonly TEMP_KEY = 'vv_temp_quiz_set';
   private _tempQuizSet: QuizSet | null = null;
 
-  private static readonly QUIZ_MODES = ['flashcard', 'multiple-choice', 'type', 'match'] as const;
   private static readonly QUICK_QUIZ_LIMIT = 20;
   static readonly SESSION_SIZE = 20;
   private static readonly NEW_WORDS_PER_SESSION = 10;
@@ -70,12 +70,24 @@ export class QuizService {
     return this._tempQuizSet;
   }
 
-  startQuickQuiz(): { quizSet: QuizSet; mode: string } {
-    const wordIds = shuffle(this.wordService.quizzableWords().map((w) => w.id))
-      .slice(0, QuizService.QUICK_QUIZ_LIMIT);
-    const mode = QuizService.QUIZ_MODES[Math.floor(Math.random() * QuizService.QUIZ_MODES.length)];
-    const quizSet = this.createTempQuizSet(wordIds, 'Quick Quiz', '__quick_quiz__');
-    return { quizSet, mode };
+  startQuickQuiz(): { quizSet: QuizSet; mode: QuizMode; direction: QuizDirection } {
+    const words = shuffle(this.wordService.quizzableWords()).slice(0, QuizService.QUICK_QUIZ_LIMIT);
+    // Pick a mode/direction that is actually playable for this word set, so
+    // Quick Quiz can never land on a crashing or degenerate quiz. Falls back to
+    // flashcard for an empty set (which just shows the empty state).
+    const pick = pickQuickQuiz(words) ?? { mode: 'flashcard' as QuizMode, direction: DEFAULT_QUIZ_DIRECTION };
+    const quizSet = this.createTempQuizSet(words.map((w) => w.id), 'Quick Quiz', '__quick_quiz__');
+    return { quizSet, mode: pick.mode, direction: pick.direction };
+  }
+
+  /**
+   * Build the "Tough Ones" review set and its launch params. Always flashcard
+   * (viable at any count) — centralized here so every caller stays in sync.
+   */
+  startToughPractice(): { quizSet: QuizSet; mode: QuizMode; direction: QuizDirection } {
+    const ids = this.wordService.toughWords().map((w) => w.id);
+    const quizSet = this.createTempQuizSet(ids, 'The Tough Ones', '__tough-ones__');
+    return { quizSet, mode: 'flashcard', direction: DEFAULT_QUIZ_DIRECTION };
   }
 
   getQuizSet(id: string): QuizSet | undefined {

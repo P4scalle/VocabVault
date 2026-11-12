@@ -119,13 +119,35 @@ describe('SmartReviewLauncher', () => {
   });
 
   it('startMode works with different modes and includes direction', async () => {
-    await setup(mockDueWords);
+    // Match needs at least 4 words to be viable, so provide enough.
+    const fourDue = [
+      ...mockDueWords,
+      makeWord({ id: 'w3', word: 'Cherry', definition: 'A small red fruit' }),
+      makeWord({ id: 'w4', word: 'Date', definition: 'A sweet brown fruit' }),
+    ];
+    await setup(fourDue);
 
     (component as unknown as SmartReviewLauncherInternals).startMode('match');
 
     expect(router.navigate).toHaveBeenCalledWith(['/quiz', '__smart_review__', 'play'], {
       queryParams: { mode: 'match', direction: 'definition-to-word' },
     });
+  });
+
+  it('locks match and multiple-choice until enough words are due', async () => {
+    await setup(mockDueWords); // only 2 due words
+
+    const internals = component as unknown as SmartReviewLauncherInternals & {
+      isModeDisabled: (mode: string) => boolean;
+    };
+    expect(internals.isModeDisabled('match')).toBe(true);
+    expect(internals.isModeDisabled('multiple-choice')).toBe(true);
+    expect(internals.isModeDisabled('flashcard')).toBe(false);
+    expect(internals.isModeDisabled('type')).toBe(false);
+
+    // A locked mode must not navigate even if invoked directly.
+    internals.startMode('match');
+    expect(router.navigate).not.toHaveBeenCalled();
   });
 
   it('goBack navigates to /home', async () => {

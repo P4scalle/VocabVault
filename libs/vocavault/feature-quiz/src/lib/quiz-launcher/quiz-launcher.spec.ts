@@ -104,6 +104,25 @@ describe('QuizLauncher', () => {
     expect(filtered[0].id).toBe('qs1');
   });
 
+  it('filters out sets below the match minimum (4 words) in match mode', async () => {
+    // Regression: match must be gated like multiple-choice. qs1 has 2 words.
+    await setup('match', mockQuizSets);
+    expect((component as unknown as QuizLauncherInternals).quizSets()).toHaveLength(0);
+  });
+
+  it('filters out sets below the multiple-choice minimum (4 words)', async () => {
+    await setup('multiple-choice', mockQuizSets); // qs1 has 2 words
+    expect((component as unknown as QuizLauncherInternals).quizSets()).toHaveLength(0);
+  });
+
+  it('includes a set that meets the match minimum', async () => {
+    const bigSet: QuizSet = {
+      id: 'qs-big', name: 'Big', description: '', wordIds: ['a', 'b', 'c', 'd'], createdAt: new Date(), updatedAt: new Date(),
+    };
+    await setup('match', [bigSet]);
+    expect((component as unknown as QuizLauncherInternals).quizSets().map((q) => q.id)).toEqual(['qs-big']);
+  });
+
   it('renders quiz set names in the template', async () => {
     await setup();
     const compiled = fixture.nativeElement as HTMLElement;

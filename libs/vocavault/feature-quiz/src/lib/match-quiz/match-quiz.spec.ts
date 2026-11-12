@@ -351,6 +351,58 @@ describe('MatchQuiz null/empty definition safety', () => {
   });
 });
 
+describe('MatchQuiz direction-input safety (regression)', () => {
+  // Reproduces the Quick Quiz crash: routing to match mode without a `direction`
+  // query param makes Angular's component-input-binding set `direction` to
+  // `undefined`. That previously made columnLabels() return undefined and the
+  // template throw on `.left`, blanking the whole grid. The normalizing input
+  // transform must coerce it back to the default so the grid still renders.
+  it('renders tiles without throwing when direction is set to undefined', async () => {
+    await TestBed.configureTestingModule({
+      imports: [MatchQuiz],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { paramMap: { get: () => 'qs1' } }, parent: null },
+        },
+        {
+          provide: QuizService,
+          useValue: {
+            getQuizSet: vi.fn().mockReturnValue(TEST_QUIZ_SET),
+            getWordsForQuizSet: vi.fn().mockReturnValue(TEST_WORDS),
+          },
+        },
+        {
+          provide: WordService,
+          useValue: { getWord: vi.fn((id: string) => TEST_WORDS.find((w) => w.id === id)) },
+        },
+        { provide: ToastService, useValue: { show: vi.fn(), showWithAction: vi.fn() } },
+      ],
+    }).compileComponents();
+
+    const f = TestBed.createComponent(MatchQuiz);
+    // Exactly what withComponentInputBinding() does when ?direction is absent.
+    f.componentRef.setInput('direction', undefined);
+
+    expect(() => f.detectChanges()).not.toThrow();
+
+    const buttons = (f.nativeElement as HTMLElement).querySelectorAll('button');
+    // 4 word tiles + 4 definition tiles = 8 (plus the flag-banner button).
+    expect(buttons.length).toBeGreaterThanOrEqual(8);
+
+    const comp = f.componentInstance as unknown as {
+      roundDirection: () => string;
+      columnLabels: () => { left: string; right: string };
+    };
+    expect(comp.roundDirection()).toBe('definition-to-word');
+    expect(comp.columnLabels()).toEqual({ left: 'Definitions', right: 'Words' });
+
+    await f.whenStable();
+    f.destroy();
+  });
+});
+
 describe('MatchQuiz orphan detection', () => {
   it('shows info toast when words were deleted from quiz set', async () => {
     const orphanQuizSet = {

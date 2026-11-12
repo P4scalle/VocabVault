@@ -330,7 +330,7 @@ describe('BulkAdd', () => {
       expect(mockBulkService.reset).toHaveBeenCalled();
       expect(mockRouter.navigate).toHaveBeenCalledWith(
         ['/quiz', '__bulk_import__', 'play'],
-        { queryParams: { mode: 'flashcard' } },
+        { queryParams: { mode: 'flashcard', direction: 'definition-to-word' } },
       );
     });
 

@@ -8,10 +8,10 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService, getQuizExample } from '@vocavault/data-access';
+import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizService, getQuizExample } from '@vocavault/data-access';
 import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, SwipeableDirective, SwipeDirection, ToastService } from '@vocavault/ui';
 import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
-import { buildQuizItem, filterAndNotify, QuizItem } from '../quiz-shared/quiz-direction';
+import { buildQuizItem, filterAndNotify, QuizItem, normalizeDirection } from '../quiz-shared/quiz-direction';
 
 type Verdict = 'correct' | 'missed';
 
@@ -28,7 +28,7 @@ export class FlashcardQuiz implements HasUnsavedChanges {
   private readonly quizService = inject(QuizService);
   private readonly toast = inject(ToastService);
 
-  readonly direction = input<QuizDirection>(DEFAULT_QUIZ_DIRECTION);
+  readonly direction = input(DEFAULT_QUIZ_DIRECTION, { transform: normalizeDirection });
 
   private readonly quizSetId = resolveQuizSetId(this.route);
 
