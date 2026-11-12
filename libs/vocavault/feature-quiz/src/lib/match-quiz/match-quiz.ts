@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService, Word } from '@vocavault/data-access';
 import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } from '@vocavault/ui';
 import { shuffle } from '@vocavault/util';
-import { resolveQuizSetId, navigateToResults, firstQuizFinishCue } from '../quiz-shared/quiz-utils';
+import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
 import { getPrompt, getAnswer, filterAndNotify, resolveDirection, COLUMN_LABELS } from '../quiz-shared/quiz-direction';
 
 const MAX_MATCH_WORDS_DESKTOP = 8;
@@ -38,9 +38,6 @@ export class MatchQuiz implements HasUnsavedChanges {
 
   private readonly finishing = signal(false);
   readonly hasUnsavedChanges = computed(() => !this.finishing() && (this.totalMatchedCount() > 0 || this.selectedWordId() !== null || this.selectedDefId() !== null));
-
-  /** Pulse the See Results button on a first-run user's very first quiz. */
-  protected readonly showFinishCue = firstQuizFinishCue();
 
   @HostListener('window:beforeunload', ['$event'])
   onBeforeUnload(event: BeforeUnloadEvent): void {

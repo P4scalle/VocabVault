@@ -419,11 +419,20 @@ describe('QuizResults', () => {
     const hint = f.nativeElement.querySelector('[data-testid="results-hint"]');
     expect(hint).toBeTruthy();
     expect(hint.textContent).toContain('level your words up');
+
+    // The "See your progress" button is also cued (pulse) to steer the first-run
+    // user onward into the Progress section.
+    const progressBtn = Array.from(f.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
+      .find((b) => b.textContent?.includes('See your progress'));
+    expect(progressBtn?.classList.contains('vv-cue-pulse')).toBe(true);
   });
 
-  it('hides the teaching line when it is not the first-ever result', () => {
-    setupWithState(mockState); // results() -> [] in this harness, so the hint stays hidden
+  it('hides the teaching line and the progress cue when it is not the first-ever result', () => {
+    setupWithState(mockState); // results() -> [] in this harness, so the cue stays hidden
     expect(fixture.nativeElement.querySelector('[data-testid="results-hint"]')).toBeFalsy();
+    const progressBtn = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
+      .find((b) => b.textContent?.includes('See your progress'));
+    expect(progressBtn?.classList.contains('vv-cue-pulse')).toBe(false);
   });
 
   it('recovers results from ProgressService when history.state is missing', () => {

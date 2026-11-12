@@ -200,10 +200,15 @@
         Try Again
       </lib-button>
     }
-    <lib-button variant="secondary" [fullWidth]="true" (click)="seeProgress()">
-      <i class="pi pi-chart-line mr-2" aria-hidden="true"></i>
-      See your progress
-    </lib-button>
+    <div class="relative">
+      <lib-button variant="secondary" [fullWidth]="true" [styleClass]="showResultsHint() ? 'vv-cue-pulse' : ''" (click)="seeProgress()">
+        <i class="pi pi-chart-line mr-2" aria-hidden="true"></i>
+        See your progress
+      </lib-button>
+      @if (showResultsHint()) {
+        <span class="vv-cue-tooltip absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">See how you did</span>
+      }
+    </div>
     @if (!isPerfect()) {
       <button
         type="button"

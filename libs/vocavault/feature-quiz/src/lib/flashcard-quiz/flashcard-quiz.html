@@ -106,15 +106,10 @@
             </button>
           }
           @if (isLast() && currentAssessed()) {
-            <span class="relative flex-1">
-              <lib-button size="sm" [fullWidth]="true" [styleClass]="showFinishCue() ? 'vv-cue-pulse' : ''" (click)="finish()">
-                Finish
-                <i class="pi pi-check ml-1" aria-hidden="true"></i>
-              </lib-button>
-              @if (showFinishCue()) {
-                <span class="vv-cue-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">See how you did</span>
-              }
-            </span>
+            <lib-button size="sm" styleClass="flex-1" (click)="finish()">
+              Finish
+              <i class="pi pi-check ml-1" aria-hidden="true"></i>
+            </lib-button>
           }
         </div>
       </div>
