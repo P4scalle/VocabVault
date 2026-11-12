@@ -184,6 +184,16 @@
             <i [class]="theme.isDark() ? 'pi pi-sun text-sm text-slate-400' : 'pi pi-moon text-sm text-slate-400'" aria-hidden="true"></i>
             {{ theme.isDark() ? 'Light mode' : 'Dark mode' }}
           </button>
+          <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
+          <button
+            type="button"
+            role="menuitem"
+            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            (click)="restartOnboarding()"
+          >
+            <i class="pi pi-compass text-sm text-slate-400" aria-hidden="true"></i>
+            Show getting-started tips
+          </button>
         </div>
       }
     </div>
