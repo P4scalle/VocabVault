@@ -6,7 +6,7 @@
 A little mobile-first vocabulary trainer I built for myself. Add a word you'd like to add to your English vocabulary, pull up or insert its definition, and drill it through a few quiz modes until
 it sticks.
 
-> **Live demo:** _[add your Vercel URL here](https://vocavault-gamma.vercel.app/)_
+> **Live demo:** [Link to VocaVault](https://vocavault-gamma.vercel.app/)_
 
 ## What it does
 
