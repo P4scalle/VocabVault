@@ -159,6 +159,19 @@ describe('FeatureQuiz', () => {
     expect(fixture.nativeElement.textContent).toContain('Start here');
   });
 
+  it('does not highlight cards when multiple quizzes exist (not the first-quiz case)', async () => {
+    TestBed.inject(OnboardingService).setContext({
+      totalWords: signal(2),
+      quizzableWords: signal(2),
+      quizSets: signal(2),
+      completedQuizzes: signal(0),
+    });
+    mockQuizSets.set([mockQuizSet, { ...mockQuizSet, id: 'qs2', name: 'Second Quiz' }]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).not.toContain('Start here');
+  });
+
   it('does not highlight quiz cards once the first quiz is complete', async () => {
     TestBed.inject(OnboardingService).setContext({
       totalWords: signal(1),

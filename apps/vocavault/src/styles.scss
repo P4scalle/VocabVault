@@ -265,11 +265,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vv-cue-pulse {
+  /* Doubled class (specificity 0-2-0) so these reliably beat the base
+     .vv-cue-pulse rule (0-1-0) even if the CSS optimizer hoists this merged
+     media block above it. A specificity bump, not an !important hack. */
+  .vv-cue-pulse.vv-cue-pulse {
     animation: none;
     box-shadow: 0 0 0 3px rgb(var(--vv-rgb-brand) / 0.4);
   }
-  .vv-cue-tooltip {
+  .vv-cue-tooltip.vv-cue-tooltip {
     animation: none;
   }
 }

@@ -97,3 +97,26 @@ test.describe('Starter words & first-run add hint', () => {
     await expect(page.locator('.vv-cue-pulse')).toHaveCount(0);
   });
 });
+
+test.describe('first-run cues respect prefers-reduced-motion', () => {
+  test('the add-button pulse is not animated under reduced motion', async ({ page }) => {
+    // Explicit emulation (the project-level `use` option did not take effect here).
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await clearStorage(page);
+    await page.goto('/dictionary');
+    await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
+
+    // Confirm the browser is actually emulating the reduced-motion preference.
+    expect(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches)).toBe(true);
+
+    const pulse = page.locator('.vv-cue-pulse').first();
+    await expect(pulse).toBeVisible();
+    // Neutralised by EITHER our fallback (animation-name: none) OR the global
+    // reduced-motion reset (animation-duration forced to ~0). Both mean "no pulse".
+    const { name, duration } = await pulse.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { name: cs.animationName, duration: cs.animationDuration };
+    });
+    expect(name === 'none' || duration === '0.01ms' || duration === '0s').toBe(true);
+  });
+});
