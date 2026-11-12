@@ -1,6 +1,7 @@
 export * from './lib/models';
 export * from './lib/serialization';
 export * from './lib/quiz-modes.const';
+export * from './lib/quiz-capabilities';
 export * from './lib/storage.service';
 export * from './lib/local-storage.service';
 export * from './lib/persisted-signal';

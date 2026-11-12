@@ -7,11 +7,13 @@ import {
 import { Router } from '@angular/router';
 import {
   DEFAULT_QUIZ_DIRECTION,
+  QuizMode,
   QuizService,
   SpacedRepetitionService,
   WordService,
   QUIZ_MODES,
   TEMP_QUIZ_ID,
+  viableModesForDirection,
 } from '@vocavault/data-access';
 import { EmptyState } from '@vocavault/ui';
 
@@ -35,7 +37,18 @@ export class SmartReviewLauncher {
 
   protected readonly quizModes = QUIZ_MODES;
 
-  protected startMode(mode: string): void {
+  /** Smart Review always plays definition-to-word; gate modes against the due set. */
+  protected readonly viableModes = computed(() =>
+    viableModesForDirection(this.dueWords(), DEFAULT_QUIZ_DIRECTION),
+  );
+
+  protected isModeDisabled(mode: QuizMode): boolean {
+    return !this.viableModes().includes(mode);
+  }
+
+  protected startMode(mode: QuizMode): void {
+    // Defensive: button is disabled when locked, but never launch a degenerate quiz.
+    if (this.isModeDisabled(mode)) return;
     this.quizService.createTempQuizSet(
       this.dueWords().map((w) => w.id)
     );

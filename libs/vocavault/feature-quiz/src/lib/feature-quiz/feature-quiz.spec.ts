@@ -52,6 +52,11 @@ describe('FeatureQuiz', () => {
     getWordsForQuizSet: vi.fn().mockReturnValue([]),
     createTempQuizSet: vi.fn(),
     restoreQuizSet: vi.fn().mockReturnValue(true),
+    startToughPractice: vi.fn().mockReturnValue({
+      quizSet: { id: '__tough-ones__', name: 'The Tough Ones', wordIds: [], createdAt: new Date(), updatedAt: new Date() },
+      mode: 'flashcard',
+      direction: 'definition-to-word',
+    }),
   };
 
   const mockWordService = {
@@ -421,7 +426,7 @@ describe('FeatureQuiz', () => {
       const practiceBtn = banner.querySelector('button') as HTMLButtonElement;
       practiceBtn.click();
 
-      expect(mockQuizService.createTempQuizSet).toHaveBeenCalledWith(['sw1', 'sw2'], 'The Tough Ones', '__tough-ones__');
+      expect(mockQuizService.startToughPractice).toHaveBeenCalledOnce();
       expect(navigateSpy).toHaveBeenCalledWith(
         ['/quiz', '__tough-ones__', 'play'],
         { queryParams: { mode: 'flashcard', direction: 'definition-to-word' } },

@@ -197,6 +197,24 @@ describe('QuizService', () => {
       expect(validModes).toContain(mode);
     });
 
+    it('should return a valid quiz direction', () => {
+      wordService.addWord({ word: 'hello', pronunciation: '', definition: 'hi', examples: [] });
+      const validDirections = ['definition-to-word', 'word-to-definition', 'example-to-definition', 'mixed'];
+      const { direction } = service.startQuickQuiz();
+      expect(validDirections).toContain(direction);
+    });
+
+    it('never picks match or multiple-choice for a single-word dictionary', () => {
+      wordService.addWord({ word: 'solo', pronunciation: '', definition: 'alone', examples: [] });
+      // Structural guarantee: viable pairs for one word exclude match/MC, so this
+      // holds on every draw regardless of the RNG.
+      for (let i = 0; i < 20; i++) {
+        const { mode } = service.startQuickQuiz();
+        expect(mode).not.toBe('match');
+        expect(mode).not.toBe('multiple-choice');
+      }
+    });
+
     it('should limit word selection to 20', () => {
       for (let i = 0; i < 30; i++) {
         wordService.addWord({ word: `w${i}`, pronunciation: '', definition: `d${i}`, examples: [] });
@@ -261,6 +279,23 @@ describe('QuizService', () => {
       const { quizSet } = service.startQuickQuiz();
       expect(quizSet.wordIds.length).toBe(20);
       expect(quizSet.wordIds.sort()).toEqual(wordService.words().map((w) => w.id).sort());
+    });
+  });
+
+  describe('startToughPractice', () => {
+    it('returns the tough-ones temp set with flashcard and the default direction', () => {
+      const { quizSet, mode, direction } = service.startToughPractice();
+      expect(quizSet.id).toBe('__tough-ones__');
+      expect(quizSet.name).toBe('The Tough Ones');
+      expect(mode).toBe('flashcard');
+      expect(direction).toBe('definition-to-word');
+    });
+
+    it('builds the set from the service word list (tough words)', () => {
+      // No tough words in a fresh store, but the temp set must still be created cleanly.
+      const { quizSet } = service.startToughPractice();
+      expect(Array.isArray(quizSet.wordIds)).toBe(true);
+      expect(service.getQuizSet('__tough-ones__')?.id).toBe('__tough-ones__');
     });
   });
 

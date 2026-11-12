@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { A11yModule } from '@angular/cdk/a11y';
-import { BulkImportService, FolderService, QuizService, Word, WordService } from '@vocavault/data-access';
+import { BulkImportService, DEFAULT_QUIZ_DIRECTION, FolderService, QuizService, Word, WordService } from '@vocavault/data-access';
 import { Button, ToastService } from '@vocavault/ui';
 import { shuffle } from '@vocavault/util';
 import { BulkInput } from './bulk-input/bulk-input';
@@ -251,7 +251,7 @@ export class BulkAdd {
     this.quizService.createTempQuizSet(playIds, 'Imported Words', '__bulk_import__');
     this.finishImport();
     void this.router.navigate(['/quiz', '__bulk_import__', 'play'], {
-      queryParams: { mode: 'flashcard' },
+      queryParams: { mode: 'flashcard', direction: DEFAULT_QUIZ_DIRECTION },
     });
   }
 

@@ -12,7 +12,7 @@ import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService, 
 import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } from '@vocavault/ui';
 import { shuffle } from '@vocavault/util';
 import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
-import { buildQuizItem, filterAndNotify, getAnswer } from '../quiz-shared/quiz-direction';
+import { buildQuizItem, filterAndNotify, getAnswer, normalizeDirection } from '../quiz-shared/quiz-direction';
 
 interface MCQuestion {
   word: Word;
@@ -35,7 +35,7 @@ export class MultipleChoiceQuiz implements HasUnsavedChanges {
   private readonly quizService = inject(QuizService);
   private readonly toast = inject(ToastService);
 
-  readonly direction = input<QuizDirection>(DEFAULT_QUIZ_DIRECTION);
+  readonly direction = input(DEFAULT_QUIZ_DIRECTION, { transform: normalizeDirection });
 
   private readonly quizSetId = resolveQuizSetId(this.route);
 

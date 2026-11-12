@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
-import { DEFAULT_QUIZ_DIRECTION, QUIZ_DIRECTION_LABELS, QuizDirection, QuizService, WordService } from '@vocavault/data-access';
+import { DEFAULT_QUIZ_DIRECTION, QUIZ_DIRECTION_LABELS, QuizCapabilities, QuizDirection, QuizMode, QuizService, WordService, quizCapabilities, viableModesForDirection } from '@vocavault/data-access';
 import { Button, ToastService } from '@vocavault/ui';
 import { OnboardingService } from '@vocavault/util';
 
@@ -44,16 +44,34 @@ export class QuizDetail {
     return { ...info, pct, allPracticed };
   });
 
-  protected readonly selectedDirection = signal<QuizDirection>(DEFAULT_QUIZ_DIRECTION);
+  private readonly capabilities = computed<QuizCapabilities>(() => quizCapabilities(this.words()));
 
-  protected readonly directionOptions = computed(() => {
-    const ws = this.words();
-    const hasExamples = ws.some(w => w.examples.length > 0);
-    const options: QuizDirection[] = ['definition-to-word', 'word-to-definition'];
-    if (hasExamples) options.push('example-to-definition');
-    options.push('mixed');
-    return options;
+  /** Directions that support at least one playable mode for this word set. */
+  protected readonly directionOptions = computed(() => this.capabilities().directions);
+
+  /**
+   * Selected direction, clamped to the available options. If the current choice
+   * stops being playable (e.g. example words were removed), it falls back to the
+   * first available direction so the mode buttons never all lock silently.
+   */
+  protected readonly selectedDirection = linkedSignal<QuizDirection[], QuizDirection>({
+    source: this.directionOptions,
+    computation: (options, prev) =>
+      prev && options.includes(prev.value) ? prev.value : (options[0] ?? DEFAULT_QUIZ_DIRECTION),
   });
+
+  /** Modes that produce a real quiz for the currently selected direction. */
+  protected readonly viableModes = computed(() =>
+    viableModesForDirection(this.words(), this.selectedDirection()),
+  );
+
+  /** A mode is locked when it can't make a real quiz for the current selection. */
+  protected isModeDisabled(mode: QuizMode): boolean {
+    return !this.viableModes().includes(mode);
+  }
+
+  /** At least one of the four modes is locked for the current word set + direction. */
+  protected readonly hasLockedModes = computed(() => this.viableModes().length < 4);
 
   protected readonly directionLabels = QUIZ_DIRECTION_LABELS;
 
@@ -105,7 +123,10 @@ export class QuizDetail {
     }
   }
 
-  protected startMode(mode: 'flashcard' | 'multiple-choice' | 'type' | 'match'): void {
+  protected startMode(mode: QuizMode): void {
+    // Defensive: the button is disabled when locked, but never launch a
+    // mode that can't make a real quiz for the current selection.
+    if (this.isModeDisabled(mode)) return;
     const qp = { mode, direction: this.selectedDirection() };
     const info = this.sessionInfo();
 

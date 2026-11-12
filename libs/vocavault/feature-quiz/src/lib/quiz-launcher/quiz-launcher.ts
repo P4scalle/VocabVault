@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { DEFAULT_QUIZ_DIRECTION, QuizService, QUIZ_MODE_MAP, QUIZ_MODES } from '@vocavault/data-access';
+import { DEFAULT_QUIZ_DIRECTION, QuizMode, QuizService, QUIZ_MODE_MAP, QUIZ_MODE_MIN_WORDS, QUIZ_MODES } from '@vocavault/data-access';
 
 @Component({
   selector: 'lib-quiz-launcher',
@@ -15,7 +15,8 @@ export class QuizLauncher {
   readonly mode = input<string>('flashcard');
   protected readonly modeInfo = computed(() => QUIZ_MODE_MAP[this.mode()] ?? QUIZ_MODES[0]);
 
-  protected readonly minWords = computed(() => this.mode() === 'multiple-choice' ? 4 : 1);
+  // Match and multiple-choice both need a minimum word count; everything else needs one.
+  protected readonly minWords = computed(() => QUIZ_MODE_MIN_WORDS[this.mode() as QuizMode] ?? 1);
 
   protected readonly quizSets = computed(() =>
     this.quizService.quizSets().filter((qs) => qs.wordIds.length >= this.minWords()),

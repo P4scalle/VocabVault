@@ -78,10 +78,20 @@
           Pick how to practice. Each mode drills the same words a different way.
         </p>
       }
+      @if (hasLockedModes()) {
+        <p id="locked-modes-hint" class="-mt-2 mb-3 text-sm text-slate-500 dark:text-slate-400" data-testid="locked-modes-hint">
+          Match and Multiple Choice need at least 4 words (4 with examples for example-based rounds). Add more words to unlock them.
+        </p>
+      }
       <div class="grid grid-cols-2 gap-3">
         <button
+          type="button"
           (click)="startMode('flashcard')"
-          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          [disabled]="isModeDisabled('flashcard')"
+          [class.opacity-40]="isModeDisabled('flashcard')"
+          [class.cursor-not-allowed]="isModeDisabled('flashcard')"
+          [style.animation-name]="isModeDisabled('flashcard') ? 'none' : null"
+          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
           style="animation-delay: 0ms"
         >
           <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
@@ -91,8 +101,15 @@
           <span class="text-xs text-slate-500 dark:text-slate-400">Flip cards to reveal definitions</span>
         </button>
         <button
+          type="button"
           (click)="startMode('multiple-choice')"
-          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          [disabled]="isModeDisabled('multiple-choice')"
+          [class.opacity-40]="isModeDisabled('multiple-choice')"
+          [class.cursor-not-allowed]="isModeDisabled('multiple-choice')"
+          [attr.title]="isModeDisabled('multiple-choice') ? 'Needs at least 4 words' : null"
+          [attr.aria-describedby]="isModeDisabled('multiple-choice') ? 'locked-modes-hint' : null"
+          [style.animation-name]="isModeDisabled('multiple-choice') ? 'none' : null"
+          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
           style="animation-delay: 80ms"
         >
           <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
@@ -102,8 +119,13 @@
           <span class="text-xs text-slate-500 dark:text-slate-400">Pick the correct definition</span>
         </button>
         <button
+          type="button"
           (click)="startMode('type')"
-          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          [disabled]="isModeDisabled('type')"
+          [class.opacity-40]="isModeDisabled('type')"
+          [class.cursor-not-allowed]="isModeDisabled('type')"
+          [style.animation-name]="isModeDisabled('type') ? 'none' : null"
+          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
           style="animation-delay: 160ms"
         >
           <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
@@ -113,8 +135,15 @@
           <span class="text-xs text-slate-500 dark:text-slate-400">Type the definition from memory</span>
         </button>
         <button
+          type="button"
           (click)="startMode('match')"
-          class="vv-card p-5 text-left transition-all hover:shadow-md hover:ring-2 hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
+          [disabled]="isModeDisabled('match')"
+          [class.opacity-40]="isModeDisabled('match')"
+          [class.cursor-not-allowed]="isModeDisabled('match')"
+          [attr.title]="isModeDisabled('match') ? 'Needs at least 4 words' : null"
+          [attr.aria-describedby]="isModeDisabled('match') ? 'locked-modes-hint' : null"
+          [style.animation-name]="isModeDisabled('match') ? 'none' : null"
+          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
           style="animation-delay: 240ms"
         >
           <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
