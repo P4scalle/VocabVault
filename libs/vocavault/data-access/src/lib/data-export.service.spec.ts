@@ -65,7 +65,7 @@ describe('DataExportService', () => {
     });
   });
 
-  describe('importFromFile - valid imports', () => {
+  describe('importFromFile: valid imports', () => {
     it('should restore words not already in storage and return counts', async () => {
       const exportData: VocaVaultExport = {
         version: 1,
@@ -164,7 +164,7 @@ describe('DataExportService', () => {
     });
   });
 
-  describe('importFromFile - error handling', () => {
+  describe('importFromFile: error handling', () => {
     it('should reject malformed JSON with descriptive error', async () => {
       const file = new File(['not valid json {{{'], 'bad.json', { type: 'application/json' });
 

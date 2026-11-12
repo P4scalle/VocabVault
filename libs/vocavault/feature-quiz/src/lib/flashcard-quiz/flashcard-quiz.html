@@ -17,7 +17,7 @@
       [class.is-flipped]="isFlipped()"
       (click)="flipCard()"
       role="button"
-      [attr.aria-label]="isFlipped() ? 'Card flipped — click to flip back. Swipe left/right to navigate.' : 'Click to reveal answer. Swipe left/right to navigate.'"
+      [attr.aria-label]="isFlipped() ? 'Card flipped. Click to flip back. Swipe left/right to navigate.' : 'Click to reveal answer. Swipe left/right to navigate.'"
       tabindex="0"
       (keydown.enter)="flipCard()"
       (keydown.space)="$event.preventDefault(); flipCard()"

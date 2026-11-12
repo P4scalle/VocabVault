@@ -9,7 +9,7 @@ import { computed, Injectable, signal, Signal } from '@angular/core';
  * (e.g. via effect) let the shell read a stale value. A computed is recomputed on
  * read, so the shell always sees the current state in the same change-detection pass.
  *
- * Two ways to request focus, OR'd together — use ONE per component:
+ * Two ways to request focus, OR'd together. Use ONE per component:
  *  - enterFocus()/leaveFocus(): for components focused their whole lifetime
  *    (enter on init, leave on destroy). Idempotent boolean.
  *  - registerFocusWhile(source): for components that toggle focus while alive,

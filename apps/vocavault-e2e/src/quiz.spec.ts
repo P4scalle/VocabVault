@@ -32,7 +32,7 @@ async function seedWords(page: Page, count = 4) {
   }
 }
 
-test.describe('Quiz — Create Quiz Set', () => {
+test.describe('Quiz: Create Quiz Set', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page, 2);
@@ -87,7 +87,7 @@ test.describe('Quiz — Create Quiz Set', () => {
   });
 });
 
-test.describe('Quiz — Delete Quiz Set', () => {
+test.describe('Quiz: Delete Quiz Set', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page, 2);

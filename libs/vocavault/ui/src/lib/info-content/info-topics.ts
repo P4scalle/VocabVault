@@ -23,7 +23,7 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
         items: [
           { label: 'Flashcards', description: 'Flip cards to review words and definitions' },
           { label: 'Multiple Choice', description: 'Pick the correct answer from options' },
-          { label: 'Write', description: 'Type the answer — close answers are accepted!' },
+          { label: 'Write', description: 'Type the answer. Close answers are accepted!' },
           { label: 'Match', description: 'Pair words with their definitions (multi-round for large sets)' },
         ],
       },
@@ -100,7 +100,7 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
     title: 'The Tough Ones',
     sections: [
       {
-        text: "Every word here is one you're actively working on — they just need a few more rounds to click. That's exactly how learning works!",
+        text: "Every word here is one you're actively working on. They just need a few more rounds to click. That's exactly how learning works!",
       },
       {
         text: 'Focused practice on these words is the fastest way to turn them into words you know by heart. Keep going, you\'re closer than you think!',

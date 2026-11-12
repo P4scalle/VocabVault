@@ -66,7 +66,7 @@ export class FlashcardQuiz implements HasUnsavedChanges {
   protected readonly currentIndex = signal(0);
   protected readonly isFlipped = signal(false);
 
-  // Tracks each card's assessment verdict by index — prevents double-counting
+  // Tracks each card's assessment verdict by index, preventing double-counting
   private readonly verdicts = signal<Map<number, Verdict>>(new Map());
   protected readonly lastFeedback = signal('');
 

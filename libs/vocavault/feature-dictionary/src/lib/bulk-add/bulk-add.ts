@@ -120,7 +120,7 @@ export class BulkAdd {
     const totalCount = newWords.length + mergeWords.length;
     if (totalCount === 0) return;
 
-    // Apply folder only to new words — merge words update existing entries
+    // Apply folder only to new words. Merge words update existing entries.
     const folderId = this.selectedFolderId();
     const newWordsWithFolder = folderId
       ? newWords.map((item) => ({ ...item, folderId }))
@@ -130,7 +130,7 @@ export class BulkAdd {
     if (newWordsWithFolder.length > 0) {
       const { words, ok } = this.wordService.addWords(newWordsWithFolder);
       if (!ok) {
-        this.toast.show('Could not save — storage may be full', 'error');
+        this.toast.show('Could not save. Storage may be full.', 'error');
         return;
       }
       addedWords = words;
@@ -157,7 +157,7 @@ export class BulkAdd {
 
     this.animateCount(totalCount);
 
-    // Undo toast — for new words, delete them; for merged words, undo is not supported (would need to store old values)
+    // Undo toast. For new words, delete them; for merged words, undo is not supported (would need to store old values).
     const newWordIds = new Set(addedWords.map((w) => w.id));
     const mergeCount = mergedWordIds.length;
     const addCount = addedWords.length;
@@ -181,7 +181,7 @@ export class BulkAdd {
       this.toast.show(message, 'info');
     }
 
-    // Don't emit yet — let the success screen show first.
+    // Don't emit yet. Let the success screen show first.
     // The parent switches view on imported.emit(), which would hide the success animation.
     // imported is emitted from onBackToDictionary() instead.
   }
@@ -232,17 +232,17 @@ export class BulkAdd {
     // Persist the full set so it appears on the quiz page
     const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     this.quizService.addQuizSet({
-      name: `Import — ${today}`,
+      name: `Import (${today})`,
       description: `${wordIds.length} words imported`,
       wordIds,
       source: 'import',
     });
 
-    // For immediate play — only complete words, capped at 20
+    // For immediate play, only complete words, capped at 20
     const playIds = shuffle([...this.completeImportedIds()]).slice(0, BulkAdd.IMMEDIATE_QUIZ_LIMIT);
 
     if (playIds.length === 0) {
-      // All imported words are incomplete — skip quiz, go to quiz list
+      // All imported words are incomplete, so skip quiz and go to quiz list
       this.finishImport();
       void this.router.navigate(['/quiz']);
       return;

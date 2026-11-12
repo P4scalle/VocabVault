@@ -746,7 +746,7 @@ describe('quizMeaningIndex clamp', () => {
   });
 });
 
-describe('word-form — regression guards', () => {
+describe('word-form regression guards', () => {
   let fixture: ComponentFixture<WordForm>;
   let component: WordForm;
   let savedPayloads: WordFormData[];
@@ -803,7 +803,7 @@ describe('word-form — regression guards', () => {
     component['wordField'].set('cat');
     component['definition'].set('n. only');
     component['onDefinitionRemoved']({ definition: 'only' });
-    // definition() is now '' — save condition should be false
+    // definition() is now '', so save condition should be false
     const def = component['definition']();
     const word = component['wordField']();
     const invalid = component['definitionInvalid']();

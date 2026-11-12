@@ -28,7 +28,7 @@ async function pasteWords(page: Page, text: string) {
 // Tests: Full bulk import flow
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Full Flow', () => {
+test.describe('Bulk Import: Full Flow', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -120,10 +120,10 @@ test.describe('Bulk Import — Full Flow', () => {
 });
 
 // ──────────────────────────────────────────────────────────
-// Tests: Needs Attention row — expand & save definition
+// Tests: Needs Attention row, expand & save definition
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Row Editing', () => {
+test.describe('Bulk Import: Row Editing', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -171,7 +171,7 @@ test.describe('Bulk Import — Row Editing', () => {
 // Tests: Step indicator and back navigation
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Navigation', () => {
+test.describe('Bulk Import: Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -241,7 +241,7 @@ test.describe('Bulk Import — Navigation', () => {
 // Tests: Auto look up card
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Auto Look Up Card', () => {
+test.describe('Bulk Import: Auto Look Up Card', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -286,7 +286,7 @@ test.describe('Bulk Import — Auto Look Up Card', () => {
 // Tests: Mode auto-detection
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Mode Auto-Detection', () => {
+test.describe('Bulk Import: Mode Auto-Detection', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -300,7 +300,7 @@ test.describe('Bulk Import — Mode Auto-Detection', () => {
     const wordsOnlyBtn = page.getByRole('button', { name: 'Words only' });
     await expect(wordsOnlyBtn).toBeVisible();
     // Verify it is in the active state by checking absence of aria-pressed or visible active styling
-    // The active button has bg-white/dark:bg-slate-700 styling — we verify it's clickable and currently active
+    // The active button has bg-white/dark:bg-slate-700 styling, so we verify it's clickable and currently active
     // by checking the "Words + Defs" button is NOT the active one
     const wordsPlusDefsBtn = page.getByRole('button', { name: 'Words + Defs' });
     await expect(wordsPlusDefsBtn).toBeVisible();
@@ -334,7 +334,7 @@ test.describe('Bulk Import — Mode Auto-Detection', () => {
 // Tests: Demote on definition clear
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Demote on Definition Clear', () => {
+test.describe('Bulk Import: Demote on Definition Clear', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -359,7 +359,7 @@ test.describe('Bulk Import — Demote on Definition Clear', () => {
     const appleRow = page.locator('lib-bulk-preview-row').filter({ hasText: 'apple' });
     await appleRow.click();
 
-    // Clear the definition field — second .vv-input-inline in expanded form
+    // Clear the definition field (second .vv-input-inline in expanded form)
     const inputs = page.locator('.vv-input-inline');
     await inputs.nth(1).waitFor({ state: 'visible' });
     await inputs.nth(1).fill('');
@@ -380,7 +380,7 @@ test.describe('Bulk Import — Demote on Definition Clear', () => {
 // Tests: Leave confirmation dialog
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Leave Confirmation', () => {
+test.describe('Bulk Import: Leave Confirmation', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -436,7 +436,7 @@ test.describe('Bulk Import — Leave Confirmation', () => {
   test('cancel without any words → goes directly to dictionary without confirmation', async ({
     page,
   }) => {
-    // No words pasted — click cancel immediately
+    // No words pasted, click cancel immediately
     await page.getByLabel('Cancel import').click();
 
     // Should navigate directly, no dialog
@@ -449,7 +449,7 @@ test.describe('Bulk Import — Leave Confirmation', () => {
 // Tests: Back to editing preserves text
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Back to Editing', () => {
+test.describe('Bulk Import: Back to Editing', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -478,7 +478,7 @@ test.describe('Bulk Import — Back to Editing', () => {
 // Tests: Live counter with definition count
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Live Counter', () => {
+test.describe('Bulk Import: Live Counter', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);
@@ -518,7 +518,7 @@ test.describe('Bulk Import — Live Counter', () => {
 // Tests: Delimiter detection chips
 // ──────────────────────────────────────────────────────────
 
-test.describe('Bulk Import — Delimiter Detection', () => {
+test.describe('Bulk Import: Delimiter Detection', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await openBulkImport(page);

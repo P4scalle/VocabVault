@@ -129,7 +129,7 @@ describe('FolderService', () => {
   describe('folder delete cascade (orphaned folderId)', () => {
     it('should NOT automatically clear folderId on words when folder is deleted (no cascade)', () => {
       // FolderService.deleteFolder only removes the folder from storage.
-      // It does NOT update words — that cascade is a feature-level concern
+      // It does NOT update words. That cascade is a feature-level concern
       // handled by FeatureDictionary.executeDeleteFolder().
       const { folder } = service.addFolder('My Folder');
       const folderId = folder.id;
@@ -140,7 +140,7 @@ describe('FolderService', () => {
       expect(service.folders().length).toBe(0);
       expect(service.getFolder(folderId)).toBeUndefined();
 
-      // The service itself has no knowledge of words — it only manages folders.
+      // The service itself has no knowledge of words. It only manages folders.
       // Words with stale folderId are orphaned until the feature-level code cleans them.
       // This is by design: FolderService is a pure data store for folders.
     });

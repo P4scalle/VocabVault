@@ -14,7 +14,7 @@ export class FolderService {
 
   readonly folders = this._store.value;
 
-  /** Word count per folder — derived from WordService, single source of truth. */
+  /** Word count per folder, derived from WordService, single source of truth. */
   readonly folderWordCounts = computed(() => {
     const counts = new Map<string, number>();
     for (const w of this.wordService.words()) {

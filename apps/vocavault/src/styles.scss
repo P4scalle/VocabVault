@@ -17,14 +17,14 @@
     --vv-safe-bottom: env(safe-area-inset-bottom, 0px);
     --vv-content-max: 30rem;
 
-    /* Fluid design tokens — scale smoothly from 320px to 768px viewport */
+    /* Fluid design tokens: scale smoothly from 320px to 768px viewport */
     --vv-space-card: clamp(0.75rem, 0.5rem + 0.75vw, 1rem);
     --vv-space-gap: clamp(0.5rem, 0.25rem + 0.75vw, 0.75rem);
     --vv-size-icon: clamp(2rem, 1.5rem + 1.5vw, 2.5rem);
     --vv-size-btn: clamp(1.75rem, 1.5rem + 0.75vw, 2rem);
     --vv-space-scroller: clamp(3.5rem, 2rem + 4vw, 6rem);
 
-    /* Fluid typography — scales between 320px and 1024px viewport */
+    /* Fluid typography: scales between 320px and 1024px viewport */
     --vv-font-h1: clamp(1.25rem, 1rem + 1vw, 1.75rem);
     --vv-font-h2: clamp(1.125rem, 0.95rem + 0.5vw, 1.375rem);
     --vv-font-body: clamp(0.875rem, 0.825rem + 0.2vw, 1rem);
@@ -85,17 +85,17 @@
   .vv-stagger-children > *:nth-child(8) { animation-delay: 280ms; }
   .vv-stagger-children > *:nth-child(n+9) { animation-delay: 300ms; }
 
-  /* Primary action button — confirm, save, create, continue */
+  /* Primary action button: confirm, save, create, continue */
   .vv-btn-primary {
     @apply bg-vv-brand hover:bg-vv-brand-dark text-white font-semibold px-5 py-3 rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
-  /* Secondary action button — cancel, back, dismiss, skip */
+  /* Secondary action button: cancel, back, dismiss, skip */
   .vv-btn-secondary {
     @apply border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold px-5 py-3 rounded-xl transition-colors;
   }
 
-  /* Danger button — destructive actions */
+  /* Danger button: destructive actions */
   .vv-btn-danger {
     @apply bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-3 rounded-xl transition-colors;
   }
@@ -109,7 +109,7 @@
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vv-brand focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900;
   }
 
-  /* Standard text input — text-base (16px) on mobile prevents iOS Safari auto-zoom,
+  /* Standard text input: text-base (16px) on mobile prevents iOS Safari auto-zoom,
      text-sm (14px) on md+ where zoom isn't an issue */
   .vv-input {
     @apply w-full rounded-xl border border-slate-200 dark:border-slate-600 px-4 py-3 text-base md:text-sm text-slate-900 dark:text-slate-100 dark:bg-slate-800 placeholder-slate-400 dark:placeholder-slate-500 focus:border-vv-brand focus:outline-none focus:ring-2 focus:ring-vv-brand/20;
@@ -120,17 +120,17 @@
     @apply bg-vv-surface dark:bg-slate-800 rounded-2xl shadow-sm dark:shadow-slate-900/20;
   }
 
-  /* Card with left accent border — for urgent/active items */
+  /* Card with left accent border, for urgent/active items */
   .vv-card-accent {
     @apply bg-vv-surface dark:bg-slate-800 rounded-2xl shadow-sm dark:shadow-slate-900/20 border-l-4;
   }
 
-  /* Card with tinted background — for primary CTA cards */
+  /* Card with tinted background, for primary CTA cards */
   .vv-card-cta {
     @apply bg-vv-brandLight/50 dark:bg-vv-brand/10 rounded-2xl shadow-sm border border-vv-brand/10 dark:border-vv-brand/20;
   }
 
-  /* Skeleton loading — CSS-only shimmer, zero JS */
+  /* Skeleton loading: CSS-only shimmer, zero JS */
   .vv-skeleton {
     @apply relative overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-700;
 
@@ -161,7 +161,7 @@
     @apply vv-skeleton rounded-2xl h-24;
   }
 
-  /* Skip to content — visible only on focus */
+  /* Skip to content: visible only on focus */
   .vv-skip-link {
     @apply absolute -top-full left-4 z-[10000] rounded-b-xl bg-vv-brand px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all;
 
@@ -170,12 +170,12 @@
     }
   }
 
-  /* Badge pill — base class for status/mastery badges */
+  /* Badge pill: base class for status/mastery badges */
   .vv-badge {
     @apply inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium;
   }
 
-  /* Fixed footer — same pattern as the adaptive-nav bottom bar.
+  /* Fixed footer: same pattern as the adaptive-nav bottom bar.
      position:fixed + content pb-24 = proven on all mobile browsers.
      Desktop: becomes inline card in content flow. */
   .vv-sticky-footer {
@@ -190,10 +190,10 @@
     @apply lg:max-w-md lg:mx-auto lg:px-0 lg:py-0 lg:pb-0;
   }
 
-  /* Inline footer variant — fixed on mobile, inline earlier on tablet.
+  /* Inline footer variant: fixed on mobile, inline earlier on tablet.
      md:dark:bg-transparent is required because dark:bg-slate-800/95 otherwise
      wins over md:bg-transparent (variant source order), leaving a dark box
-     behind the buttons on desktop — same fix as .vv-sticky-footer above. */
+     behind the buttons on desktop (same fix as .vv-sticky-footer above). */
   .vv-sticky-footer-inline {
     @apply fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 dark:border-slate-700 bg-vv-surface/95 dark:bg-slate-800/95 backdrop-blur;
     @apply md:static md:border-t-0 md:bg-transparent md:dark:bg-transparent md:backdrop-blur-none md:z-auto;
@@ -203,7 +203,7 @@
     @apply md:max-w-none md:px-0 md:py-0 md:pt-2;
   }
 
-  /* Quiz content column — single source of truth for the width that the
+  /* Quiz content column: single source of truth for the width that the
      flashcard card, its flag banner, and (via md: variants) the sticky footers
      all share, so they stay vertically aligned on desktop. If the card width
      changes, update it here; the footers mirror this width with md:max-w-md
@@ -212,12 +212,12 @@
     @apply w-full max-w-sm md:max-w-md mx-auto;
   }
 
-  /* Icon button — square tap target for toolbar actions (44px minimum for accessibility) */
+  /* Icon button: square tap target for toolbar actions (44px minimum for accessibility) */
   .vv-icon-btn {
     @apply w-11 h-11 flex items-center justify-center rounded-lg transition-colors;
   }
 
-  /* Compact inline input — for inline edit rows */
+  /* Compact inline input, for inline edit rows */
   .vv-input-inline {
     @apply text-sm px-2 py-1 border border-slate-200 dark:border-slate-600 rounded-lg vv-focus-ring;
   }
@@ -246,7 +246,7 @@
   to { transform: translateY(0); }
 }
 
-/* Safe area bottom padding for fixed footers — handles iPhone home indicator.
+/* Safe area bottom padding for fixed footers: handles iPhone home indicator.
    Same pattern as the adaptive-nav bottom bar. */
 .safe-bottom {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
@@ -261,7 +261,7 @@
   }
 }
 
-/* No need to hide fixed footer on keyboard open — the keyboard
+/* No need to hide fixed footer on keyboard open. The keyboard
    naturally overlays it. Hiding caused race conditions where the
    footer stayed hidden after keyboard dismissal. */
 
@@ -270,7 +270,7 @@ textarea[style*="height"] {
   max-height: 50vh;
 }
 
-/* Paste Splash — empty state elements scatter on paste */
+/* Paste Splash: empty state elements scatter on paste */
 .vv-splash-scatter .vv-splash-icon {
   animation: splashScatter 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   --tx: 0px;
@@ -350,7 +350,7 @@ textarea[style*="height"] {
   100% { transform: scale(1); }
 }
 
-/* Row entrance — wave from right (ready) */
+/* Row entrance: wave from right (ready) */
 .vv-row-enter-right {
   animation: rowEnterRight 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
@@ -360,7 +360,7 @@ textarea[style*="height"] {
   to { transform: translate3d(0, 0, 0); opacity: 1; }
 }
 
-/* Row entrance — wave from left (attention) */
+/* Row entrance: wave from left (attention) */
 .vv-row-enter-left {
   animation: rowEnterLeft 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
@@ -370,7 +370,7 @@ textarea[style*="height"] {
   to { transform: translate3d(0, 0, 0); opacity: 1; }
 }
 
-/* Row deletion — shredder effect */
+/* Row deletion: shredder effect */
 .vv-row-shred {
   animation: rowShred 250ms ease-in forwards;
   transform-origin: center;
@@ -410,7 +410,7 @@ textarea[style*="height"] {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Back button hint — pulse glow when user taps disabled FAB */
+/* Back button hint: pulse glow when user taps disabled FAB */
 .vv-back-hint {
   animation: backHintPulse 1.2s ease-out;
   @apply bg-vv-brand/15 text-vv-brand scale-125;
@@ -433,7 +433,7 @@ textarea[style*="height"] {
   transition: transform 100ms ease-out;
 }
 
-/* Eloquence score entrance — scale up with slight bounce */
+/* Eloquence score entrance: scale up with slight bounce */
 .animate-score-entrance {
   animation: scoreEntrance 800ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
   animation-delay: 200ms;

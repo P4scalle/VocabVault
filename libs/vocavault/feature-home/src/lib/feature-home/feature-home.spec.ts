@@ -54,7 +54,7 @@ describe('FeatureHome', () => {
     });
 
     // Prefer reduced motion so animatedValue sets immediately without requestAnimationFrame.
-    // Return a complete MediaQueryList stub — CDK's MediaMatcher calls addListener,
+    // Return a complete MediaQueryList stub. CDK's MediaMatcher calls addListener,
     // so a bare { matches: true } throws "addListener is not a function".
     vi.spyOn(window, 'matchMedia').mockReturnValue({
       matches: true,

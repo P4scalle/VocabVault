@@ -188,7 +188,7 @@ describe('FlashcardQuiz', () => {
     (component as unknown as FlashcardQuizInternals).prevCard();
     (component as unknown as FlashcardQuizInternals).prevCard();
     expect((component as unknown as FlashcardQuizInternals).currentIndex()).toBe(0);
-    // Already assessed — reviewedCount should still be 2
+    // Already assessed, so reviewedCount should still be 2
     expect((component as unknown as FlashcardQuizInternals).reviewedCount()).toBe(2);
   });
 
@@ -200,7 +200,7 @@ describe('FlashcardQuiz', () => {
     // Got card 1
     (component as unknown as FlashcardQuizInternals).flipCard();
     (component as unknown as FlashcardQuizInternals).markGotIt();
-    // Got card 2 (last card — advance is no-op)
+    // Got card 2 (last card, so advance is no-op)
     (component as unknown as FlashcardQuizInternals).flipCard();
     (component as unknown as FlashcardQuizInternals).markGotIt();
     (component as unknown as FlashcardQuizInternals).finish();

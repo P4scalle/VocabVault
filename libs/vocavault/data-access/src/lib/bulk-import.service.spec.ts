@@ -189,7 +189,7 @@ describe('BulkImportService', () => {
   });
 
   describe('wordsOnlyMode', () => {
-    it('should NOT change underlying row status to ok when wordsOnlyMode is true — status stays missing-def', () => {
+    it('should NOT change underlying row status to ok when wordsOnlyMode is true (status stays missing-def)', () => {
       // wordsOnlyMode only changes the visual display (effectiveStatus in the row component),
       // it does NOT promote the ParsedRow.status to 'ok'. Definitions are still required to import.
       service.wordsOnlyMode.set(true);
@@ -373,7 +373,7 @@ describe('BulkImportService', () => {
     });
   });
 
-  describe('getImportableWords — incomplete flag', () => {
+  describe('getImportableWords, incomplete flag', () => {
     it('import row where word has no definition → should be flagged incomplete', () => {
       service.parseText('ephemeral');
       const { newWords } = service.getImportableWords();
@@ -475,7 +475,7 @@ describe('BulkImportService', () => {
     it('should preserve lastInputText across parseText calls (for back-to-editing)', () => {
       service.parseText('hello - world');
       expect(service.lastInputText()).toBe('hello - world');
-      // Simulating "back to editing" — lastInputText should still be available
+      // Simulating "back to editing". lastInputText should still be available
       expect(service.lastInputText()).toBe('hello - world');
     });
 
@@ -733,7 +733,7 @@ describe('BulkImportService', () => {
     });
   });
 
-  describe('lookupAll — rate limiting and retry', () => {
+  describe('lookupAll, rate limiting and retry', () => {
     beforeEach(() => {
       vi.useFakeTimers();
     });
@@ -947,7 +947,7 @@ describe('BulkImportService', () => {
       await vi.runAllTimersAsync();
       await promise;
 
-      // Each word should only be called once — no retries for 404s
+      // Each word should only be called once. No retries for 404s
       expect(callWords).toEqual(['xyz1', 'xyz2']);
     });
 
@@ -986,7 +986,7 @@ describe('BulkImportService', () => {
   });
 
   describe('concurrent word additions during lookup (snapshot limitation)', () => {
-    it('should not detect words added after parse as duplicates — documenting snapshot-based detection limitation', async () => {
+    it('should not detect words added after parse as duplicates (documenting snapshot-based detection limitation)', async () => {
       // The detectDuplicates() method takes a snapshot of wordService.words() at parse time.
       // If a word is added to the dictionary AFTER parsing but BEFORE/DURING lookup,
       // the bulk import will not detect it as a duplicate.
@@ -998,7 +998,7 @@ describe('BulkImportService', () => {
         return { definition: 'a fruit', pronunciation: '', examples: [] };
       });
 
-      // 1. Parse "apple" — no definition, missing-def status
+      // 1. Parse "apple" with no definition, missing-def status
       service.parseText('apple');
       expect(service.rows()[0].status).toBe('missing-def');
 
@@ -1016,7 +1016,7 @@ describe('BulkImportService', () => {
       expect(wordsSignal().length).toBe(1);
 
       // 6. getImportableWords() still includes "apple" as a new word
-      //    even though it already exists — this is the snapshot limitation
+      //    even though it already exists. This is the snapshot limitation
       const { newWords } = service.getImportableWords();
       expect(newWords.length).toBe(1);
       expect(newWords[0].word).toBe('apple');
@@ -1031,7 +1031,7 @@ describe('BulkImportService', () => {
       // Add "hello" to dictionary AFTER parsing
       wordsSignal.set([makeWord('hello', 'existing-hello')]);
 
-      // The rows are NOT re-evaluated — still shows ok, not duplicate
+      // The rows are NOT re-evaluated. Still shows ok, not duplicate
       expect(service.rows()[0].status).toBe('ok');
       expect(service.rows()[0].word).toBe('hello');
 
@@ -1064,7 +1064,7 @@ describe('BulkImportService', () => {
   // ── Placeholder definition detection ────────────────────────
 
   describe('placeholder definition detection', () => {
-    describe('buildRows — parseText', () => {
+    describe('buildRows, parseText', () => {
       it('should mark row with definition "Placeholder" as missing-def', () => {
         service.parseText('ephemeral\tPlaceholder');
         expect(service.rows()[0].status).toBe('missing-def');
@@ -1101,7 +1101,7 @@ describe('BulkImportService', () => {
       });
     });
 
-    describe('updateRow — promote / demote logic', () => {
+    describe('updateRow promote / demote logic', () => {
       const setupMissingDefRow = () => {
         service.parseText('ephemeral');
         const row = service.rows()[0];

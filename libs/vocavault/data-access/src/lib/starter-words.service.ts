@@ -27,7 +27,7 @@ export class StarterWordsService {
   /**
    * Add a starter word, auto-filling its definition from the dictionary API.
    * If the lookup fails (offline, rate-limited, not found) the word is still
-   * saved — just flagged incomplete so the user can fill it in later.
+   * saved, just flagged incomplete so the user can fill it in later.
    */
   async add(term: string): Promise<StarterAddResult> {
     let data = { word: term, pronunciation: '', definition: '', examples: [] as string[] };
@@ -41,7 +41,7 @@ export class StarterWordsService {
         examples: result.examples,
       };
     } catch {
-      // Leave the fields empty — addWord() flags the word incomplete.
+      // Leave the fields empty. addWord() flags the word incomplete.
     }
 
     const { ok, word } = this.words.addWord(data);

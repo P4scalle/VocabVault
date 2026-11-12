@@ -42,7 +42,7 @@
         </lib-button>
       </div>
     } @else {
-      <!-- Instruction banner — always visible, sticky at top -->
+      <!-- Instruction banner (always visible, sticky at top) -->
       <div class="sticky top-0 z-10 -mx-4 px-4 py-2 border-b sm:relative sm:mx-0 sm:rounded-xl sm:border sm:py-2"
         [class]="selectedLabel() ? 'bg-vv-brandLight dark:bg-vv-brand/10 border-vv-brand/20' : 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700'">
         <p class="text-center text-xs text-slate-500 dark:text-slate-400">
@@ -55,7 +55,7 @@
       </div>
 
       <div class="grid grid-cols-2 gap-2 xs:gap-3">
-        <!-- Words column (left) — scrollable on mobile, padding for ring overflow -->
+        <!-- Words column (left), scrollable on mobile, padding for ring overflow -->
         <div class="space-y-2 max-h-[55vh] overflow-y-auto overscroll-contain sm:max-h-none sm:overflow-visible py-0.5 px-0.5">
           <p class="text-2xs xs:text-xs font-medium uppercase tracking-wide text-slate-400 sticky top-0 bg-vv-surface py-1 z-[1]">{{ columnLabels().left }}</p>
           @for (word of words(); track word.id) {
@@ -73,7 +73,7 @@
           }
         </div>
 
-        <!-- Definitions column (right, shuffled) — scrollable on mobile, padding for ring overflow -->
+        <!-- Definitions column (right, shuffled), scrollable on mobile, padding for ring overflow -->
         <div class="space-y-2 max-h-[55vh] overflow-y-auto overscroll-contain sm:max-h-none sm:overflow-visible py-0.5 px-0.5">
           <p class="text-2xs xs:text-xs font-medium uppercase tracking-wide text-slate-400 sticky top-0 bg-vv-surface py-1 z-[1]">{{ columnLabels().right }}</p>
           @for (defWordId of shuffledDefWordIds(); track defWordId) {

@@ -42,7 +42,7 @@ describe('isPlaceholderDefinition', () => {
     });
   });
 
-  // ── Blocklist – exact case-insensitive matches ───────────────
+  // ── Blocklist: exact case-insensitive matches ───────────────
 
   describe('blocklist words (exact match, case-insensitive)', () => {
     it('returns true for "definition" (lowercase)', () => {
@@ -90,7 +90,7 @@ describe('isPlaceholderDefinition', () => {
     });
   });
 
-  // ── Blocklist – substring does NOT trigger ───────────────────
+  // ── Blocklist: substring does NOT trigger ───────────────────
 
   describe('blocklist words as substrings should NOT trigger', () => {
     it('returns false for "adj. very beautiful" (contains no blocklist exact match)', () => {
@@ -129,7 +129,7 @@ describe('isPlaceholderDefinition', () => {
       expect(isPlaceholderDefinition('---')).toBe(true);
     });
 
-    it('returns true for "   " (3 spaces — single repeated char)', () => {
+    it('returns true for "   " (3 spaces, single repeated char)', () => {
       // After trim this is empty (< min length), but repeating space also triggers length guard
       expect(isPlaceholderDefinition('   ')).toBe(true);
     });

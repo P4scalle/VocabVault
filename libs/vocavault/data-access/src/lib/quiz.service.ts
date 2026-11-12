@@ -86,7 +86,7 @@ export class QuizService {
 
   private saveTempToSession(qs: QuizSet): void {
     try { sessionStorage.setItem(QuizService.TEMP_KEY, JSON.stringify(qs)); }
-    catch { /* quota or private browsing — non-critical */ }
+    catch { /* quota or private browsing, non-critical */ }
   }
 
   private loadTempFromSession(): QuizSet | null {
@@ -150,13 +150,13 @@ export class QuizService {
     const limit = QuizService.SESSION_SIZE;
     const newCap = QuizService.NEW_WORDS_PER_SESSION;
 
-    // New words (capped to avoid cognitive overload — mix with review for confidence)
+    // New words (capped to avoid cognitive overload, mixed with review for confidence)
     session.push(...shuffle(buckets[MasteryLevel.New]).slice(0, newCap));
-    // Learning (got wrong before — highest review value)
+    // Learning (got wrong before, highest review value)
     if (session.length < limit) session.push(...shuffle(buckets[MasteryLevel.Learning]).slice(0, limit - session.length));
-    // Review (almost mastered — reinforce)
+    // Review (almost mastered, reinforce)
     if (session.length < limit) session.push(...shuffle(buckets[MasteryLevel.Review]).slice(0, limit - session.length));
-    // Mastered (fill remaining — keeps confidence high)
+    // Mastered (fill remaining, keeps confidence high)
     if (session.length < limit) session.push(...shuffle(buckets[MasteryLevel.Mastered]).slice(0, limit - session.length));
     // Backfill with remaining new if session is still short
     if (session.length < limit) {

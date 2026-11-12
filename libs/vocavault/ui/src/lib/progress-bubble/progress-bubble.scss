@@ -9,7 +9,7 @@
   cursor: pointer;
   transition: box-shadow 0.5s ease;
 
-  // The fill layer — positioned fully below, slides up proportionally
+  // The fill layer, positioned fully below, slides up proportionally
   &::before {
     content: '';
     position: absolute;
@@ -73,7 +73,7 @@
   }
 
   .vv-progress-bubble--filled.vv-progress-bubble--high-fill & {
-    color: #1e293b; /* slate-800 — dark text on filled background */
+    color: #1e293b; /* slate-800, dark text on filled background */
   }
 
   @media (hover: hover) {
@@ -91,7 +91,7 @@
   }
 }
 
-// Pulse ring — expands outward from the border, no layout shift
+// Pulse ring: expands outward from the border, no layout shift
 @keyframes bubble-pulse {
   0% {
     box-shadow: 0 0 0 2px var(--bubble-color);

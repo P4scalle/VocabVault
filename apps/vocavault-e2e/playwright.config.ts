@@ -14,7 +14,7 @@ export default defineConfig({
     baseURL,
     /* Collect trace only on failure for debugging */
     trace: 'retain-on-failure',
-    /* Screenshots only on failure — keeps test-results/ clean on pass */
+    /* Screenshots only on failure, keeps test-results/ clean on pass */
     screenshot: 'only-on-failure',
     /* Video only on failure */
     video: 'retain-on-failure',

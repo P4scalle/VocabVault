@@ -14,10 +14,10 @@ it sticks.
 - Add words by hand or auto-fill definitions from a dictionary API, sorted into
   colour-coded folders.
 - Four quiz modes: Flashcard, Multiple Choice, Write, and Match.
-- Spaced repetition — words come back for review based on how well you know them.
+- Spaced repetition, so words come back for review based on how well you know them.
 - Progress and mastery tracking.
 - Bulk import from a pasted list or a CSV / Word document.
-- Works offline — everything lives in the browser, no account or backend.
+- Works offline: everything lives in the browser, no account or backend.
 
 ## Run it
 

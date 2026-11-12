@@ -27,7 +27,7 @@ import { BulkAdd } from '../bulk-add/bulk-add';
 type DictView = 'list' | 'add' | 'edit' | 'import';
 type DictTab = 'words' | 'folders';
 
-const SAVE_ERROR = 'Could not save — storage may be full';
+const SAVE_ERROR = 'Could not save. Storage may be full.';
 
 function matchesSearch(word: Word, query: string): boolean {
   return wordStartsWith(word.word, query);
@@ -309,7 +309,7 @@ export class FeatureDictionary implements HasUnsavedChanges {
     this.groupedWords().map((g) => g.letter),
   );
 
-  /** Hide the alphabet scroller when there are fewer than 3 letter groups — it's useless for 1-2 groups */
+  /** Hide the alphabet scroller when there are fewer than 3 letter groups (it's useless for 1-2 groups) */
   protected readonly showScroller = computed(() => this.groupedWords().length >= 3);
 
   protected readonly groupedWordsByFolder = computed(() => {
@@ -395,13 +395,13 @@ export class FeatureDictionary implements HasUnsavedChanges {
 
   protected onFolderLetterSelected(letter: string): void {
     this.activeLetter.set(letter);
-    // Folder scrollers are contextual — never scroll to absolute top (would leave the folder section)
+    // Folder scrollers are contextual, so never scroll to absolute top (would leave the folder section)
     this.scrollToSelector(`[data-folder-letter="${letter}"]`, false);
   }
 
   protected onUncategorizedLetterSelected(letter: string): void {
     this.activeLetter.set(letter);
-    // Uncategorized scroller is contextual — never scroll to absolute top
+    // Uncategorized scroller is contextual, so never scroll to absolute top
     this.scrollToSelector(`[data-uncat-letter="${letter}"]`, false);
   }
 
@@ -410,7 +410,7 @@ export class FeatureDictionary implements HasUnsavedChanges {
       this.scrollSpyPaused = true;
       clearTimeout(this.scrollSpyTimer);
     } else {
-      // Settle delay — let final scroll complete before resuming spy
+      // Settle delay: let final scroll complete before resuming spy
       clearTimeout(this.scrollSpyTimer);
       this.scrollSpyTimer = window.setTimeout(() => {
         this.scrollSpyPaused = false;
@@ -488,7 +488,7 @@ export class FeatureDictionary implements HasUnsavedChanges {
     const { warning } = this.storageWarning.checkAndWarn();
     if (warning) {
       this.toast.showWithAction(
-        'Your dictionary is getting large — export a backup to keep your data safe',
+        'Your dictionary is getting large. Export a backup to keep your data safe.',
         { label: 'Export now', callback: () => this.dataExport.exportAll() },
         'info',
         8000,
@@ -511,7 +511,7 @@ export class FeatureDictionary implements HasUnsavedChanges {
       if (!ok) {
         this.toast.show(SAVE_ERROR, 'error');
       } else if (incomplete) {
-        this.toast.show(`Added "${term}" — add a definition when you're ready`, 'info');
+        this.toast.show(`Added "${term}". Add a definition when you're ready.`, 'info');
       } else {
         this.toast.show(`Added "${term}"`, 'success');
       }

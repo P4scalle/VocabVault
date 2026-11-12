@@ -61,7 +61,7 @@ describe('WordService', () => {
     expect(stored[0].word).toBe('test');
   });
 
-  it('should updateWord — change specified fields and set updatedAt, not change createdAt', () => {
+  it('should updateWord: change specified fields and set updatedAt, not change createdAt', () => {
     const { word } = service.addWord({
       word: 'original',
       pronunciation: 'test',
@@ -94,7 +94,7 @@ describe('WordService', () => {
     expect(service.updateWord(word.id, { definition: 'new' })).toBe(true);
   });
 
-  it('should deleteWord — remove word from signal and persist', () => {
+  it('should deleteWord: remove word from signal and persist', () => {
     const { word } = service.addWord({
       word: 'toDelete',
       pronunciation: 'test',
@@ -431,7 +431,7 @@ describe('WordService', () => {
       expect(tough[0].id).toBe(word.id);
     });
 
-    it('excludes Learning words with default easeFactor (2.5) — not tough, just learning', () => {
+    it('excludes Learning words with default easeFactor (2.5), not tough, just learning', () => {
       const { word } = service.addWord({ word: 'normal-learner', pronunciation: '', definition: 'test', examples: [] });
       service.updateWord(word.id, {
         masteryLevel: MasteryLevel.Learning,
@@ -444,7 +444,7 @@ describe('WordService', () => {
       expect(service.toughWords()).toEqual([]);
     });
 
-    it('excludes Review-level words even with low easeFactor — they progressed past tough', () => {
+    it('excludes Review-level words even with low easeFactor, they progressed past tough', () => {
       const { word } = service.addWord({ word: 'review-low-ease', pronunciation: '', definition: 'test', examples: [] });
       service.updateWord(word.id, {
         masteryLevel: MasteryLevel.Review,

@@ -8,13 +8,13 @@ const THEME_KEY = 'vv_theme';
 export class ThemeService {
   private readonly destroyRef = inject(DestroyRef);
 
-  /** User's explicit choice — persisted to localStorage */
+  /** User's explicit choice, persisted to localStorage */
   readonly mode = signal<ThemeMode>(this.loadMode());
 
-  /** OS-level preference — updated via matchMedia listener */
+  /** OS-level preference, updated via matchMedia listener */
   private readonly systemDark = signal(this.querySystemDark());
 
-  /** Resolved visual state — derived from mode + OS preference */
+  /** Resolved visual state, derived from mode + OS preference */
   readonly isDark = computed(() => {
     const m = this.mode();
     if (m === 'dark') return true;

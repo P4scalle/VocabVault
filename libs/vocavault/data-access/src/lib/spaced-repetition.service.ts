@@ -82,7 +82,7 @@ export class SpacedRepetitionService {
     return [...returning, ...cappedNew];
   }
 
-  /** Count only — applies same daily cap as getWordsDueForReview */
+  /** Count only. Applies same daily cap as getWordsDueForReview */
   getDueCount(words: Word[]): number {
     const nowMs = Date.now();
     let returningCount = 0;

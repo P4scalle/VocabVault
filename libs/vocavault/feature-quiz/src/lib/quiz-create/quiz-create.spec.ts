@@ -103,7 +103,7 @@ describe('QuizCreate', () => {
 
     (component as unknown as QuizCreateInternals).onSaved(formData);
 
-    expect(mockToastService.show).toHaveBeenCalledWith('Could not save \u2014 storage may be full', 'error');
+    expect(mockToastService.show).toHaveBeenCalledWith('Could not save. Storage may be full.', 'error');
     expect(router.navigate).not.toHaveBeenCalled();
   });
 

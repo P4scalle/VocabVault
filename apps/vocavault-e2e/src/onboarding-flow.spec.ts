@@ -28,7 +28,7 @@ async function mockDictionary(page: Page) {
 }
 
 // The add control is a mobile FAB ("Open add options") or a desktop pill
-// ("Add word or quiz") depending on viewport — open whichever is visible.
+// ("Add word or quiz") depending on viewport. Open whichever is visible.
 async function openAddSheet(page: Page) {
   const mobileFab = page.getByRole('button', { name: 'Open add options' });
   const desktopPill = page.getByRole('button', { name: 'Add word or quiz' });

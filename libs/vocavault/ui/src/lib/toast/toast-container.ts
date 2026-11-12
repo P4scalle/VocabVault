@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import { ToastService, ToastType } from './toast.service';
 
-/** Static class map per toast type — avoids 18 conditional bindings in the template */
+/** Static class map per toast type; avoids 18 conditional bindings in the template */
 const TOAST_VARIANTS: Record<ToastType, { bg: string; iconClass: string; iconColor: string; textColor: string; btnColor: string }> = {
   success: {
     bg: 'bg-green-50 dark:bg-green-900/80 border-l-green-500 border-green-200 dark:border-green-700',

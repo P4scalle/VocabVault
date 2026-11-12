@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Visual regression tests — separate from functional E2E.
+ * Visual regression tests, separate from functional E2E.
  *
  * These tests capture baseline screenshots and compare future runs pixel-by-pixel.
  * Run: npx playwright test visual.spec.ts

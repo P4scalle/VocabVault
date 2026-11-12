@@ -52,7 +52,7 @@ test.describe('User Journey: add words → quiz → progress', () => {
     }
     await page.getByRole('button', { name: 'Create Quiz Set' }).click();
 
-    // Verify quiz set created — app navigates to quiz detail page
+    // Verify quiz set created, app navigates to quiz detail page
     await expect(page).toHaveURL(/\/quiz\//);
     await expect(page.getByText('Quiz created!')).toBeVisible();
     await expect(page.getByText('My Vocab Quiz')).toBeVisible();
@@ -112,7 +112,7 @@ test.describe('User Journey: add words → quiz → progress', () => {
     await page.getByRole('button', { name: 'Create Quiz Set' }).click();
     await expect(page).toHaveURL(/\/quiz\//);
 
-    // Play quiz — already on detail page, launch flashcard
+    // Play quiz, already on detail page, launch flashcard
     await page.getByRole('button', { name: /Flashcard/ }).click();
 
     // Card 1: got it

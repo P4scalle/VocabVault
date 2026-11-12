@@ -64,7 +64,7 @@ export interface Folder {
 
 import { PRESET_COLORS, PRESET_COLOR_NAMES } from '@vocavault/util';
 
-/** Domain alias — re-exports the single source of truth from @vocavault/util */
+/** Domain alias. Re-exports the single source of truth from @vocavault/util */
 export const FOLDER_COLORS = PRESET_COLORS;
 export const FOLDER_COLOR_NAMES = PRESET_COLOR_NAMES;
 

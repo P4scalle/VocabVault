@@ -26,7 +26,7 @@ export class WordService {
 
   readonly words = this._store.value;
 
-  /** Words that have both a term and definition — safe to quiz. */
+  /** Words that have both a term and definition, safe to quiz. */
   readonly quizzableWords = computed(() =>
     this.words().filter((w) => !w.incomplete)
   );

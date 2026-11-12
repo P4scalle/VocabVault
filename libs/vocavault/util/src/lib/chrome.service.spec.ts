@@ -21,7 +21,7 @@ describe('ChromeService', () => {
       expect(service.focusMode()).toBe(false);
     });
 
-    it('is idempotent — two enters need only one leave (boolean, not a counter)', () => {
+    it('is idempotent: two enters need only one leave (boolean, not a counter)', () => {
       service.enterFocus();
       service.enterFocus();
       service.leaveFocus();
@@ -30,7 +30,7 @@ describe('ChromeService', () => {
   });
 
   describe('registerFocusWhile', () => {
-    it('reflects the source reactively — flipping the signal flips focus mode', () => {
+    it('reflects the source reactively: flipping the signal flips focus mode', () => {
       const unsaved = signal(false);
       service.registerFocusWhile(unsaved);
 
@@ -69,8 +69,8 @@ describe('ChromeService', () => {
       service.leaveFocus();
       expect(service.focusMode()).toBe(false);
 
-      // With two sources, focus stays on until the last true one goes false —
-      // guards against the computed dropping a dependency on short-circuit.
+      // With two sources, focus stays on until the last true one goes false.
+      // This guards against the computed dropping a dependency on short-circuit.
       a.set(true);
       expect(service.focusMode()).toBe(true);
       b.set(true);

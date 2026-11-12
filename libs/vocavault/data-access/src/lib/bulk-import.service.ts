@@ -60,7 +60,7 @@ export class BulkImportService {
       if (r.status === 'duplicate') {
         return r.duplicateAction === 'keep' || r.duplicateAction === 'merge';
       }
-      // Words without definitions are never importable — they must be looked up or filled in manually
+      // Words without definitions are never importable. They must be looked up or filled in manually
       return r.status === 'ok';
     }).length
   );
@@ -233,7 +233,7 @@ export class BulkImportService {
           });
           continue;
         }
-        // keep or unresolved duplicates — treat as new
+        // keep or unresolved duplicates (treat as new)
       }
 
       const incomplete = !row.definition || row.word.trim().toLowerCase() === row.definition.trim().toLowerCase() ? true : undefined;
@@ -319,7 +319,7 @@ export class BulkImportService {
       this.lookupProgress.set({ current: completed, total: missingRows.length });
     };
 
-    // Process in chunks — adaptive delay increases when rate-limited
+    // Process in chunks. Adaptive delay increases when rate-limited
     let chunkDelay = CHUNK_DELAY_MS;
     for (let i = 0; i < missingRows.length; i += LOOKUP_CONCURRENCY) {
       if (abort.signal.aborted) break;

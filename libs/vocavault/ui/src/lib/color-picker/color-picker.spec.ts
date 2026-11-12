@@ -123,7 +123,7 @@ describe('ColorPicker', () => {
   });
 
   it('should accept color input and reflect it in selection', async () => {
-    // Set a preset color as input — should match one of the preset buttons
+    // Set a preset color as input, should match one of the preset buttons
     fixture.componentRef.setInput('color', PRESET_COLORS[2]);
     fixture.detectChanges();
     await fixture.whenStable();

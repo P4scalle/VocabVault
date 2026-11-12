@@ -1,9 +1,9 @@
-// Fixed position scroller — same pattern as iOS sectionIndexTitles.
+// Fixed position scroller, same pattern as iOS sectionIndexTitles.
 // :host is a fixed overlay with pointer-events:none so touches pass
 // through to content underneath. The inner nav captures pointer events.
 :host {
   position: fixed;
-  // top and right are set dynamically via host bindings —
+  // top and right are set dynamically via host bindings.
   // top tracks the word list's top edge, right tracks its right edge.
   // On mobile right ≈ 0, on desktop it hugs the content container.
   bottom: var(--vv-bottom-nav-height, 5rem);

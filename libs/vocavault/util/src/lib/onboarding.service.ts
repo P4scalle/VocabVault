@@ -39,7 +39,7 @@ export class OnboardingService {
       const state = this._state();
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch { /* quota — non-critical */ }
+      } catch { /* quota, non-critical */ }
     });
   }
 

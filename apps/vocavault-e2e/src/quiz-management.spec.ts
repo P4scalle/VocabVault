@@ -50,7 +50,7 @@ async function createQuizSet(page: Page, name: string, wordCount = 2) {
   await expect(page.getByText('Quiz created!')).toBeVisible();
 }
 
-test.describe('Quiz Management — Create', () => {
+test.describe('Quiz Management: Create', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -101,7 +101,7 @@ test.describe('Quiz Management — Create', () => {
   });
 });
 
-test.describe('Quiz Management — Edit', () => {
+test.describe('Quiz Management: Edit', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -126,7 +126,7 @@ test.describe('Quiz Management — Edit', () => {
     await expect(page).toHaveURL(/\/quiz\/[^/]+$/);
     await expect(page.getByRole('heading', { name: 'Renamed Set' })).toBeVisible();
 
-    // Still exactly one set after an edit — no duplicate
+    // Still exactly one set after an edit, no duplicate
     await page.goto('/quiz');
     await expect(page.locator('lib-quiz-set-card')).toHaveCount(1);
     await expect(page.getByText('Renamed Set')).toBeVisible();
@@ -161,7 +161,7 @@ test.describe('Quiz Management — Edit', () => {
   });
 });
 
-test.describe('Quiz Management — Delete with undo', () => {
+test.describe('Quiz Management: Delete with undo', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);

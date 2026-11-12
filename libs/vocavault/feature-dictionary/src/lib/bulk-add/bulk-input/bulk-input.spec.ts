@@ -117,7 +117,7 @@ describe('BulkInput', () => {
       textarea.dispatchEvent(new Event('input'));
       fixture.detectChanges();
 
-      // Now paste new content — override should be cleared
+      // Now paste new content. Override should be cleared.
       queryPasteButton(fixture).click();
       await fixture.whenStable();
 

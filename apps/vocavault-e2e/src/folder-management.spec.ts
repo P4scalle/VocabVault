@@ -62,7 +62,7 @@ async function createFolder(page: Page, name: string) {
   await expect(folderHeader(page, name)).toBeVisible();
 }
 
-test.describe('Folder Management — Create', () => {
+test.describe('Folder Management: Create', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -99,7 +99,7 @@ test.describe('Folder Management — Create', () => {
   });
 });
 
-test.describe('Folder Management — Rename', () => {
+test.describe('Folder Management: Rename', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -108,9 +108,9 @@ test.describe('Folder Management — Rename', () => {
   });
 
   test('renaming a folder updates its label', async ({ page }) => {
-    // Folder is auto-expanded after creation — open its options menu
+    // Folder is auto-expanded after creation, open its options menu
     await page.getByRole('button', { name: 'Folder options' }).click();
-    // The overflow menu is a plain button popover (not role="menu"/"menuitem") —
+    // The overflow menu is a plain button popover (not role="menu"/"menuitem"),
     // it intentionally avoids an unmet roving-focus ARIA contract, so the Rename
     // action is a button, matched by its accessible name.
     await page.getByRole('button', { name: /Rename/ }).click();
@@ -126,7 +126,7 @@ test.describe('Folder Management — Rename', () => {
   });
 });
 
-test.describe('Folder Management — Assign words', () => {
+test.describe('Folder Management: Assign words', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -166,7 +166,7 @@ test.describe('Folder Management — Assign words', () => {
   });
 });
 
-test.describe('Folder Management — Delete with undo', () => {
+test.describe('Folder Management: Delete with undo', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);

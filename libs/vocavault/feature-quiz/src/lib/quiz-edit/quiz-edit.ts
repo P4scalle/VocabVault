@@ -51,7 +51,7 @@ export class QuizEdit implements HasUnsavedChanges {
       this.toast.show('Quiz updated!');
       void this.router.navigate(['/quiz', this.id()]);
     } else {
-      this.toast.show('Could not save — storage may be full', 'error');
+      this.toast.show('Could not save. Storage may be full.', 'error');
     }
   }
 
@@ -79,7 +79,7 @@ export class QuizEdit implements HasUnsavedChanges {
       );
       void this.router.navigate(['/quiz']);
     } else {
-      this.toast.show('Could not save — storage may be full', 'error');
+      this.toast.show('Could not save. Storage may be full.', 'error');
     }
   }
 }

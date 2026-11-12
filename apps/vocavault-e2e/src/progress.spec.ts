@@ -55,7 +55,7 @@ async function addWord(page: Page, term: string, definition: string, isFirst = f
   await expect(page.getByRole('heading', { name: 'Dictionary' })).toBeVisible();
 }
 
-test.describe('Progress — empty state', () => {
+test.describe('Progress: empty state', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });
@@ -77,7 +77,7 @@ test.describe('Progress — empty state', () => {
   });
 });
 
-test.describe('Progress — stats render from word mastery', () => {
+test.describe('Progress: stats render from word mastery', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedMasteryWords(page);
@@ -119,7 +119,7 @@ test.describe('Progress — stats render from word mastery', () => {
   });
 });
 
-test.describe('Progress — updates after a quiz', () => {
+test.describe('Progress: updates after a quiz', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });

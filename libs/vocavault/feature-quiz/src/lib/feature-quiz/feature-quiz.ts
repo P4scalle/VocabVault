@@ -177,7 +177,7 @@ export class FeatureQuiz {
         'info',
       );
     } else {
-      this.toast.show('Could not save — storage may be full', 'error');
+      this.toast.show('Could not save. Storage may be full.', 'error');
     }
   }
 

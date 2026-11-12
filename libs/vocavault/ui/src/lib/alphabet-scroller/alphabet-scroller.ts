@@ -29,7 +29,7 @@ const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 export class AlphabetScroller {
   readonly validLetters = input<string[]>([]);
   readonly activeLetter = input<string>('');
-  /** Reference element — scroller top is clamped to never go above this element's top */
+  /** Reference element; scroller top is clamped to never go above this element's top */
   readonly anchorEl = input<HTMLElement | null>(null);
 
   readonly letterSelected = output<string>();
@@ -42,7 +42,7 @@ export class AlphabetScroller {
   protected readonly isLandscapeCondensed = signal(false);
 
   /**
-   * Dynamic top offset: the scroller starts at whichever is lower —
+   * Dynamic top offset: the scroller starts at whichever is lower,
    * the CSS minimum (header height) or the word list's current top edge.
    * This ensures the scroller aligns with the word list when at the top,
    * and stays below the header when scrolled down.
@@ -59,7 +59,7 @@ export class AlphabetScroller {
   private readonly letterButtons =
     viewChildren<ElementRef<HTMLButtonElement>>('letterBtn');
 
-  // Cached geometry — snapshot on pointerdown, reused on every pointermove
+  // Cached geometry: snapshot on pointerdown, reused on every pointermove
   private cachedFirstTop = 0;
   private cachedTotalHeight = 0;
 
@@ -108,7 +108,7 @@ export class AlphabetScroller {
       scrollTarget.addEventListener('scroll', scheduleUpdate, { passive: true } as AddEventListenerOptions);
       window.addEventListener('resize', scheduleUpdate, { passive: true });
 
-      // ResizeObserver on anchor — catches layout shifts from banners/filters
+      // ResizeObserver on anchor: catches layout shifts from banners/filters
       // appearing/disappearing without a scroll or resize event.
       let ro: ResizeObserver | null = null;
       const anchor = this.anchorEl();
@@ -170,7 +170,7 @@ export class AlphabetScroller {
     const nav = target.closest('nav');
     if (!nav) return;
 
-    // Capture all pointer events to the nav — works even when finger drifts outside
+    // Capture all pointer events to the nav, works even when finger drifts outside
     nav.setPointerCapture(event.pointerId);
     nav.addEventListener('pointermove', this.onCapturedMove);
     nav.addEventListener('pointerup', this.onCapturedUp);
@@ -180,7 +180,7 @@ export class AlphabetScroller {
     this.scrubbing.set(true);
     this.scrubbingChange.emit(true);
 
-    // Snapshot button geometry once — reused on every pointermove (Fix 1)
+    // Snapshot button geometry once, reused on every pointermove (Fix 1)
     const buttons = this.letterButtons();
     if (buttons.length) {
       const firstRect = buttons[0].nativeElement.getBoundingClientRect();
@@ -193,7 +193,7 @@ export class AlphabetScroller {
     this.scrubLetter.set(nearest);
     this.letterSelected.emit(nearest);
 
-    // Initial vibrate — always fires on touch start
+    // Initial vibrate, always fires on touch start
     this.lastVibrateTime = performance.now();
     navigator.vibrate?.(1);
   }

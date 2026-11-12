@@ -216,7 +216,7 @@ describe('AlphabetScroller', () => {
     fixture.detectChanges();
     const host: HTMLElement = fixture.nativeElement;
     // jsdom doesn't apply SCSS, so we verify the host element exists and
-    // the SCSS sets position:fixed on :host. This is a documentation test —
+    // the SCSS sets position:fixed on :host. This is a documentation test.
     // real verification requires E2E/visual regression.
     expect(host).toBeTruthy();
   });
@@ -300,12 +300,12 @@ describe('AlphabetScroller', () => {
     comp.throttledVibrate();
     expect(vibrateSpy).toHaveBeenCalledTimes(1);
 
-    // Call within 40ms — should be skipped
+    // Call within 40ms, should be skipped
     nowSpy.mockReturnValue(130);
     comp.throttledVibrate();
     expect(vibrateSpy).toHaveBeenCalledTimes(1);
 
-    // Call after 40ms — should vibrate
+    // Call after 40ms, should vibrate
     nowSpy.mockReturnValue(141);
     comp.throttledVibrate();
     expect(vibrateSpy).toHaveBeenCalledTimes(2);

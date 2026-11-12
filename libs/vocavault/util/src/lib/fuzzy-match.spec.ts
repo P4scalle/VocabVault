@@ -26,7 +26,7 @@ describe('fuzzyMatch', () => {
   });
 
   it('detects close match for missing word', () => {
-    // "a large building" vs "a large spacious building" - token overlap > 60%
+    // "a large building" vs "a large spacious building" (token overlap > 60%)
     const result = fuzzyMatch('a large building', 'a large spacious building');
     expect(result.close).toBe(true);
   });

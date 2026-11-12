@@ -306,8 +306,8 @@ describe('removeMeaning', () => {
   });
 });
 
-describe('removeMeaning — regression guards', () => {
-  it('[RG-FORMAT] duplicate meanings — removes ALL matching (documented choice)', () => {
+describe('removeMeaning regression guards', () => {
+  it('[RG-FORMAT] duplicate meanings: removes ALL matching (documented choice)', () => {
     expect(removeMeaning('n. dog · v. dog · n. cat', 'dog')).toBe('n. cat');
   });
 
@@ -327,7 +327,7 @@ describe('removeMeaning — regression guards', () => {
   });
 });
 
-describe('getQuizMeaning / getQuizExample after removal — regression guards', () => {
+describe('getQuizMeaning / getQuizExample after removal, regression guards', () => {
   it('[RG-QUIZ] after removing first meaning, index 0 selects the surviving first meaning', () => {
     const result = removeMeaning('n. a feline · v. to categorize', 'a feline');
     const word = { definition: result, quizMeaningIndex: 0 };

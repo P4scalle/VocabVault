@@ -129,7 +129,7 @@ describe('QuizSetCard', () => {
       fixture.componentRef.setInput('quizSet', { ...mockQuizSet, color: undefined });
       fixture.detectChanges();
       await fixture.whenStable();
-      // The small dot span has w-2.5 h-2.5 rounded-full — use a distinguishing selector
+      // The small dot span has w-2.5 h-2.5 rounded-full, so use a distinguishing selector
       const dot = fixture.nativeElement.querySelector('.w-2\\.5.h-2\\.5.rounded-full.flex-shrink-0');
       expect(dot).toBeFalsy();
     });

@@ -85,7 +85,7 @@ async function seedUncategorizedManyWords(page: Page) {
       easeFactor: 2.5,
       reviewCount: 0,
     }));
-    // No folders seeded — uncategorized section only appears when folders exist in the tab
+    // No folders seeded; uncategorized section only appears when folders exist in the tab
     // We still need at least one folder for the Folders tab to appear
     const folder = { id: 'empty-folder', name: 'Empty Folder', color: '#6366F1', createdAt: now };
     localStorage.setItem('vv_folders', JSON.stringify([folder]));
@@ -269,7 +269,7 @@ test.describe('Folder Alphabet Scroller', () => {
     // Collapse uncategorized first, then expand the folder
     await uncatHeader.click();
 
-    // Expand the folder — shows folder content with its own scroller
+    // Expand the folder, shows folder content with its own scroller
     await page.getByRole('button', { name: /Test Folder/ }).click();
 
     // Folder scroller visible (A, B, C, D, E, F = 6 letter groups)

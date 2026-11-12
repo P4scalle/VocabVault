@@ -162,7 +162,7 @@ export class WordForm implements OnInit {
   }
 
   protected async onLookup(): Promise<void> {
-    // Second click — open picker from cached meanings (per D-11/D-12)
+    // Second click: open picker from cached meanings (per D-11/D-12)
     if (this.availableMeanings().length > 0) {
       this.definitionPickerOpen.set(true);
       return;

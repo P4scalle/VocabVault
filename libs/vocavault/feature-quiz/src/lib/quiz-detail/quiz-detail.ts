@@ -96,7 +96,7 @@ export class QuizDetail {
       this.showWordPicker.set(false);
       this.toast.show('Words updated!');
     } else {
-      this.toast.show('Could not save — storage may be full', 'error');
+      this.toast.show('Could not save. Storage may be full.', 'error');
     }
   }
 
@@ -105,7 +105,7 @@ export class QuizDetail {
     const info = this.sessionInfo();
 
     if (info.needsChunking) {
-      // Large set — pick a session-sized batch and play via temp set
+      // Large set: pick a session-sized batch and play via temp set
       const sessionIds = this.quizService.getSessionWords(this.id());
       this.quizService.createTempQuizSet(sessionIds, this.quizSet()?.name ?? 'Session', `__session_${this.id()}`);
       void this.router.navigate(['/quiz', `__session_${this.id()}`, 'play'], { queryParams: qp });

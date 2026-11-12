@@ -94,7 +94,7 @@ export class FeatureShell implements OnInit {
     window.addEventListener('resize', onResize);
     this.destroyRef.onDestroy(() => window.removeEventListener('resize', onResize));
 
-    // No VisualViewport keyboard detection needed — the fixed footer
+    // No VisualViewport keyboard detection needed. The fixed footer
     // sits under the keyboard naturally (same as the bottom nav bar).
   }
 

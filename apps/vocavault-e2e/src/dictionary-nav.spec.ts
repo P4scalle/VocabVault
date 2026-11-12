@@ -71,7 +71,7 @@ async function seedManyWords(page: Page) {
   }, words);
 }
 
-/** Seed a small set of words (fewer than 3 letter groups — no alphabet scroller) */
+/** Seed a small set of words (fewer than 3 letter groups, no alphabet scroller) */
 async function seedFewWords(page: Page) {
   await page.evaluate(() => {
     const now = new Date().toISOString();
@@ -99,7 +99,7 @@ async function seedFewWords(page: Page) {
 
 // ─── Bottom Nav Visibility on Dictionary ────────────────────────────
 
-test.describe('Dictionary — Bottom Nav Visibility (Mobile)', () => {
+test.describe('Dictionary: Bottom Nav Visibility (Mobile)', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await page.setViewportSize(MOBILE);
@@ -155,7 +155,7 @@ test.describe('Dictionary — Bottom Nav Visibility (Mobile)', () => {
     const nav = page.locator('lib-adaptive-nav nav');
     await expect(nav).toBeVisible();
 
-    // Scroll the main content container (not window — shell uses overflow-y-auto on <main>)
+    // Scroll the main content container (not window; shell uses overflow-y-auto on <main>)
     await page.evaluate(() => document.getElementById('main-content')?.scrollTo(0, 2000));
 
     // Nav is fixed-position, so it stays visible and pinned to the bottom after scroll
@@ -269,7 +269,7 @@ test.describe('Dictionary — Bottom Nav Visibility (Mobile)', () => {
 
 // ─── Navigation FROM Dictionary ─────────────────────────────────────
 
-test.describe('Dictionary — Navigate Away via Bottom Nav (Mobile)', () => {
+test.describe('Dictionary: Navigate Away via Bottom Nav (Mobile)', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await page.setViewportSize(MOBILE);
@@ -361,7 +361,7 @@ test.describe('Dictionary — Navigate Away via Bottom Nav (Mobile)', () => {
 
 // ─── Bottom Nav Visibility on Dictionary (Small Phone) ──────────────
 
-test.describe('Dictionary — Bottom Nav on Small Phone', () => {
+test.describe('Dictionary: Bottom Nav on Small Phone', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await page.setViewportSize(SMALL_PHONE);
@@ -387,7 +387,7 @@ test.describe('Dictionary — Bottom Nav on Small Phone', () => {
 
 // ─── Bottom Nav Visibility on Dictionary (Tablet) ───────────────────
 
-test.describe('Dictionary — Side Rail Nav on Tablet', () => {
+test.describe('Dictionary: Side Rail Nav on Tablet', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await page.setViewportSize(TABLET);
@@ -428,7 +428,7 @@ test.describe('Dictionary — Side Rail Nav on Tablet', () => {
 /**
  * Helper: tap a scroller letter. The scroller nav re-enables pointer events
  * (pointer-events:auto) within the pointer-events:none host, so a normal click
- * hit-tests to the button — no force needed. The component navigates on
+ * hit-tests to the button, no force needed. The component navigates on
  * pointerdown (fired by click). Scroll settling is asserted by the caller via
  * expect.poll, so no fixed timeout is required.
  */
@@ -471,7 +471,7 @@ async function getLetterPositions(
   }, letter);
 }
 
-test.describe('Dictionary — Letter Scroll Navigation (Mobile)', () => {
+test.describe('Dictionary: Letter Scroll Navigation (Mobile)', () => {
   // Reduced motion makes the "scroll to top" (letter A) path instant too,
   // so scroll position settles synchronously and can be asserted deterministically.
   test.use({ reducedMotion: 'reduce' });
@@ -503,7 +503,7 @@ test.describe('Dictionary — Letter Scroll Navigation (Mobile)', () => {
     await tapScrollerLetter(page, 'W');
     await expect.poll(() => getMainScrollTop(page)).toBeGreaterThan(0);
 
-    // Click A — should scroll back near top
+    // Click A, should scroll back near top
     await tapScrollerLetter(page, 'A');
     await expect.poll(() => isLetterSectionVisible(page, 'A')).toBe(true);
   });
@@ -531,7 +531,7 @@ test.describe('Dictionary — Letter Scroll Navigation (Mobile)', () => {
   });
 });
 
-test.describe('Dictionary — Letter Scroll Navigation (Desktop)', () => {
+test.describe('Dictionary: Letter Scroll Navigation (Desktop)', () => {
   test.use({ reducedMotion: 'reduce' });
 
   test.beforeEach(async ({ page }) => {
@@ -557,7 +557,7 @@ test.describe('Dictionary — Letter Scroll Navigation (Desktop)', () => {
 
     await expect(page.locator('lib-alphabet-scroller')).toBeVisible();
 
-    // This was the exact bug — desktop has 80px padding-top
+    // This was the exact bug: desktop has 80px padding-top
     await tapScrollerLetter(page, 'A');
 
     // Poll until scroll/layout settles (same rationale as the mobile sibling).

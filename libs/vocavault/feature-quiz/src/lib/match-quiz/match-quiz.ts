@@ -72,7 +72,7 @@ export class MatchQuiz implements HasUnsavedChanges {
     )
   );
 
-  /** Responsive chunk size — fewer words per round on mobile */
+  /** Responsive chunk size: fewer words per round on mobile */
   private readonly maxMatchWords =
     typeof window !== 'undefined' && window.innerWidth < MOBILE_BREAKPOINT
       ? MAX_MATCH_WORDS_MOBILE
@@ -131,7 +131,7 @@ export class MatchQuiz implements HasUnsavedChanges {
     () => this.isRoundComplete() && this.isLastRound(),
   );
 
-  /** Current word for the flag banner — selected word or first in round */
+  /** Current word for the flag banner: selected word or first in round */
   protected readonly currentFlagWord = computed(() => {
     const wordId = this.selectedWordId();
     if (wordId) return this.getWord(wordId);
@@ -154,7 +154,7 @@ export class MatchQuiz implements HasUnsavedChanges {
     return null;
   });
 
-  /** Unified selection handler — works from either column */
+  /** Unified selection handler that works from either column */
   protected select(id: string, side: 'word' | 'def'): void {
     if (this.matchedPairIds().includes(id)) return;
 
@@ -164,7 +164,7 @@ export class MatchQuiz implements HasUnsavedChanges {
     // Tap same item again to deselect
     if (selfSignal() === id) { selfSignal.set(null); return; }
 
-    // Other side already selected — try to match
+    // Other side already selected, so try to match
     const otherId = otherSignal();
     if (otherId) {
       this.tryMatch(side === 'word' ? id : otherId, side === 'word' ? otherId : id);
@@ -209,7 +209,7 @@ export class MatchQuiz implements HasUnsavedChanges {
     this.currentRound.update((r) => r + 1);
   }
 
-  /** Unified tile styling — works for both columns */
+  /** Unified tile styling that works for both columns */
   protected tileClass(id: string, side: 'word' | 'def'): string {
     if (this.matchedPairIds().includes(id))
       return 'border-green-400 bg-green-50 dark:bg-green-900/30 opacity-50 cursor-default animate-pulse-success';

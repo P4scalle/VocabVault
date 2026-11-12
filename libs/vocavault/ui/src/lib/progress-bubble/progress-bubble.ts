@@ -28,7 +28,7 @@ export class ProgressBubble {
   private readonly destroyRef = inject(DestroyRef);
   private readonly bubble = viewChild<ElementRef<HTMLElement>>('bubble');
 
-  /** Toggled by IntersectionObserver — true when bubble is in viewport */
+  /** Toggled by IntersectionObserver: true when bubble is in viewport */
   protected readonly filled = signal(false);
 
   protected readonly pct = computed(() => {

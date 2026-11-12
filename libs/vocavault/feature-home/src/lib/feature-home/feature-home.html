@@ -4,7 +4,7 @@
   @if (onboarding.currentStep(); as step) {
     <div class="vv-card overflow-hidden animate-fade-in-up">
       @if (step === 'add-word') {
-        <!-- Welcome banner — warm, inviting, zero words -->
+        <!-- Welcome banner: warm, inviting, zero words -->
         <div class="bg-gradient-to-br from-vv-brand/10 via-vv-brandLight to-vv-brand/5 dark:from-vv-brand/20 dark:via-slate-800 dark:to-vv-brand/10 p-6 md:p-8">
           <div class="flex flex-col items-center text-center">
             <div class="w-16 h-16 rounded-2xl bg-white/80 dark:bg-slate-700/80 shadow-sm flex items-center justify-center mb-4">
@@ -58,7 +58,7 @@
           </ol>
         </div>
 
-        <!-- Greyed-out app preview — shows what the app looks like when populated -->
+        <!-- Greyed-out app preview: shows what the app looks like when populated -->
         <div class="px-5 pb-5 pt-4 space-y-3 opacity-40 dark:opacity-50 select-none pointer-events-none" aria-hidden="true">
           <p class="text-2xs uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold">Preview of your future dashboard</p>
           <!-- Fake recent words carousel -->
@@ -98,7 +98,7 @@
       }
 
       @if (step === 'try-quiz') {
-        <!-- Quiz nudge — celebratory, encouraging -->
+        <!-- Quiz nudge: celebratory, encouraging -->
         <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-cyan-900/20 p-6 md:p-8">
           <div class="flex flex-col items-center text-center">
             <div class="w-16 h-16 rounded-2xl bg-white/80 dark:bg-slate-700/80 shadow-sm flex items-center justify-center mb-4">
@@ -127,7 +127,7 @@
     </div>
   }
 
-  <!-- Quick Quiz CTA — shown when user has words and onboarding is done -->
+  <!-- Quick Quiz CTA: shown when user has words and onboarding is done -->
   @if (hasWords() && !onboarding.currentStep()) {
     <button
       type="button"
@@ -158,13 +158,13 @@
     </button>
 
     @if (recentWords().length === 0) {
-    <!-- Empty dictionary — motivating CTA -->
+    <!-- Empty dictionary: motivating CTA -->
     <div class="flex flex-col items-center py-6 text-center">
       <div class="w-14 h-14 rounded-full bg-vv-brandLight dark:bg-vv-brand/20 flex items-center justify-center mb-3">
         <i class="pi pi-book text-2xl text-vv-brand" aria-hidden="true"></i>
       </div>
       <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Your vocabulary journey starts here</p>
-      <p class="text-xs text-slate-400 mb-4">Add words you encounter — we'll help you master them.</p>
+      <p class="text-xs text-slate-400 mb-4">Add words you encounter, and we'll help you master them.</p>
       <lib-button size="sm" styleClass="px-6 vv-btn-press" (click)="navigateToAddWord()">
         Add Your First Word
       </lib-button>

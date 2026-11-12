@@ -1,6 +1,6 @@
 # ui
 
-Reusable **presentational** components shared across features — buttons, empty
+Reusable **presentational** components shared across features: buttons, empty
 states, drawers, the score ring, navigation, and other stateless building blocks.
 
 - **Type:** `ui` · **Depends on:** `util` only.

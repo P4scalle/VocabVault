@@ -144,7 +144,7 @@ describe('DictionaryApiService', () => {
       void service.lookupWord("it's");
       httpController.expectOne(API_BASE + "it's");
       httpController.expectOne(FALLBACK_API_BASE + "it's");
-      // Just verifying the requests were made with correct encoding — cancel them
+      // Just verifying the requests were made with correct encoding, then cancel them
       httpController.match(() => true).forEach(req => req.flush(simpleResponse("it's", 'Contraction.')));
     });
   });
@@ -1314,7 +1314,7 @@ describe('DictionaryApiService', () => {
       expect(first.pronunciation).toBe('/\u026A\u02C8f\u025Bm.\u0259r.\u0259l/');
     });
 
-    it('should include all definitions from both APIs — not just first-per-POS', async () => {
+    it('should include all definitions from both APIs, not just first-per-POS', async () => {
       const response = [
         {
           word: 'run',
@@ -1390,7 +1390,7 @@ describe('DictionaryApiService', () => {
       flushBoth('hello', simpleResponse());
       const result1 = await promise1;
 
-      // Second call — should be from cache, no HTTP
+      // Second call should be from cache, no HTTP
       const result2 = await service.lookupWord('hello');
       expect(result2.allMeanings).toBeDefined();
       expect(result2.allMeanings).toEqual(result1.allMeanings);

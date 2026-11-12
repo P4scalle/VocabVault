@@ -5,12 +5,12 @@ export type DetectedDelimiter = 'tab' | 'dash' | 'colon' | 'comma' | 'semicolon'
 
 /**
  * Natural-text separators to try when input has no standard CSV delimiter.
- * Order matters — try the most unambiguous first.
+ * Order matters. Try the most unambiguous first.
  */
 const SMART_SEPARATORS = [
   { label: 'dash' as DetectedDelimiter, sep: ' - ' },
-  { label: 'dash' as DetectedDelimiter, sep: ' — ' },
-  { label: 'dash' as DetectedDelimiter, sep: ' – ' },
+  { label: 'dash' as DetectedDelimiter, sep: ' \u2014 ' },
+  { label: 'dash' as DetectedDelimiter, sep: ' \u2013 ' },
   { label: 'colon' as DetectedDelimiter, sep: ': ' },
   { label: 'equals' as DetectedDelimiter, sep: ' = ' },
   { label: 'semicolon' as DetectedDelimiter, sep: '; ' },

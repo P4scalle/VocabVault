@@ -55,7 +55,7 @@
   }
 }
 
-// Collapsible accordion — CSS Grid auto-height animation (Angular recommended pattern)
+// Collapsible accordion: CSS Grid auto-height animation (Angular recommended pattern)
 .vv-collapsible {
   display: grid;
   grid-template-rows: 0fr;
@@ -79,7 +79,7 @@
   }
 }
 
-// Hold-button inside overflow menu — constrain ring and scale, left-align content
+// Hold-button inside overflow menu: constrain ring and scale, left-align content
 .vv-hold-menu-item {
   display: block;
   overflow: hidden;

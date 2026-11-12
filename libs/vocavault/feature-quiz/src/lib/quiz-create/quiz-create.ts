@@ -35,7 +35,7 @@ export class QuizCreate implements HasUnsavedChanges {
   protected onSaved(data: QuizSetFormData): void {
     const { quizSet, ok } = this.quizService.addQuizSet(data);
     if (!ok) {
-      this.toast.show('Could not save — storage may be full', 'error');
+      this.toast.show('Could not save. Storage may be full.', 'error');
       return;
     }
     this.hasUnsavedChanges.set(false);

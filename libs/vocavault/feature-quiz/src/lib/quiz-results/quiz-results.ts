@@ -174,7 +174,7 @@ export class QuizResults implements OnInit {
       void this.router.navigate(['/quiz', this.id()]);
       return;
     }
-    // Flag words that user flagged during quiz (no reason yet — they categorize on this screen)
+    // Flag words that user flagged during quiz (no reason yet; they categorize on this screen)
     const flagged = this.state?.flaggedWordIds ?? [];
     flagged.forEach((id) => this.wordService.flagWord(id));
 
@@ -265,7 +265,7 @@ export class QuizResults implements OnInit {
   protected nextSession(): void {
     const parentId = this.parentQuizSetId();
     if (!parentId) return;
-    // Navigate back to parent quiz detail — user picks mode again, gets fresh session words
+    // Navigate back to parent quiz detail. User picks mode again, gets fresh session words.
     void this.router.navigate(['/quiz', parentId]);
   }
 

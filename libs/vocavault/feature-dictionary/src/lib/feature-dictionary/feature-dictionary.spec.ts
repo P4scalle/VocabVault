@@ -257,7 +257,7 @@ describe('FeatureDictionary', () => {
       definition: 'Lasting for only a short time.',
       examples: [],
     });
-    // Add mode stays in 'add' view — form is reset via resetKey, not view toggle
+    // Add mode stays in 'add' view (form is reset via resetKey, not view toggle)
     expect((component as unknown as FeatureDictionaryInternals).view()).toBe('add');
     // selectedWord is cleared
     expect((component as unknown as FeatureDictionaryInternals).selectedWord()).toBeNull();
@@ -551,7 +551,7 @@ describe('FeatureDictionary', () => {
       mockWords.set([]);
       fixture.detectChanges();
       await fixture.whenStable();
-      // Dictionary empty state takes over — folder tabs aren't even visible
+      // Dictionary empty state takes over, so folder tabs aren't even visible
       const dictEmptyState = fixture.nativeElement.querySelector('[data-testid="empty-state"]');
       expect(dictEmptyState).toBeTruthy();
       const folderEmptyState = fixture.nativeElement.querySelector('[data-testid="folders-empty-state"]');
@@ -720,7 +720,7 @@ describe('FeatureDictionary', () => {
       (component as unknown as FeatureDictionaryInternals).onScrubbing(true);
       expect((component as unknown as FeatureDictionaryInternals).scrollSpyPaused).toBe(true);
 
-      // 'A' is the first valid letter — should scroll to top:0
+      // 'A' is the first valid letter, so it should scroll to top:0
       (component as unknown as FeatureDictionaryInternals).onLetterSelected('A');
 
       expect((component as unknown as FeatureDictionaryInternals).activeLetter()).toBe('A');
@@ -743,7 +743,7 @@ describe('FeatureDictionary', () => {
       (component as unknown as FeatureDictionaryInternals).onScrubbing(true);
       expect((component as unknown as FeatureDictionaryInternals).scrollSpyPaused).toBe(true);
 
-      // 'B' is NOT the first letter — should use offset calculation
+      // 'B' is NOT the first letter, so it should use offset calculation
       (component as unknown as FeatureDictionaryInternals).onLetterSelected('B');
 
       expect((component as unknown as FeatureDictionaryInternals).activeLetter()).toBe('B');
@@ -792,7 +792,7 @@ describe('FeatureDictionary', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      // Filter out 'A' words — 'B' becomes the first valid letter
+      // Filter out 'A' words, so 'B' becomes the first valid letter
       (component as unknown as FeatureDictionaryInternals).searchQuery.set('b');
       fixture.detectChanges();
       await fixture.whenStable();
@@ -834,7 +834,7 @@ describe('FeatureDictionary', () => {
       mockEl.getBoundingClientRect = () => ({ top: 400, bottom: 450, left: 0, right: 100, width: 100, height: 50, x: 0, y: 400, toJSON: () => ({}) });
       vi.spyOn(document, 'querySelector').mockReturnValue(mockEl);
 
-      // 'B' is not the first letter — uses offset calculation
+      // 'B' is not the first letter, so it uses offset calculation
       (component as unknown as FeatureDictionaryInternals).onLetterSelected('B');
 
       // scrollTop(100) + elTop(400) - containerTop(56) - paddingTop(80) = 364
@@ -842,7 +842,7 @@ describe('FeatureDictionary', () => {
     });
 
     it('should not throw when scroll container is missing', async () => {
-      // Remove the mock container — simulates missing #main-content
+      // Remove the mock container to simulate missing #main-content
       mockContainer.remove();
 
       mockWords.set([makeWord({ id: '1', word: 'Apple', definition: 'fruit' })]);
@@ -873,7 +873,7 @@ describe('FeatureDictionary', () => {
       mockEl.getBoundingClientRect = () => ({ top: 400, bottom: 450, left: 0, right: 100, width: 100, height: 50, x: 0, y: 400, toJSON: () => ({}) });
       vi.spyOn(document, 'querySelector').mockReturnValue(mockEl);
 
-      // Uncategorized scroller is contextual — first letter scrolls to offset, not top:0
+      // Uncategorized scroller is contextual: first letter scrolls to offset, not top:0
       (component as unknown as FeatureDictionaryInternals).onUncategorizedLetterSelected('M');
       expect(scrollToSpy).toHaveBeenCalledWith({ top: 444, behavior: 'instant' });
     });
@@ -891,7 +891,7 @@ describe('FeatureDictionary', () => {
       expect((component as unknown as FeatureDictionaryInternals).scrollSpyPaused).toBe(true);
 
       (component as unknown as FeatureDictionaryInternals).onScrubbing(false);
-      // Still paused — settle delay not elapsed
+      // Still paused (settle delay not elapsed)
       expect((component as unknown as FeatureDictionaryInternals).scrollSpyPaused).toBe(true);
 
       vi.advanceTimersByTime(149);
@@ -920,7 +920,7 @@ describe('FeatureDictionary', () => {
       (component as unknown as FeatureDictionaryInternals).onScrubbing(false);
 
       vi.advanceTimersByTime(50);
-      // Re-start scrubbing before timer fires — should cancel resume and stay paused
+      // Re-start scrubbing before timer fires. Should cancel resume and stay paused.
       (component as unknown as FeatureDictionaryInternals).onScrubbing(true);
       expect((component as unknown as FeatureDictionaryInternals).scrollSpyPaused).toBe(true);
 
@@ -928,7 +928,7 @@ describe('FeatureDictionary', () => {
       vi.advanceTimersByTime(100);
       expect((component as unknown as FeatureDictionaryInternals).scrollSpyPaused).toBe(true);
 
-      // End scrubbing again — new 150ms resume timer
+      // End scrubbing again, starting a new 150ms resume timer
       (component as unknown as FeatureDictionaryInternals).onScrubbing(false);
       vi.advanceTimersByTime(150);
       expect((component as unknown as FeatureDictionaryInternals).scrollSpyPaused).toBe(false);
@@ -1148,7 +1148,7 @@ describe('FeatureDictionary', () => {
       fixture.detectChanges();
       await fixture.whenStable();
 
-      // Folder is collapsed by default — position:fixed scroller must not render
+      // Folder is collapsed by default, so the position:fixed scroller must not render
       const scrollers = fixture.nativeElement.querySelectorAll('lib-alphabet-scroller');
       expect(scrollers.length).toBe(0);
     });
@@ -1202,7 +1202,7 @@ describe('FeatureDictionary', () => {
       await fixture.whenStable();
       expect(fixture.nativeElement.querySelectorAll('lib-alphabet-scroller').length).toBe(1);
 
-      // Collapse f2 — zero scrollers
+      // Collapse f2 for zero scrollers
       (component as unknown as FeatureDictionaryInternals).toggleFolderExpand(f2.id);
       fixture.detectChanges();
       await fixture.whenStable();
@@ -1222,7 +1222,7 @@ describe('FeatureDictionary', () => {
       expect(chrome.focusMode()).toBe(false);
     });
 
-    it('tracks the new-folder form too — one registration covers every unsaved-changes input', () => {
+    it('tracks the new-folder form too, so one registration covers every unsaved-changes input', () => {
       const chrome = TestBed.inject(ChromeService);
       const internals = component as unknown as FeatureDictionaryInternals;
 

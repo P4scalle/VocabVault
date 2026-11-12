@@ -98,7 +98,7 @@ async function contentWithinMaxWidth(page: Page): Promise<boolean> {
 
 // ─── Responsive Layout Tests ────────────────────────────────────────
 
-test.describe('Responsive — No Horizontal Overflow', () => {
+test.describe('Responsive: No Horizontal Overflow', () => {
   const routes = ['/home', '/dictionary', '/quiz', '/progress'];
 
   for (const [vpName, viewport] of Object.entries(VIEWPORTS)) {
@@ -118,14 +118,14 @@ test.describe('Responsive — No Horizontal Overflow', () => {
   }
 });
 
-test.describe('Responsive — No Overflow With Content', () => {
+test.describe('Responsive: No Overflow With Content', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
   });
 
   for (const [vpName, viewport] of Object.entries(VIEWPORTS)) {
-    test(`dictionary with words — no overflow at ${vpName}`, async ({
+    test(`dictionary with words: no overflow at ${vpName}`, async ({
       page,
     }) => {
       await page.setViewportSize(viewport);
@@ -134,7 +134,7 @@ test.describe('Responsive — No Overflow With Content', () => {
       expect(await hasHorizontalOverflow(page), 'Page has horizontal overflow').toBe(false);
     });
 
-    test(`home with words — no overflow at ${vpName}`, async ({ page }) => {
+    test(`home with words: no overflow at ${vpName}`, async ({ page }) => {
       await page.setViewportSize(viewport);
       await page.goto('/home');
       await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
@@ -145,7 +145,7 @@ test.describe('Responsive — No Overflow With Content', () => {
 
 // ─── Navigation Adaptation ──────────────────────────────────────────
 
-test.describe('Responsive — Navigation Adapts', () => {
+test.describe('Responsive: Navigation Adapts', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });
@@ -191,7 +191,7 @@ test.describe('Responsive — Navigation Adapts', () => {
 
 // ─── FAB (Floating Action Button) ───────────────────────────────────
 
-test.describe('Responsive — FAB Positioning', () => {
+test.describe('Responsive: FAB Positioning', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });
@@ -225,7 +225,7 @@ test.describe('Responsive — FAB Positioning', () => {
 
 // ─── Touch Target Sizes ─────────────────────────────────────────────
 
-test.describe('Responsive — Touch Targets', () => {
+test.describe('Responsive: Touch Targets', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });
@@ -237,8 +237,8 @@ test.describe('Responsive — Touch Targets', () => {
     await page.goto('/home');
 
     // The primary action target (the add FAB) must meet the 44px minimum.
-    // (The original scan of every interactive element was informational only —
-    // some decorators like the logo/heading buttons are intentionally smaller —
+    // (The original scan of every interactive element was informational only;
+    // some decorators like the logo/heading buttons are intentionally smaller,
     // so the FAB is the single element with a hard 44px requirement here.)
     const fab = page.getByRole('button', { name: 'Open add options' });
     await expect(fab).toBeVisible();
@@ -250,7 +250,7 @@ test.describe('Responsive — Touch Targets', () => {
     await page.setViewportSize(VIEWPORTS.phone);
     await page.goto('/home');
 
-    // Info buttons are 32px (w-8 h-8) — compact inline decorators, not primary
+    // Info buttons are 32px (w-8 h-8), compact inline decorators, not primary
     // actions. The quiz-types and eloquence info buttons are always rendered on
     // the home page (independent of seeded data), so assert them deterministically.
     const quizInfo = page.getByRole('button', { name: 'About quiz types' });
@@ -292,7 +292,7 @@ test.describe('Responsive — Touch Targets', () => {
 
 // ─── Grid Layout Responsiveness ─────────────────────────────────────
 
-test.describe('Responsive — Grid Layouts', () => {
+test.describe('Responsive: Grid Layouts', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -389,7 +389,7 @@ test.describe('Responsive — Grid Layouts', () => {
 
 // ─── Text Readability ───────────────────────────────────────────────
 
-test.describe('Responsive — Text Readability', () => {
+test.describe('Responsive: Text Readability', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });
@@ -465,7 +465,7 @@ test.describe('Responsive — Text Readability', () => {
 
 // ─── Sticky Elements ────────────────────────────────────────────────
 
-test.describe('Responsive — Sticky Elements', () => {
+test.describe('Responsive: Sticky Elements', () => {
   test('mobile header stays visible on scroll', async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -520,7 +520,7 @@ test.describe('Responsive — Sticky Elements', () => {
 
 // ─── Content Truncation ─────────────────────────────────────────────
 
-test.describe('Responsive — Content Truncation', () => {
+test.describe('Responsive: Content Truncation', () => {
   test('long word names truncate instead of overflowing', async ({ page }) => {
     await clearStorage(page);
 
@@ -558,7 +558,7 @@ test.describe('Responsive — Content Truncation', () => {
 
 // ─── Quiz Components Responsiveness ─────────────────────────────────
 
-test.describe('Responsive — Quiz Components', () => {
+test.describe('Responsive: Quiz Components', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -600,7 +600,7 @@ test.describe('Responsive — Quiz Components', () => {
 
 // ─── Quiz Sticky Header & Footer ─────────────────────────────────────
 
-test.describe('Responsive — Quiz Sticky Layout', () => {
+test.describe('Responsive: Quiz Sticky Layout', () => {
   /** Create a quiz set and navigate to multiple-choice play mode. */
   async function startMultipleChoiceQuiz(page: Page) {
     await clearStorage(page);
@@ -616,7 +616,7 @@ test.describe('Responsive — Quiz Sticky Layout', () => {
       await checkboxes.nth(i).check();
     }
     await page.getByRole('button', { name: 'Create Quiz Set' }).click();
-    // App navigates to quiz detail after creation — wait for it
+    // App navigates to quiz detail after creation, wait for it
     await expect(page.getByRole('button', { name: /Multiple Choice/i })).toBeVisible({ timeout: 10000 });
     await page.getByRole('button', { name: /Multiple Choice/i }).click();
     // Wait for quiz to render
@@ -710,7 +710,7 @@ test.describe('Responsive — Quiz Sticky Layout', () => {
 
 // ─── Info Drawers / Modals ──────────────────────────────────────────
 
-test.describe('Responsive — Info Drawers', () => {
+test.describe('Responsive: Info Drawers', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await seedWords(page);
@@ -759,7 +759,7 @@ test.describe('Responsive — Info Drawers', () => {
 
 // ─── Viewport Resize Handling ───────────────────────────────────────
 
-test.describe('Responsive — Dynamic Resize', () => {
+test.describe('Responsive: Dynamic Resize', () => {
   test('navigation adapts when viewport changes', async ({ page }) => {
     await clearStorage(page);
     await page.goto('/home');
@@ -770,11 +770,11 @@ test.describe('Responsive — Dynamic Resize', () => {
     const mobileHeader = page.locator('header').filter({ hasText: 'VOCAVAULT' });
     await expect(mobileHeader).toBeVisible();
 
-    // Resize to desktop — mobile header should now be hidden (expect auto-waits)
+    // Resize to desktop, mobile header should now be hidden (expect auto-waits)
     await page.setViewportSize(VIEWPORTS.desktop);
     await expect(mobileHeader).toBeHidden();
 
-    // Resize back to phone — mobile header should be visible again
+    // Resize back to phone, mobile header should be visible again
     await page.setViewportSize(VIEWPORTS.phone);
     await expect(mobileHeader).toBeVisible();
   });
@@ -782,7 +782,7 @@ test.describe('Responsive — Dynamic Resize', () => {
 
 // ─── Empty States ───────────────────────────────────────────────────
 
-test.describe('Responsive — Empty States', () => {
+test.describe('Responsive: Empty States', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });

@@ -20,7 +20,7 @@ async function addTermViaShell(page: Page, term: string, definition: string) {
   await expect(page.getByRole('heading', { name: 'Dictionary' })).toBeVisible();
 }
 
-test.describe('Dictionary — Add Term', () => {
+test.describe('Dictionary: Add Term', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await page.goto('/dictionary');
@@ -87,7 +87,7 @@ test.describe('Dictionary — Add Term', () => {
     await page.getByRole('button', { name: 'Go back' }).click();
     await expect(page.getByRole('heading', { name: 'Dictionary' })).toBeVisible();
 
-    // Count occurrences — must be exactly 1
+    // Count occurrences, must be exactly 1
     const cards = page.locator('lib-word-card');
     await expect(cards).toHaveCount(1);
   });
@@ -132,7 +132,7 @@ test.describe('Dictionary — Add Term', () => {
     // Should stay in add mode with clean form
     await expect(page.getByRole('heading', { name: 'Add Term' })).toBeVisible();
 
-    // Fill second term — examples should NOT contain "I love you"
+    // Fill second term. Examples should NOT contain "I love you"
     await page.getByRole('textbox', { name: /Term/ }).fill('special');
     await page.getByRole('textbox', { name: /Definition/ }).fill('unique');
 
@@ -161,7 +161,7 @@ test.describe('Dictionary — Add Term', () => {
   });
 });
 
-test.describe('Dictionary — Add via Shell Navigation', () => {
+test.describe('Dictionary: Add via Shell Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
   });
@@ -210,7 +210,7 @@ test.describe('Dictionary — Add via Shell Navigation', () => {
   });
 });
 
-test.describe('Dictionary — Edit & Delete', () => {
+test.describe('Dictionary: Edit & Delete', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await page.goto('/dictionary');
@@ -276,7 +276,7 @@ test.describe('Dictionary — Edit & Delete', () => {
   });
 });
 
-test.describe('Dictionary — Search', () => {
+test.describe('Dictionary: Search', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
     await page.goto('/dictionary');
