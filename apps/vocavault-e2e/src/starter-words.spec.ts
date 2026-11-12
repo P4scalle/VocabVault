@@ -1,8 +1,20 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Locator, Page } from '@playwright/test';
 
 // Runs across every configured project (desktop Chromium/Firefox/WebKit +
 // Mobile Chrome/Safari), so this covers the add hint and starter words on
 // all device form factors.
+
+// Assert an element is GENUINELY running a CSS animation, not merely carrying the
+// class. A class-presence check is a false positive if the keyframe is dead,
+// clipped, or disabled; this reads the real computed style in the browser.
+export async function expectAnimating(locator: Locator, keyframe: string) {
+  const anim = await locator.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { name: cs.animationName, duration: cs.animationDuration };
+  });
+  expect(anim.name, `expected animation "${keyframe}" but got "${anim.name}"`).toContain(keyframe);
+  expect(anim.duration).not.toBe('0s');
+}
 
 async function clearStorage(page: Page) {
   await page.goto('/');
@@ -59,9 +71,14 @@ test.describe('Starter words & first-run add hint', () => {
     // Wait for the shell to render before asserting on the hint (avoids a load-time race).
     await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
     // Empty dictionary: at least one add control (mobile FAB or desktop pill)
-    // pulses and points at adding the first word.
-    await expect(page.locator('.vv-add-hint').first()).toBeAttached();
-    await expect(page.locator('.vv-add-hint-tooltip').first()).toContainText('Add your first word');
+    // pulses and points at adding the first word. Assert it is ACTUALLY animating,
+    // not just that the class is present.
+    const pulse = page.locator('.vv-cue-pulse').first();
+    await expect(pulse).toBeVisible();
+    await expectAnimating(pulse, 'vv-cue-pulse-ring');
+    const tooltip = page.locator('.vv-cue-tooltip').first();
+    await expect(tooltip).toContainText('Add your first word');
+    await expectAnimating(tooltip, 'vv-cue-tooltip-bounce');
 
     await page.getByTestId('starter-words').getByRole('button').first().click();
     await expect(page.getByTestId('starter-words')).toBeHidden();
@@ -69,13 +86,14 @@ test.describe('Starter words & first-run add hint', () => {
     await expect(page.locator('lib-word-card').first()).toBeVisible();
 
     // Still on /dictionary: a quizzable word now exists but no quiz, so the hint
-    // persists and steers to building the first quiz.
-    await expect(page.locator('.vv-add-hint').first()).toBeAttached();
-    await expect(page.locator('.vv-add-hint-tooltip').first()).toContainText('build your first quiz');
+    // persists and steers to building the first quiz — and keeps animating.
+    await expect(page.locator('.vv-cue-pulse').first()).toBeVisible();
+    await expectAnimating(page.locator('.vv-cue-pulse').first(), 'vv-cue-pulse-ring');
+    await expect(page.locator('.vv-cue-tooltip').first()).toContainText('build your first quiz');
 
     // Home shows the onboarding banner instead, so the FAB hint is suppressed there.
     await page.goto('/home');
     await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
-    await expect(page.locator('.vv-add-hint')).toHaveCount(0);
+    await expect(page.locator('.vv-cue-pulse')).toHaveCount(0);
   });
 });

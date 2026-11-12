@@ -1,4 +1,15 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Locator, Page } from '@playwright/test';
+
+// Assert an element is GENUINELY running a CSS animation (not just carrying the
+// class — that would be a false positive if the keyframe is dead/clipped/disabled).
+async function expectAnimating(locator: Locator, keyframe: string) {
+  const anim = await locator.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { name: cs.animationName, duration: cs.animationDuration };
+  });
+  expect(anim.name, `expected animation "${keyframe}" but got "${anim.name}"`).toContain(keyframe);
+  expect(anim.duration).not.toBe('0s');
+}
 
 // Walks the guided first-quiz onboarding journey for a brand-new user and
 // asserts the Stage 3/4 cues that are DERIVED from data state:
@@ -96,7 +107,17 @@ test.describe('Guided first-quiz onboarding cues', () => {
     // Single starter word => single card: flip, assess, finish.
     await page.locator('.flashcard').click(); // flip
     await page.getByRole('button', { name: 'Got it' }).click();
-    await page.getByRole('button', { name: 'Finish' }).click();
+
+    // Stage 4 cue: on the user's first quiz the Finish button pulses AND shows a
+    // bouncing tooltip. Assert the REAL animations, not just class presence.
+    const finishBtn = page.getByRole('button', { name: 'Finish' });
+    await expect(finishBtn).toBeVisible();
+    await expectAnimating(finishBtn, 'vv-cue-pulse-ring');
+    const finishTip = page.locator('.vv-cue-tooltip', { hasText: 'See how you did' });
+    await expect(finishTip).toBeVisible();
+    await expectAnimating(finishTip, 'vv-cue-tooltip-bounce');
+
+    await finishBtn.click();
 
     // Stage 4 cue: the first-ever results page carries the results-hint.
     await expect(page.getByText('Quiz Results')).toBeVisible();
