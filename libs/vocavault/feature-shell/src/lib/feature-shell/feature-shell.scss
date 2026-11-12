@@ -53,19 +53,21 @@
   }
 }
 
+/* Bounce the TOOLTIP cue (not the button) — like React — so the tap target
+   stays still. The tooltip is centred with translateX(-50%); the keyframe keeps
+   that while nudging it vertically. */
 .vv-add-hint-tooltip {
-  animation: vv-add-hint-fade 0.25s ease-out both;
+  animation: vv-add-hint-bounce 1.3s ease-in-out infinite;
   z-index: 40;
 }
 
-@keyframes vv-add-hint-fade {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 4px);
-  }
-  to {
-    opacity: 1;
+@keyframes vv-add-hint-bounce {
+  0%,
+  100% {
     transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, -5px);
   }
 }
 

@@ -143,6 +143,10 @@ export class ActionDrawer {
     () => `${this.resolvedConfig().drawerId}-title`
   );
 
+  protected readonly footerNoteId = computed(
+    () => `${this.resolvedConfig().drawerId}-footer`
+  );
+
   protected readonly selectAction = (action: ActionDrawerItem): void => {
     this.onActionClick(action);
   };

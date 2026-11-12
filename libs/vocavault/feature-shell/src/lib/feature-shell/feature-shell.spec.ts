@@ -410,13 +410,22 @@ describe('FeatureShell', () => {
       expect(byId('word')?.highlight).toBe(true);
     });
 
-    it('unlocks Quiz and Folder and clears the note once a word exists', async () => {
+    it('unlocks Quiz and Folder and clears the note once a complete word exists', async () => {
       TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
       await navigateTo('/home');
       expect(byId('quiz')?.disabled).toBeFalsy();
       expect(byId('folder')?.disabled).toBeFalsy();
       expect(byId('word')?.highlight).toBe(false);
       expect(internals().addFooterNote()).toBe('');
+    });
+
+    it('keeps Quiz locked but unlocks Folder when the only word is incomplete', async () => {
+      // No definition → incomplete → not quizzable, but still a word to organise.
+      TestBed.inject(WordService).addWord({ word: 'Petrichor', pronunciation: '', definition: '', examples: [] });
+      await navigateTo('/home');
+      expect(byId('quiz')?.disabled).toBe(true);
+      expect(byId('folder')?.disabled).toBeFalsy();
+      expect(internals().addFooterNote()).toContain("Finish a word's definition");
     });
 
     it('stops highlighting Word after onboarding is dismissed, but keeps Quiz locked at 0 words', async () => {

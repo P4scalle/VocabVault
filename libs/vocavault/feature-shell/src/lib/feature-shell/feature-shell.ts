@@ -118,6 +118,8 @@ export class FeatureShell implements OnInit {
   private readonly wordService = inject(WordService);
   private readonly onboarding = inject(OnboardingService);
   private readonly hasWords = computed(() => this.wordService.words().length > 0);
+  /** Quizzes need at least one *complete* word (incomplete ones can't be quizzed). */
+  private readonly hasQuizzableWords = computed(() => this.wordService.quizzableWords().length > 0);
 
   /**
    * Nudge a brand-new user toward the add button: pulse it while the dictionary
@@ -131,16 +133,18 @@ export class FeatureShell implements OnInit {
     const guide = this.showAddHint();
     return [
       { id: 'word', label: 'Word', description: 'Add a new word to your dictionary.', iconClass: 'pi pi-file-edit', highlight: guide },
-      { id: 'quiz', label: 'Quiz', description: 'Create a new quiz set.', iconClass: 'pi pi-bolt', disabled: !hw },
+      { id: 'quiz', label: 'Quiz', description: 'Create a new quiz set.', iconClass: 'pi pi-bolt', disabled: !this.hasQuizzableWords() },
       { id: 'folder', label: 'Folder', description: 'Create a folder to organize words.', iconClass: 'pi pi-folder', disabled: !hw },
       { id: 'import', label: 'Import Words', description: 'Paste or upload multiple words at once.', iconClass: 'pi pi-upload' },
     ];
   });
 
-  /** Helper line shown in the add sheet while quizzes and folders are locked. */
-  protected readonly addFooterNote = computed(() =>
-    this.hasWords() ? '' : 'Add your first word to unlock quizzes and folders.',
-  );
+  /** Helper line shown in the add sheet while quizzes and/or folders are locked. */
+  protected readonly addFooterNote = computed(() => {
+    if (!this.hasWords()) return 'Add your first word to unlock quizzes and folders.';
+    if (!this.hasQuizzableWords()) return "Finish a word's definition to unlock quizzes.";
+    return '';
+  });
 
   protected onFabClick(): void {
     if (this.fabDisabled()) {

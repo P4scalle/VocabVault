@@ -351,4 +351,21 @@ describe('ActionDrawer', () => {
     expect(buttons[1].disabled).toBe(true);
     expect(buttons[1].classList.contains('vv-action-highlight')).toBe(false);
   });
+
+  it('links disabled actions to the footer note via aria-describedby', async () => {
+    fixture.componentRef.setInput('footerNote', 'Add your first word to unlock quizzes and folders.');
+    fixture.componentRef.setInput('actions', [
+      { id: 'word', label: 'Word' },
+      { id: 'quiz', label: 'Quiz', disabled: true },
+    ] satisfies readonly ActionDrawerItem[]);
+    component.visible.set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const buttons = fixture.nativeElement.querySelectorAll('section li button') as NodeListOf<HTMLButtonElement>;
+    const footer = fixture.nativeElement.querySelector('[data-testid="action-drawer-footer"]') as HTMLElement;
+    expect(footer.id).toBeTruthy();
+    expect(buttons[0].getAttribute('aria-describedby')).toBeNull();
+    expect(buttons[1].getAttribute('aria-describedby')).toBe(footer.id);
+  });
 });
