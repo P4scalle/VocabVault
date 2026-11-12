@@ -59,6 +59,7 @@ jobs:
             src/quiz-management.spec.ts \
             src/quiz.spec.ts \
             src/responsive.spec.ts \
+            src/starter-words.spec.ts \
             src/user-journey.spec.ts
       - name: Upload Playwright report on failure
         if: failure()

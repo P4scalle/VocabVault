@@ -216,7 +216,9 @@ test.describe('Responsive — FAB Positioning', () => {
     await page.goto('/home');
 
     // Desktop "Add" pill button should be visible in top nav
-    const addPill = page.locator('lib-adaptive-nav').getByText('Add');
+    const addPill = page
+      .locator('lib-adaptive-nav')
+      .getByRole('button', { name: 'Add word or quiz' });
     await expect(addPill).toBeVisible();
   });
 });
