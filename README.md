@@ -3,21 +3,20 @@
 [![CI](https://github.com/P4scalle/VocabVault/actions/workflows/ci.yml/badge.svg)](https://github.com/P4scalle/VocabVault/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-A little mobile-first vocabulary trainer I built for myself. Add a word I just
-came across, pull up its definition, and drill it through a few quiz modes until
+A little mobile-first vocabulary trainer I built for myself. Add a word you'd like to add to your English vocabulary, pull up or insert its definition, and drill it through a few quiz modes until
 it sticks.
 
-> **Live demo:** _add your Vercel URL here_
+> **Live demo:** _[add your Vercel URL here](https://vocavault-gamma.vercel.app/)_
 
 ## What it does
 
-- Add words by hand or auto-fill definitions from a dictionary API, sorted into
+- Add English words by hand or auto-fill definitions from a dictionary API, sorted into
   colour-coded folders.
 - Four quiz modes: Flashcard, Multiple Choice, Write, and Match.
 - Spaced repetition — words come back for review based on how well you know them.
 - Progress and mastery tracking.
 - Bulk import from a pasted list or a CSV / Word document.
-- Works offline — everything lives in the browser, no account or backend.
+
 
 ## Run it
 
