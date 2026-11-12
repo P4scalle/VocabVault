@@ -124,6 +124,27 @@
         actionLabel="Add Your First Term"
         (action)="onAddWord()"
       />
+
+      <div class="mt-5 flex flex-col items-center" data-testid="starter-words">
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Or add a starter word</p>
+        <div class="flex flex-wrap justify-center gap-2 max-w-xs">
+          @for (term of starterWords; track term) {
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-200 transition-colors hover:border-vv-brand hover:text-vv-brand disabled:opacity-60 disabled:cursor-wait vv-focus-ring"
+              [disabled]="addingStarter() !== null"
+              (click)="onAddStarterWord(term)"
+            >
+              @if (addingStarter() === term) {
+                <i class="pi pi-spin pi-spinner text-xs" aria-hidden="true"></i>
+              } @else {
+                <i class="pi pi-plus text-2xs" aria-hidden="true"></i>
+              }
+              {{ term }}
+            </button>
+          }
+        </div>
+      </div>
     } @else {
 
       <div class="flex items-center gap-2 mb-4">

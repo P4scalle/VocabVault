@@ -64,20 +64,28 @@
   <lib-adaptive-nav [items]="navItems" (logoClicked)="navigateHome()" [class.hidden]="chrome.focusMode()">
     <!-- Desktop nav action area: Add button first, then divider, then settings gear -->
     <div navAction class="flex items-center gap-2 ml-3">
-      <button
-        type="button"
-        class="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all vv-focus-ring-offset vv-btn-press"
-        [class]="fabDisabled() ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed' : 'bg-vv-brand text-white hover:bg-vv-brand-dark'"
-        aria-label="Add word or quiz"
-        aria-haspopup="dialog"
-        aria-controls="vv-add-drawer"
-        [attr.aria-expanded]="addDrawerVisible()"
-        [attr.aria-disabled]="fabDisabled()"
-        (click)="onFabClick()"
-      >
-        <i class="pi pi-plus text-xs" aria-hidden="true"></i>
-        Add
-      </button>
+      <div class="relative">
+        <button
+          type="button"
+          class="flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold transition-all vv-focus-ring-offset vv-btn-press"
+          [class]="fabDisabled() ? 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed' : 'bg-vv-brand text-white hover:bg-vv-brand-dark'"
+          [class.vv-add-hint]="showAddHint()"
+          aria-label="Add word or quiz"
+          aria-haspopup="dialog"
+          aria-controls="vv-add-drawer"
+          [attr.aria-expanded]="addDrawerVisible()"
+          [attr.aria-disabled]="fabDisabled()"
+          (click)="onFabClick()"
+        >
+          <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+          Add
+        </button>
+        @if (showAddHint()) {
+          <div class="vv-add-hint-tooltip absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">
+            Add your first word
+          </div>
+        }
+      </div>
       <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-1" aria-hidden="true"></div>
       <div class="relative vv-settings-dropdown">
         <button
@@ -187,6 +195,7 @@
       type="button"
       class="flex h-14 w-14 items-center justify-center rounded-full border-4 border-vv-bg dark:border-slate-900 shadow-card transition-all vv-focus-ring-offset vv-btn-press"
       [class]="fabDisabled() ? 'bg-slate-300 dark:bg-slate-600 text-slate-400 cursor-not-allowed' : 'bg-vv-brand text-vv-surface hover:scale-105'"
+      [class.vv-add-hint]="showAddHint()"
       aria-label="Open add options"
       aria-haspopup="dialog"
       aria-controls="vv-add-drawer"
@@ -196,6 +205,11 @@
     >
       <i class="pi pi-plus text-lg" aria-hidden="true"></i>
     </button>
+    @if (showAddHint()) {
+      <div class="vv-add-hint-tooltip absolute bottom-full left-1/2 mb-3 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">
+        Add your first word
+      </div>
+    }
   </div>
 
   <lib-action-drawer

@@ -33,3 +33,50 @@
     opacity: 0;
   }
 }
+
+/* First-run nudge: pulse the add button until the user adds their first word.
+   A box-shadow ring works on both the round FAB and the pill, and respects
+   their border-radius. */
+.vv-add-hint {
+  animation: vv-add-hint-pulse 2s ease-out infinite;
+}
+
+@keyframes vv-add-hint-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgb(var(--vv-rgb-brand) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0);
+  }
+}
+
+.vv-add-hint-tooltip {
+  animation: vv-add-hint-fade 0.25s ease-out both;
+  z-index: 40;
+}
+
+@keyframes vv-add-hint-fade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Respect users who prefer less motion: show the ring statically, no pulsing. */
+@media (prefers-reduced-motion: reduce) {
+  .vv-add-hint {
+    animation: none;
+    box-shadow: 0 0 0 3px rgb(var(--vv-rgb-brand) / 0.35);
+  }
+
+  .vv-add-hint-tooltip {
+    animation: none;
+  }
+}

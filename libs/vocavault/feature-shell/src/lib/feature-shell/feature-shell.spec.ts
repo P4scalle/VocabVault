@@ -5,8 +5,8 @@ import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { BackHintService } from '@vocavault/ui';
 import { ActionDrawerItem } from '@vocavault/ui';
-import { StorageService } from '@vocavault/data-access';
-import { SCROLL_CONTAINER_ID } from '@vocavault/util';
+import { StorageService, WordService } from '@vocavault/data-access';
+import { OnboardingService, SCROLL_CONTAINER_ID } from '@vocavault/util';
 import { FeatureShell } from './feature-shell';
 
 interface FeatureShellInternals {
@@ -25,6 +25,7 @@ describe('FeatureShell', () => {
   let backHint: BackHintService;
 
   beforeEach(async () => {
+    localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [FeatureShell],
       providers: [
@@ -343,5 +344,43 @@ describe('FeatureShell', () => {
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(navSpy).toHaveBeenCalledWith(['/home']);
     confirmSpy.mockRestore();
+  });
+
+  // ──────────────────────────────────────
+  // First-run add-button hint (pulse + tooltip), across devices
+  // ──────────────────────────────────────
+
+  // jsdom reports a mobile layout, so adaptive-nav only renders the mobile FAB
+  // here; the desktop add pill is verified across viewports in the e2e suite.
+  describe('first-run add hint', () => {
+    it('pulses the add button when the dictionary is empty', async () => {
+      await navigateTo('/home');
+      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
+    });
+
+    it('shows a guiding "Add your first word" tooltip while the hint is active', async () => {
+      await navigateTo('/home');
+      const tooltips = fixture.nativeElement.querySelectorAll('.vv-add-hint-tooltip');
+      expect(tooltips.length).toBeGreaterThan(0);
+      expect(tooltips[0].textContent).toContain('Add your first word');
+    });
+
+    it('stops pulsing once the dictionary has at least one word', async () => {
+      TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
+      await navigateTo('/home');
+      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+      expect(fixture.nativeElement.querySelector('.vv-add-hint-tooltip')).toBeFalsy();
+    });
+
+    it('stops pulsing once onboarding is dismissed', async () => {
+      TestBed.inject(OnboardingService).dismiss();
+      await navigateTo('/home');
+      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+    });
+
+    it('does not pulse while the add button is disabled (on an add page)', async () => {
+      await navigateTo('/dictionary?addWord=true');
+      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
+    });
   });
 });

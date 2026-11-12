@@ -6,7 +6,7 @@ import { merge } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
 import { ActionDrawer, ActionDrawerConfig, ActionDrawerItem, AdaptiveNav, BackHintService, KeyboardShortcuts, NavItem, ToastContainer, ToastService } from '@vocavault/ui';
 import { DataExportService, HasUnsavedChanges, WordService } from '@vocavault/data-access';
-import { ChromeService, ThemeService } from '@vocavault/util';
+import { ChromeService, OnboardingService, ThemeService } from '@vocavault/util';
 
 export const routeAnimations = trigger('routeAnimations', [
   transition('* <=> *', [
@@ -116,7 +116,16 @@ export class FeatureShell implements OnInit {
     position: 'bottom',
   }));
   private readonly wordService = inject(WordService);
+  private readonly onboarding = inject(OnboardingService);
   private readonly hasWords = computed(() => this.wordService.words().length > 0);
+
+  /**
+   * Nudge a brand-new user toward the add button: pulse it while the dictionary
+   * is empty, the user hasn't dismissed onboarding, and the button is active.
+   */
+  protected readonly showAddHint = computed(
+    () => !this.hasWords() && !this.onboarding.dismissed() && !this.fabDisabled(),
+  );
   protected readonly addActions = computed<readonly ActionDrawerItem[]>(() => {
     const hw = this.hasWords();
     return [

@@ -13,6 +13,7 @@ export * from './lib/definition-validation';
 export * from './lib/pos-abbreviations';
 export * from './lib/parse-definition';
 export * from './lib/spaced-repetition.service';
+export * from './lib/starter-words.service';
 export * from './lib/bulk-parse.service';
 export * from './lib/bulk-import.service';
 export * from './lib/can-deactivate.guard';

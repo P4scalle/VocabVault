@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { WordService, Word, QuizService, FolderService, Folder, FOLDER_COLORS, HasUnsavedChanges, StorageWarningService, DataExportService } from '@vocavault/data-access';
+import { WordService, Word, QuizService, FolderService, Folder, FOLDER_COLORS, HasUnsavedChanges, StorageWarningService, DataExportService, StarterWordsService, STARTER_WORDS } from '@vocavault/data-access';
 import { AlphabetScroller, Button, EmptyState, HoldButton, InfoButton, InfoDrawer, ToastService } from '@vocavault/ui';
 import { ChromeService, getScrollContainer, hexToHue, hslToHex, wordStartsWith } from '@vocavault/util';
 import { A11yModule } from '@angular/cdk/a11y';
@@ -70,6 +70,11 @@ export class FeatureDictionary implements HasUnsavedChanges {
   private readonly chrome = inject(ChromeService);
   private readonly storageWarning = inject(StorageWarningService);
   private readonly dataExport = inject(DataExportService);
+  private readonly starter = inject(StarterWordsService);
+
+  /** One-tap sample words offered on the empty dictionary, with the term being added (if any). */
+  protected readonly starterWords = STARTER_WORDS;
+  protected readonly addingStarter = signal<string | null>(null);
 
   protected readonly words = this.wordService.words;
   protected readonly folders = this.folderService.folders;
@@ -495,6 +500,24 @@ export class FeatureDictionary implements HasUnsavedChanges {
     this.selectedWord.set(null);
     this.autoLookupNext.set(false);
     this.setView('add');
+  }
+
+  /** Add a one-tap starter word; its definition is fetched automatically. */
+  protected async onAddStarterWord(term: string): Promise<void> {
+    if (this.addingStarter()) return;
+    this.addingStarter.set(term);
+    try {
+      const { ok, incomplete } = await this.starter.add(term);
+      if (!ok) {
+        this.toast.show(SAVE_ERROR, 'error');
+      } else if (incomplete) {
+        this.toast.show(`Added "${term}" — add a definition when you're ready`, 'info');
+      } else {
+        this.toast.show(`Added "${term}"`, 'success');
+      }
+    } finally {
+      this.addingStarter.set(null);
+    }
   }
 
   protected onLookupFromSearch(): void {

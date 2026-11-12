@@ -4,7 +4,7 @@ import { signal, WritableSignal } from '@angular/core';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { FeatureDictionary } from './feature-dictionary';
-import { WordService, Word, QuizService, StorageService, MasteryLevel, makeWord, Folder, FolderService } from '@vocavault/data-access';
+import { WordService, Word, QuizService, StorageService, MasteryLevel, makeWord, Folder, FolderService, StarterWordsService, STARTER_WORDS } from '@vocavault/data-access';
 import { ChromeService } from '@vocavault/util';
 
 type DictView = 'list' | 'add' | 'edit' | 'import';
@@ -75,6 +75,7 @@ describe('FeatureDictionary', () => {
     restoreWord: ReturnType<typeof vi.fn>;
     restoreWords: ReturnType<typeof vi.fn>;
   };
+  let mockStarterWords: { add: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     // Provide matchMedia stub for HoldButton
@@ -124,12 +125,15 @@ describe('FeatureDictionary', () => {
       getUsagePercent: vi.fn().mockReturnValue(10),
     };
 
+    mockStarterWords = { add: vi.fn().mockResolvedValue({ ok: true, incomplete: false }) };
+
     await TestBed.configureTestingModule({
       imports: [FeatureDictionary],
       providers: [
         { provide: WordService, useValue: mockWordService },
         { provide: QuizService, useValue: mockQuizService },
         { provide: StorageService, useValue: mockStorageService },
+        { provide: StarterWordsService, useValue: mockStarterWords },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -156,6 +160,30 @@ describe('FeatureDictionary', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('[data-testid="empty-state"]')).toBeTruthy();
+  });
+
+  it('should offer one starter-word chip per starter word on the empty dictionary', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const chips = fixture.nativeElement.querySelectorAll('[data-testid="starter-words"] button');
+    expect(chips.length).toBe(STARTER_WORDS.length);
+    expect(chips[0].textContent).toContain(STARTER_WORDS[0]);
+  });
+
+  it('should add a starter word through StarterWordsService when a chip is clicked', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const firstChip = fixture.nativeElement.querySelector('[data-testid="starter-words"] button') as HTMLButtonElement;
+    firstChip.click();
+    await fixture.whenStable();
+    expect(mockStarterWords.add).toHaveBeenCalledWith(STARTER_WORDS[0]);
+  });
+
+  it('should hide starter words once the dictionary has words', async () => {
+    mockWords.set([makeWord({ id: '1', word: 'Ephemeral' })]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('[data-testid="starter-words"]')).toBeFalsy();
   });
 
   it('should show word cards when words exist', async () => {

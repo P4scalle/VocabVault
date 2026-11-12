@@ -31,6 +31,9 @@ export class OnboardingService {
     return null;
   });
 
+  /** Whether the user has dismissed the first-run guidance. */
+  readonly dismissed = computed(() => this._state().dismissed);
+
   constructor() {
     effect(() => {
       const state = this._state();
