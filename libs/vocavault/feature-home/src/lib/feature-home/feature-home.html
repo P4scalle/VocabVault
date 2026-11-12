@@ -97,21 +97,49 @@
         </div>
       }
 
-      @if (step === 'try-quiz') {
-        <!-- Quiz nudge: celebratory, encouraging -->
+      @if (step === 'create-quiz') {
+        <!-- Create-quiz nudge: teach what a quiz is, steer to the manual builder -->
+        <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-cyan-900/20 p-6 md:p-8">
+          <div class="flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-2xl bg-white/80 dark:bg-slate-700/80 shadow-sm flex items-center justify-center mb-4">
+              <i class="pi pi-plus-circle text-3xl text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Nice! Now build your first quiz</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-5 leading-relaxed">
+              A quiz is an editable set of words you'd like to practice. Pick a few to get started.
+            </p>
+            <div class="flex flex-col xs:flex-row gap-2 w-full xs:w-auto">
+              <lib-button styleClass="px-6 vv-btn-press" (click)="navigateToCreateQuiz()">
+                <i class="pi pi-plus mr-1.5 text-xs" aria-hidden="true"></i>
+                Create a Quiz
+              </lib-button>
+              <button
+                type="button"
+                class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 py-2 transition-colors"
+                (click)="onboarding.dismiss()"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (step === 'start-quiz') {
+        <!-- Start-quiz nudge: their quiz is built, now take it to finish the loop -->
         <div class="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-cyan-900/20 p-6 md:p-8">
           <div class="flex flex-col items-center text-center">
             <div class="w-16 h-16 rounded-2xl bg-white/80 dark:bg-slate-700/80 shadow-sm flex items-center justify-center mb-4">
               <i class="pi pi-bolt text-3xl text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
             </div>
-            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Nice! Now try a quiz</h2>
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Your quiz is ready!</h2>
             <p class="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-5 leading-relaxed">
-              You've added {{ wordCount() }} word{{ wordCount() !== 1 ? 's' : '' }}. Take a quick quiz to lock them into memory.
+              Open your quiz, choose a mode, and practice. Finishing it unlocks your progress tracking.
             </p>
             <div class="flex flex-col xs:flex-row gap-2 w-full xs:w-auto">
-              <lib-button styleClass="px-6 vv-btn-press" (click)="startQuickQuiz()">
+              <lib-button styleClass="px-6 vv-btn-press" (click)="navigateToQuiz()">
                 <i class="pi pi-bolt mr-1.5 text-xs" aria-hidden="true"></i>
-                Quick Quiz
+                Start Your Quiz
               </lib-button>
               <button
                 type="button"

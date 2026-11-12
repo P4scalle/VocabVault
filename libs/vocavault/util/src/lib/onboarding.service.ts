@@ -2,63 +2,76 @@ import { Injectable, Signal, signal, computed, effect } from '@angular/core';
 
 const STORAGE_KEY = 'vv_onboarding';
 
-interface OnboardingState {
-  dismissed: boolean;
-  firstQuizDone: boolean;
-}
+export type OnboardingStep = 'add-word' | 'create-quiz' | 'start-quiz' | null;
 
-const DEFAULTS: OnboardingState = {
-  dismissed: false,
-  firstQuizDone: false,
-};
+export interface OnboardingContext {
+  totalWords: Signal<number>;
+  quizzableWords: Signal<number>;
+  quizSets: Signal<number>;
+  completedQuizzes: Signal<number>;
+}
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingService {
-  private readonly _state = signal<OnboardingState>(this.load());
-  private _wordCount: Signal<number> = signal(0);
+  private readonly _dismissed = signal<boolean>(this.load());
 
-  /** Provide a live word count signal so onboarding can react to dictionary state */
-  setWordCount(wordCount: Signal<number>): void {
-    this._wordCount = wordCount;
+  // Live data counts, wired once from the always-mounted app shell so the
+  // current step stays correct no matter which page the user is on.
+  private _totalWords: Signal<number> = signal(0);
+  private _quizzableWords: Signal<number> = signal(0);
+  private _quizSets: Signal<number> = signal(0);
+  private _completedQuizzes: Signal<number> = signal(0);
+
+  /** Wire the live data counts that drive the first-run guidance. */
+  setContext(ctx: OnboardingContext): void {
+    this._totalWords = ctx.totalWords;
+    this._quizzableWords = ctx.quizzableWords;
+    this._quizSets = ctx.quizSets;
+    this._completedQuizzes = ctx.completedQuizzes;
   }
 
-  /** Current onboarding step to show, or null if complete/dismissed */
-  readonly currentStep = computed((): 'add-word' | 'try-quiz' | null => {
-    const s = this._state();
-    if (s.dismissed) return null;
-    if (this._wordCount() === 0) return 'add-word';
-    if (!s.firstQuizDone) return 'try-quiz';
+  /**
+   * The next first-run milestone to guide the user toward, or null when the
+   * loop is complete or the user dismissed guidance.
+   *   add-word    no words yet
+   *   create-quiz has a quizzable word but no quiz set
+   *   start-quiz  has a quiz but hasn't completed one
+   */
+  readonly currentStep = computed<OnboardingStep>(() => {
+    if (this._dismissed()) return null;
+    if (this._totalWords() === 0) return 'add-word';
+    if (this._quizSets() === 0) {
+      return this._quizzableWords() > 0 ? 'create-quiz' : null;
+    }
+    if (this._completedQuizzes() === 0) return 'start-quiz';
     return null;
   });
 
   /** Whether the user has dismissed the first-run guidance. */
-  readonly dismissed = computed(() => this._state().dismissed);
+  readonly dismissed = computed(() => this._dismissed());
 
   constructor() {
     effect(() => {
-      const state = this._state();
+      const dismissed = this._dismissed();
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch { /* quota, non-critical */ }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ dismissed }));
+      } catch {
+        /* quota, non-critical */
+      }
     });
   }
 
-  markQuizDone(): void {
-    this._state.update((s) => ({ ...s, firstQuizDone: true }));
-  }
-
   dismiss(): void {
-    this._state.update((s) => ({ ...s, dismissed: true }));
+    this._dismissed.set(true);
   }
 
-  private load(): OnboardingState {
+  private load(): boolean {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return DEFAULTS;
-      const parsed = JSON.parse(raw);
-      return { dismissed: parsed.dismissed ?? false, firstQuizDone: parsed.firstQuizDone ?? false };
+      if (!raw) return false;
+      return JSON.parse(raw).dismissed ?? false;
     } catch {
-      return DEFAULTS;
+      return false;
     }
   }
 }

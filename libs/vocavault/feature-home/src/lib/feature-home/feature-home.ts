@@ -44,10 +44,6 @@ export class FeatureHome {
 
   protected readonly eloquenceScore = this.progressService.eloquenceScore;
 
-  constructor() {
-    this.onboarding.setWordCount(this.wordCount);
-  }
-
   protected readonly masteryDistribution = this.progressService.masteryDistribution;
 
   protected readonly progressCircles = computed((): ProgressCircleData[] => {
@@ -90,6 +86,10 @@ export class FeatureHome {
 
   protected navigateToQuiz(): void {
     void this.router.navigate(['/quiz']);
+  }
+
+  protected navigateToCreateQuiz(): void {
+    void this.router.navigate(['/quiz', 'create']);
   }
 
   protected navigateToQuizLaunch(mode: string): void {
