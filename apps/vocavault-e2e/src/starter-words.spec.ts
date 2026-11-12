@@ -54,14 +54,19 @@ test.describe('Starter words & first-run add hint', () => {
 
   test('add button pulses while empty and stops after the first word', async ({ page }) => {
     await page.goto('/home');
+    // Wait for the shell to render before asserting on the hint (avoids a load-time race).
+    await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
     // At least one add control (mobile FAB or desktop pill) carries the hint.
     await expect(page.locator('.vv-add-hint').first()).toBeAttached();
 
     await page.goto('/dictionary');
     await page.getByTestId('starter-words').getByRole('button').first().click();
     await expect(page.getByTestId('starter-words')).toBeHidden();
+    // Confirm the word actually landed before leaving, so the hint state is settled.
+    await expect(page.locator('lib-word-card').first()).toBeVisible();
 
     await page.goto('/home');
+    await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
     await expect(page.locator('.vv-add-hint')).toHaveCount(0);
   });
 });
