@@ -292,11 +292,14 @@
 }
 
 /* Prevent iOS Safari auto-zoom on input focus (triggers when font < 16px).
-   Must use !important to beat inline Tailwind text-sm classes on inputs.
-   Only applies on mobile where the zoom is an issue. */
+   The `[class]` attribute selector has specificity 0-1-1, which legitimately
+   beats Tailwind's single-class `.text-sm` (0-1-0) on inputs — no !important
+   needed. The bare element selectors cover any class-less input. Mobile only,
+   where the zoom is the issue. */
 @media screen and (max-width: 767px) {
-  input, textarea, select {
-    font-size: max(16px, 1em) !important;
+  input, textarea, select,
+  input[class], textarea[class], select[class] {
+    font-size: max(16px, 1em);
   }
 }
 
