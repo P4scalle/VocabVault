@@ -46,10 +46,17 @@ export class FeatureQuiz {
   private readonly toast = inject(ToastService);
   private readonly onboarding = inject(OnboardingService);
 
-  /** Steer a first-run user into their first quiz by highlighting the card(s). */
-  protected readonly showStartCue = computed(() => this.onboarding.currentStep() === 'start-quiz');
-
   protected readonly allQuizSets = this.quizService.quizSets;
+
+  /**
+   * Steer a first-run user into their first quiz by highlighting the card — but
+   * only when there is exactly one quiz. If they've already made several without
+   * playing any, a "Start here" badge on every card is noise; the home banner and
+   * the quiz-detail mode hint still guide them.
+   */
+  protected readonly showStartCue = computed(
+    () => this.onboarding.currentStep() === 'start-quiz' && this.allQuizSets().length === 1,
+  );
   protected readonly infoTopic = signal<string | null>(null);
   protected readonly toughCount = computed(() => this.wordService.toughWords().length);
   protected readonly activeFilter = signal<QuizFilter>('all');
