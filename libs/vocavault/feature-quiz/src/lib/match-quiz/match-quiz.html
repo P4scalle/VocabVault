@@ -26,7 +26,7 @@
       <div class="bg-green-50 dark:bg-green-900/30 rounded-2xl border-2 border-green-400 p-6 text-center">
         <i class="pi pi-check-circle text-3xl text-green-500 mb-2 block" aria-hidden="true"></i>
         <p class="font-semibold text-green-700 dark:text-green-400 text-lg">All matched!</p>
-        <lib-button styleClass="mt-4 px-8" (click)="finish()">
+        <lib-button [styleClass]="showFinishCue() ? 'mt-4 px-8 vv-cue-pulse' : 'mt-4 px-8'" (click)="finish()">
           See Results
         </lib-button>
       </div>

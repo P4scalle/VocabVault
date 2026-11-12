@@ -16,18 +16,14 @@ export class OnboardingService {
   private readonly _dismissed = signal<boolean>(this.load());
 
   // Live data counts, wired once from the always-mounted app shell so the
-  // current step stays correct no matter which page the user is on.
-  private _totalWords: Signal<number> = signal(0);
-  private _quizzableWords: Signal<number> = signal(0);
-  private _quizSets: Signal<number> = signal(0);
-  private _completedQuizzes: Signal<number> = signal(0);
+  // current step stays correct no matter which page the user is on. Held in a
+  // signal (not reassigned fields) so currentStep reacts even when setContext
+  // runs after the step has already been read somewhere.
+  private readonly _ctx = signal<OnboardingContext | null>(null);
 
   /** Wire the live data counts that drive the first-run guidance. */
   setContext(ctx: OnboardingContext): void {
-    this._totalWords = ctx.totalWords;
-    this._quizzableWords = ctx.quizzableWords;
-    this._quizSets = ctx.quizSets;
-    this._completedQuizzes = ctx.completedQuizzes;
+    this._ctx.set(ctx);
   }
 
   /**
@@ -39,11 +35,13 @@ export class OnboardingService {
    */
   readonly currentStep = computed<OnboardingStep>(() => {
     if (this._dismissed()) return null;
-    if (this._totalWords() === 0) return 'add-word';
-    if (this._quizSets() === 0) {
-      return this._quizzableWords() > 0 ? 'create-quiz' : null;
+    const ctx = this._ctx();
+    // No data wired yet: treat as a brand-new, empty dictionary.
+    if (!ctx || ctx.totalWords() === 0) return 'add-word';
+    if (ctx.quizSets() === 0) {
+      return ctx.quizzableWords() > 0 ? 'create-quiz' : null;
     }
-    if (this._completedQuizzes() === 0) return 'start-quiz';
+    if (ctx.completedQuizzes() === 0) return 'start-quiz';
     return null;
   });
 

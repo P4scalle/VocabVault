@@ -52,12 +52,14 @@ test.describe('Starter words & first-run add hint', () => {
     await expect(page.locator('lib-word-card').filter({ hasText: 'Serendipity' })).toBeVisible();
   });
 
-  test('add button pulses while empty and stops after the first word', async ({ page }) => {
+  test('add button pulses for the first word, then guides toward the first quiz', async ({ page }) => {
     await page.goto('/home');
     // Wait for the shell to render before asserting on the hint (avoids a load-time race).
     await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
-    // At least one add control (mobile FAB or desktop pill) carries the hint.
+    // Empty dictionary: at least one add control (mobile FAB or desktop pill)
+    // pulses and points at adding the first word.
     await expect(page.locator('.vv-add-hint').first()).toBeAttached();
+    await expect(page.locator('.vv-add-hint-tooltip').first()).toContainText('Add your first word');
 
     await page.goto('/dictionary');
     await page.getByTestId('starter-words').getByRole('button').first().click();
@@ -67,6 +69,9 @@ test.describe('Starter words & first-run add hint', () => {
 
     await page.goto('/home');
     await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
-    await expect(page.locator('.vv-add-hint')).toHaveCount(0);
+    // A quizzable word now exists but no quiz: the hint persists and steers to
+    // building the first quiz.
+    await expect(page.locator('.vv-add-hint').first()).toBeAttached();
+    await expect(page.locator('.vv-add-hint-tooltip').first()).toContainText('build your first quiz');
   });
 });

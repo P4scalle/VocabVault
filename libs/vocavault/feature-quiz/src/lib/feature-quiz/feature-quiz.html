@@ -130,6 +130,7 @@
       @for (qs of displayedQuizSets(); track qs.id) {
         <lib-quiz-set-card
           [quizSet]="qs"
+          [highlight]="showStartCue()"
           (selected)="onSelectQuizSet($event)"
           (deleteRequested)="onDeleteQuizSet($event)"
         />

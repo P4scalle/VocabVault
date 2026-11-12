@@ -27,6 +27,8 @@ export class QuizSetCard {
   private readonly quizService = inject(QuizService);
 
   readonly quizSet = input.required<QuizSet>();
+  /** Emphasise this card (ring + "Start here" badge) to steer a first-run user into their first quiz. */
+  readonly highlight = input(false);
   readonly selected = output<QuizSet>();
   readonly deleteRequested = output<QuizSet>();
 

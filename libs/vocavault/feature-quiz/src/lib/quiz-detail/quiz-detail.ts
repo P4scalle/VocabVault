@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
 import { DEFAULT_QUIZ_DIRECTION, QUIZ_DIRECTION_LABELS, QuizDirection, QuizService, WordService } from '@vocavault/data-access';
 import { Button, ToastService } from '@vocavault/ui';
+import { OnboardingService } from '@vocavault/util';
 
 @Component({
   selector: 'lib-quiz-detail',
@@ -16,8 +17,12 @@ export class QuizDetail {
   private readonly quizService = inject(QuizService);
   private readonly wordService = inject(WordService);
   private readonly toast = inject(ToastService);
+  private readonly onboarding = inject(OnboardingService);
 
   readonly id = input.required<string>();
+
+  /** Teach what the modes are while a first-run user is about to take their first quiz. */
+  protected readonly showModeHint = computed(() => this.onboarding.currentStep() === 'start-quiz');
 
   protected readonly quizSet = computed(() =>
     this.quizService.getQuizSet(this.id())

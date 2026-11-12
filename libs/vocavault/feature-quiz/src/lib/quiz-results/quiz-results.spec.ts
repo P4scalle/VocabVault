@@ -93,7 +93,7 @@ describe('QuizResults', () => {
     updateWord: ReturnType<typeof vi.fn>;
   };
   let quizService: { getQuizSet: ReturnType<typeof vi.fn> };
-  let progressService: { addResult: ReturnType<typeof vi.fn>; eloquenceScore: ReturnType<typeof vi.fn>; getLatestResult: ReturnType<typeof vi.fn> };
+  let progressService: { addResult: ReturnType<typeof vi.fn>; eloquenceScore: ReturnType<typeof vi.fn>; getLatestResult: ReturnType<typeof vi.fn>; results: ReturnType<typeof vi.fn> };
   let srService: { calculateNextReview: ReturnType<typeof vi.fn> };
   let mockChrome: { enterFocus: ReturnType<typeof vi.fn>; leaveFocus: ReturnType<typeof vi.fn> };
 
@@ -124,6 +124,7 @@ describe('QuizResults', () => {
     progressService = {
       addResult: vi.fn(),
       getLatestResult: vi.fn().mockReturnValue(undefined),
+      results: vi.fn().mockReturnValue([]),
       eloquenceScore: vi.fn().mockImplementation(() => {
         return eloquenceCallCount++ === 0 ? 50 : 53;
       }),
@@ -158,6 +159,7 @@ describe('QuizResults', () => {
   }
 
   beforeEach(() => {
+    localStorage.clear();
     TestBed.resetTestingModule();
   });
 
@@ -221,6 +223,7 @@ describe('QuizResults', () => {
     progressService = {
       addResult: vi.fn(),
       getLatestResult: vi.fn().mockReturnValue(undefined),
+      results: vi.fn().mockReturnValue([]),
       eloquenceScore: vi.fn().mockReturnValue(50),
     };
     srService = { calculateNextReview: vi.fn().mockReturnValue({ lastReviewedAt: new Date(), nextReviewDate: new Date(), interval: 1, easeFactor: 2.5, reviewCount: 1 }) };
@@ -350,7 +353,7 @@ describe('QuizResults', () => {
         getQuizSet: vi.fn().mockReturnValue(newQuizSet),
         getWordsForQuizSet: vi.fn().mockReturnValue(newWords),
       };
-      const localProgressService = { addResult: vi.fn(), getLatestResult: vi.fn().mockReturnValue(undefined), eloquenceScore: vi.fn().mockReturnValue(0) };
+      const localProgressService = { addResult: vi.fn(), getLatestResult: vi.fn().mockReturnValue(undefined), results: vi.fn().mockReturnValue([]), eloquenceScore: vi.fn().mockReturnValue(0) };
       const localSrService = {
         calculateNextReview: vi.fn().mockReturnValue({
           lastReviewedAt: new Date(),
@@ -388,6 +391,41 @@ describe('QuizResults', () => {
     });
   });
 
+  it('shows the one-time teaching line on the first-ever results page', () => {
+    Object.defineProperty(window, 'history', { value: { state: { ...mockState } }, writable: true, configurable: true });
+    const localRouter = { navigate: vi.fn().mockResolvedValue(true) };
+    const localWord = { getWord: vi.fn((id: string) => mockWords.find((w) => w.id === id)), updateWord: vi.fn() };
+    const localQuiz = { getQuizSet: vi.fn().mockReturnValue(mockQuizSet), getWordsForQuizSet: vi.fn().mockReturnValue(mockWords) };
+    const localProgress = { addResult: vi.fn(), getLatestResult: vi.fn().mockReturnValue(undefined), results: vi.fn().mockReturnValue([{ id: 'r1' }]), eloquenceScore: vi.fn().mockReturnValue(50) };
+    const localSr = { calculateNextReview: vi.fn().mockReturnValue({ lastReviewedAt: new Date(), nextReviewDate: new Date(), interval: 1, easeFactor: 2.5, reviewCount: 1 }) };
+    const localChrome = { enterFocus: vi.fn(), leaveFocus: vi.fn() };
+
+    TestBed.configureTestingModule({
+      imports: [QuizResults],
+      providers: [
+        { provide: Router, useValue: localRouter },
+        { provide: WordService, useValue: localWord },
+        { provide: QuizService, useValue: localQuiz },
+        { provide: ProgressService, useValue: localProgress },
+        { provide: SpacedRepetitionService, useValue: localSr },
+        { provide: ChromeService, useValue: localChrome },
+      ],
+    });
+
+    const f = TestBed.createComponent(QuizResults);
+    f.componentRef.setInput('id', 'quiz-1');
+    f.detectChanges();
+
+    const hint = f.nativeElement.querySelector('[data-testid="results-hint"]');
+    expect(hint).toBeTruthy();
+    expect(hint.textContent).toContain('level your words up');
+  });
+
+  it('hides the teaching line when it is not the first-ever result', () => {
+    setupWithState(mockState); // results() -> [] in this harness, so the hint stays hidden
+    expect(fixture.nativeElement.querySelector('[data-testid="results-hint"]')).toBeFalsy();
+  });
+
   it('recovers results from ProgressService when history.state is missing', () => {
     const savedResult = {
       id: 'r1',
@@ -418,7 +456,7 @@ describe('QuizResults', () => {
     quizService = {
       getQuizSet: vi.fn().mockReturnValue(mockQuizSet), getWordsForQuizSet: vi.fn().mockReturnValue(mockWords),
     };
-    progressService = { addResult: vi.fn(), getLatestResult: vi.fn().mockReturnValue(savedResult), eloquenceScore: vi.fn().mockReturnValue(50) };
+    progressService = { addResult: vi.fn(), getLatestResult: vi.fn().mockReturnValue(savedResult), results: vi.fn().mockReturnValue([savedResult]), eloquenceScore: vi.fn().mockReturnValue(50) };
     srService = {
       calculateNextReview: vi.fn().mockReturnValue({
         lastReviewedAt: new Date(),

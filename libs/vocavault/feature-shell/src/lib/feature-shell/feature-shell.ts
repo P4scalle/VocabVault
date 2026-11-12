@@ -135,18 +135,30 @@ export class FeatureShell implements OnInit {
   }
 
   /**
-   * Nudge a brand-new user toward the add button: pulse it while the dictionary
-   * is empty, the user hasn't dismissed onboarding, and the button is active.
+   * Pulse the add button to guide first-run users across two milestones: toward
+   * adding a word while the dictionary is empty, then toward building their
+   * first quiz once a quizzable word exists. Suppressed on add pages (the button
+   * is disabled there) and once onboarding is dismissed (currentStep is null).
    */
-  protected readonly showAddHint = computed(
-    () => !this.hasWords() && !this.onboarding.dismissed() && !this.fabDisabled(),
+  protected readonly showAddHint = computed(() => {
+    if (this.fabDisabled()) return false;
+    const step = this.onboarding.currentStep();
+    return step === 'add-word' || step === 'create-quiz';
+  });
+
+  /** Tooltip copy for the add-button hint, matched to the current milestone. */
+  protected readonly addHintText = computed(() =>
+    this.onboarding.currentStep() === 'create-quiz'
+      ? 'Now build your first quiz'
+      : 'Add your first word',
   );
+
   protected readonly addActions = computed<readonly ActionDrawerItem[]>(() => {
     const hw = this.hasWords();
-    const guide = this.showAddHint();
+    const step = this.onboarding.currentStep();
     return [
-      { id: 'word', label: 'Word', description: 'Add a new word to your dictionary.', iconClass: 'pi pi-file-edit', highlight: guide },
-      { id: 'quiz', label: 'Quiz', description: 'Create a new quiz set.', iconClass: 'pi pi-bolt', disabled: !this.hasQuizzableWords() },
+      { id: 'word', label: 'Word', description: 'Add a new word to your dictionary.', iconClass: 'pi pi-file-edit', highlight: step === 'add-word' },
+      { id: 'quiz', label: 'Quiz', description: 'Create a new quiz set.', iconClass: 'pi pi-bolt', disabled: !this.hasQuizzableWords(), highlight: step === 'create-quiz' },
       { id: 'folder', label: 'Folder', description: 'Create a folder to organize words.', iconClass: 'pi pi-folder', disabled: !hw },
       { id: 'import', label: 'Import Words', description: 'Paste or upload multiple words at once.', iconClass: 'pi pi-upload' },
     ];

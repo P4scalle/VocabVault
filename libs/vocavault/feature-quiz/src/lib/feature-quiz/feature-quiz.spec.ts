@@ -15,6 +15,7 @@ import {
 } from '@vocavault/data-access';
 import { Signal, WritableSignal, signal } from '@angular/core';
 import { ToastService } from '@vocavault/ui';
+import { OnboardingService } from '@vocavault/util';
 
 type QuizFilter = 'all' | QuizSetSource;
 
@@ -87,6 +88,7 @@ describe('FeatureQuiz', () => {
         })),
       });
     }
+    localStorage.clear();
     mockQuizSets.set([]);
     mockToughSignal.set([]);
     mockQuizService.deleteQuizSet.mockClear();
@@ -140,6 +142,34 @@ describe('FeatureQuiz', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('Test Quiz');
+  });
+
+  it('highlights quiz cards with "Start here" at the start-quiz milestone', async () => {
+    TestBed.inject(OnboardingService).setContext({
+      totalWords: signal(1),
+      quizzableWords: signal(1),
+      quizSets: signal(1),
+      completedQuizzes: signal(0),
+    });
+    mockQuizSets.set([mockQuizSet]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const card = fixture.nativeElement.querySelector('lib-quiz-set-card [role="button"]') as HTMLElement;
+    expect(card.classList.contains('ring-2')).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Start here');
+  });
+
+  it('does not highlight quiz cards once the first quiz is complete', async () => {
+    TestBed.inject(OnboardingService).setContext({
+      totalWords: signal(1),
+      quizzableWords: signal(1),
+      quizSets: signal(1),
+      completedQuizzes: signal(1),
+    });
+    mockQuizSets.set([mockQuizSet]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).not.toContain('Start here');
   });
 
   it('calls deleteQuizSet via hold button keyboard confirm', async () => {

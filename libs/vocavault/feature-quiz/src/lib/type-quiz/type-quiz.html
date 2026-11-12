@@ -83,7 +83,7 @@
       <div class="vv-sticky-footer-inline">
         <div class="vv-sticky-footer-content flex-row justify-end">
           @if (isLast()) {
-            <lib-button styleClass="px-8" (click)="finish()">
+            <lib-button [styleClass]="showFinishCue() ? 'px-8 vv-cue-pulse' : 'px-8'" (click)="finish()">
               Finish
             </lib-button>
           } @else {

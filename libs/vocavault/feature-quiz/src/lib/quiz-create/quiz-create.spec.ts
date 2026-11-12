@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { vi } from 'vitest';
 import { QuizCreate } from './quiz-create';
 import { QuizService, StorageService, LocalStorageService } from '@vocavault/data-access';
 import { ToastService } from '@vocavault/ui';
+import { OnboardingService } from '@vocavault/util';
 import { QuizSetFormData } from '../quiz-set-form/quiz-set-form';
 
 interface QuizCreateInternals {
@@ -27,6 +28,7 @@ describe('QuizCreate', () => {
   };
 
   const setup = async (modeInput?: string) => {
+    localStorage.clear();
     mockQuizService = {
       addQuizSet: vi.fn().mockReturnValue({ quizSet: { id: 'new-qs-1', name: 'New Quiz', wordIds: ['w1'] }, ok: true }),
     };
@@ -113,5 +115,26 @@ describe('QuizCreate', () => {
     (component as unknown as QuizCreateInternals).onCancelled();
 
     expect(router.navigate).toHaveBeenCalledWith(['/quiz']);
+  });
+
+  it('shows the teaching banner at the create-quiz milestone', async () => {
+    await setup();
+    TestBed.inject(OnboardingService).setContext({
+      totalWords: signal(1),
+      quizzableWords: signal(1),
+      quizSets: signal(0),
+      completedQuizzes: signal(0),
+    });
+    fixture.detectChanges();
+
+    const banner = fixture.nativeElement.querySelector('[data-testid="create-quiz-teaching"]');
+    expect(banner).toBeTruthy();
+    expect(banner.textContent).toContain('editable set of words');
+  });
+
+  it('hides the teaching banner when not at the create-quiz milestone', async () => {
+    await setup();
+    // Default context has 0 words, so the step is add-word, not create-quiz.
+    expect(fixture.nativeElement.querySelector('[data-testid="create-quiz-teaching"]')).toBeFalsy();
   });
 });

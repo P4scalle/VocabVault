@@ -5,7 +5,7 @@ import { provideRouter, Router } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { BackHintService } from '@vocavault/ui';
 import { ActionDrawerItem } from '@vocavault/ui';
-import { StorageService, WordService } from '@vocavault/data-access';
+import { QuizService, StorageService, WordService } from '@vocavault/data-access';
 import { OnboardingService, SCROLL_CONTAINER_ID } from '@vocavault/util';
 import { FeatureShell } from './feature-shell';
 
@@ -367,8 +367,20 @@ describe('FeatureShell', () => {
       expect(tooltips[0].textContent).toContain('Add your first word');
     });
 
-    it('stops pulsing once the dictionary has at least one word', async () => {
+    it('keeps pulsing toward quiz creation once a quizzable word exists, with create-quiz copy', async () => {
       TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
+      await navigateTo('/home');
+      expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(true);
+      const tooltip = fixture.nativeElement.querySelector('.vv-add-hint-tooltip');
+      expect(tooltip).toBeTruthy();
+      expect(tooltip.textContent).toContain('build your first quiz');
+    });
+
+    it('stops pulsing once a quiz exists (start-quiz milestone)', async () => {
+      const words = TestBed.inject(WordService);
+      words.addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
+      const quizzable = words.quizzableWords();
+      TestBed.inject(QuizService).addQuizSet({ name: 'First Quiz', description: '', wordIds: quizzable.map((w) => w.id), color: '' });
       await navigateTo('/home');
       expect(getMobileFab()?.classList.contains('vv-add-hint')).toBe(false);
       expect(fixture.nativeElement.querySelector('.vv-add-hint-tooltip')).toBeFalsy();
@@ -415,7 +427,9 @@ describe('FeatureShell', () => {
       await navigateTo('/home');
       expect(byId('quiz')?.disabled).toBeFalsy();
       expect(byId('folder')?.disabled).toBeFalsy();
+      // "Start here" moves from Word to Quiz at the create-quiz milestone.
       expect(byId('word')?.highlight).toBe(false);
+      expect(byId('quiz')?.highlight).toBe(true);
       expect(internals().addFooterNote()).toBe('');
     });
 
