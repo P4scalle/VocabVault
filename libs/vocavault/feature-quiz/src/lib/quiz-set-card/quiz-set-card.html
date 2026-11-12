@@ -1,5 +1,7 @@
 <div
   class="vv-card cursor-pointer vv-card-hover vv-focus-ring overflow-hidden"
+  [class.ring-2]="highlight()"
+  [class.ring-vv-brand]="highlight()"
   role="button"
   [attr.aria-label]="'Open ' + quizSet().name"
   tabindex="0"
@@ -27,6 +29,9 @@
         <span class="inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium bg-vv-brand text-white">
           {{ playableCount() }} words
         </span>
+        @if (highlight()) {
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-semibold bg-emerald-500 text-white">Start here</span>
+        }
         @if (quizSet().source === 'import') {
           <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
             <i class="pi pi-upload text-[8px]" aria-hidden="true"></i>

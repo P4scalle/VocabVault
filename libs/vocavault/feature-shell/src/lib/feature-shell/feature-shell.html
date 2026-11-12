@@ -82,7 +82,7 @@
         </button>
         @if (showAddHint()) {
           <div class="vv-add-hint-tooltip absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">
-            Add your first word
+            {{ addHintText() }}
           </div>
         }
       </div>
@@ -207,7 +207,7 @@
     </button>
     @if (showAddHint()) {
       <div class="vv-add-hint-tooltip absolute bottom-full left-1/2 mb-3 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">
-        Add your first word
+        {{ addHintText() }}
       </div>
     }
   </div>

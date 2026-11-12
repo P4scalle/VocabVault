@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { ChromeService } from '@vocavault/util';
+import { ChromeService, OnboardingService } from '@vocavault/util';
 import {
   DEFAULT_QUIZ_DIRECTION,
   FlagReason,
@@ -46,9 +46,18 @@ export class QuizResults implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly srService = inject(SpacedRepetitionService);
   private readonly chrome = inject(ChromeService);
+  private readonly onboarding = inject(OnboardingService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly id = input.required<string>();
+
+  /**
+   * One-time teaching line shown on the user's very first results page (exactly
+   * one saved result), unless they dismissed first-run guidance.
+   */
+  protected readonly showResultsHint = computed(
+    () => !this.onboarding.dismissed() && this.progressService.results().length === 1,
+  );
 
   private readonly state: QuizResultsState | null = (() => {
     const s = window.history.state as Partial<QuizResultsState>;

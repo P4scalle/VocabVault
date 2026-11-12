@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService, Word } from '@vocavault/data-access';
 import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } from '@vocavault/ui';
 import { shuffle } from '@vocavault/util';
-import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
+import { resolveQuizSetId, navigateToResults, firstQuizFinishCue } from '../quiz-shared/quiz-utils';
 import { buildQuizItem, filterAndNotify, getAnswer } from '../quiz-shared/quiz-direction';
 
 interface MCQuestion {
@@ -56,6 +56,9 @@ export class MultipleChoiceQuiz implements HasUnsavedChanges {
 
   private readonly finishing = signal(false);
   readonly hasUnsavedChanges = computed(() => !this.finishing() && (this.selectedOptionIndex() !== null || this.correctCount() > 0 || this.wrongWordIds().length > 0));
+
+  /** Pulse the Finish button on a first-run user's very first quiz. */
+  protected readonly showFinishCue = firstQuizFinishCue();
 
   @HostListener('window:beforeunload', ['$event'])
   onBeforeUnload(event: BeforeUnloadEvent): void {

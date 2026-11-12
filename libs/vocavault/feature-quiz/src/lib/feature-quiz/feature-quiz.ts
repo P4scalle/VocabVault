@@ -11,7 +11,7 @@ import {
   WordService,
 } from '@vocavault/data-access';
 import { EmptyState, InfoButton, InfoDrawer, ToastService } from '@vocavault/ui';
-import { wordStartsWith } from '@vocavault/util';
+import { OnboardingService, wordStartsWith } from '@vocavault/util';
 import { QuizSetCard } from '../quiz-set-card/quiz-set-card';
 
 type QuizFilter = 'all' | QuizSetSource;
@@ -44,6 +44,10 @@ export class FeatureQuiz {
   private readonly srService = inject(SpacedRepetitionService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly onboarding = inject(OnboardingService);
+
+  /** Steer a first-run user into their first quiz by highlighting the card(s). */
+  protected readonly showStartCue = computed(() => this.onboarding.currentStep() === 'start-quiz');
 
   protected readonly allQuizSets = this.quizService.quizSets;
   protected readonly infoTopic = signal<string | null>(null);

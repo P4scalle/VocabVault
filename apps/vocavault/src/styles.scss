@@ -235,6 +235,26 @@
   }
 }
 
+/* Reusable first-run cue: pulse a call-to-action (e.g. the quiz Finish button)
+   with a box-shadow ring. Box-shadow never shifts layout, so the target stays a
+   stable, clickable tap target (unlike a transform bounce). */
+.vv-cue-pulse {
+  animation: vv-cue-pulse-ring 2s ease-out infinite;
+}
+
+@keyframes vv-cue-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0.5); }
+  70% { box-shadow: 0 0 0 10px rgb(var(--vv-rgb-brand) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--vv-rgb-brand) / 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vv-cue-pulse {
+    animation: none;
+    box-shadow: 0 0 0 3px rgb(var(--vv-rgb-brand) / 0.35);
+  }
+}
+
 /* Info drawer animations */
 @keyframes fadeIn {
   from { opacity: 0; }

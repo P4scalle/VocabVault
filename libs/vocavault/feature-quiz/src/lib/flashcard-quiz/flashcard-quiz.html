@@ -106,7 +106,7 @@
             </button>
           }
           @if (isLast() && currentAssessed()) {
-            <lib-button size="sm" styleClass="flex-1" (click)="finish()">
+            <lib-button size="sm" [styleClass]="showFinishCue() ? 'flex-1 vv-cue-pulse' : 'flex-1'" (click)="finish()">
               Finish
               <i class="pi pi-check ml-1" aria-hidden="true"></i>
             </lib-button>

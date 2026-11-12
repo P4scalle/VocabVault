@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 import { vi } from 'vitest';
 import { QuizDetail } from './quiz-detail';
 import { QuizService, WordService, QuizSet, Word, MasteryLevel, makeWord } from '@vocavault/data-access';
+import { OnboardingService } from '@vocavault/util';
 
 const mockQuizSet: QuizSet = {
   id: 'qs1',
@@ -22,6 +24,7 @@ describe('QuizDetail', () => {
   let fixture: ComponentFixture<QuizDetail>;
 
   const setupWithQuizSet = async (quizSetId: string, quizSetData: QuizSet | undefined) => {
+    localStorage.clear();
     const mockQuizService = {
       getQuizSet: vi.fn().mockReturnValue(quizSetData),
       getWordsForQuizSet: vi.fn().mockReturnValue(mockWords),
@@ -85,6 +88,26 @@ describe('QuizDetail', () => {
     expect(compiled.textContent).toContain('Multiple Choice');
     expect(compiled.textContent).toContain('Type');
     expect(compiled.textContent).toContain('Match');
+  });
+
+  it('shows the mode teaching hint at the start-quiz milestone', async () => {
+    await setupWithQuizSet('qs1', mockQuizSet);
+    TestBed.inject(OnboardingService).setContext({
+      totalWords: signal(1),
+      quizzableWords: signal(1),
+      quizSets: signal(1),
+      completedQuizzes: signal(0),
+    });
+    fixture.detectChanges();
+    const hint = fixture.nativeElement.querySelector('[data-testid="mode-hint"]');
+    expect(hint).toBeTruthy();
+    expect(hint.textContent).toContain('Each mode drills the same words');
+  });
+
+  it('hides the mode teaching hint outside first-run', async () => {
+    await setupWithQuizSet('qs1', mockQuizSet);
+    // Default onboarding context resolves to add-word, not start-quiz.
+    expect(fixture.nativeElement.querySelector('[data-testid="mode-hint"]')).toBeFalsy();
   });
 
   it('renders direction picker', async () => {

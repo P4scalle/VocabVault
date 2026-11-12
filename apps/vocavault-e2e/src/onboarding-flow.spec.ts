@@ -76,4 +76,16 @@ test.describe('Onboarding guided flow', () => {
     await expect(dialog.getByRole('button', { name: /^Quiz/ })).toBeEnabled();
     await expect(dialog).not.toContainText('unlock quizzes and folders');
   });
+
+  test('teaches what a quiz is on the create screen during first-run', async ({ page }) => {
+    await mockDictionary(page);
+    await page.goto('/dictionary');
+    await page.getByTestId('starter-words').getByRole('button').first().click();
+    await expect(page.getByTestId('starter-words')).toBeHidden();
+
+    await page.goto('/quiz/create');
+    const banner = page.getByTestId('create-quiz-teaching');
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText('editable set of words');
+  });
 });

@@ -135,6 +135,26 @@ describe('QuizSetCard', () => {
     });
   });
 
+  describe('start-here highlight', () => {
+    it('shows no ring or "Start here" badge by default', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const card: HTMLElement = fixture.nativeElement.querySelector('[role="button"]');
+      expect(card.classList.contains('ring-2')).toBe(false);
+      expect(fixture.nativeElement.textContent).not.toContain('Start here');
+    });
+
+    it('adds a brand ring and a "Start here" badge when highlighted', async () => {
+      fixture.componentRef.setInput('highlight', true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const card: HTMLElement = fixture.nativeElement.querySelector('[role="button"]');
+      expect(card.classList.contains('ring-2')).toBe(true);
+      expect(card.classList.contains('ring-vv-brand')).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain('Start here');
+    });
+  });
+
   it('emits deleteRequested via hold button keyboard confirm', async () => {
     const deleted: QuizSet[] = [];
     const selected: QuizSet[] = [];
