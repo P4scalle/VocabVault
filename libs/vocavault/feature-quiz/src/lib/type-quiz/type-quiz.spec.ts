@@ -1,10 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
+import { signal } from '@angular/core';
 import { vi } from 'vitest';
 import { TypeQuiz } from './type-quiz';
 import { QuizService, WordService, makeWord } from '@vocavault/data-access';
 import { ToastService } from '@vocavault/ui';
+import { OnboardingService } from '@vocavault/util';
+
+/** Force the OnboardingService into the 'start-quiz' milestone. */
+function enterStartQuizMilestone(): void {
+  TestBed.inject(OnboardingService).setContext({
+    totalWords: signal(1),
+    quizzableWords: signal(1),
+    quizSets: signal(1),
+    completedQuizzes: signal(0),
+  });
+}
 
 const MOCK_WORDS = [
   makeWord({
@@ -41,6 +53,7 @@ describe('TypeQuiz', () => {
   let mockToastService: { show: ReturnType<typeof vi.fn>; showWithAction: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    localStorage.clear();
     mockToastService = { show: vi.fn(), showWithAction: vi.fn() };
 
     await TestBed.configureTestingModule({
@@ -306,6 +319,18 @@ describe('TypeQuiz', () => {
       expect.anything(),
       'info',
     );
+  });
+
+  // ── First-quiz finish cue ──
+
+  it('showFinishCue() is true at the start-quiz milestone', () => {
+    enterStartQuizMilestone();
+    fixture.detectChanges();
+    expect(((component as unknown as ComponentAny)['showFinishCue'] as () => boolean)()).toBe(true);
+  });
+
+  it('showFinishCue() is false by default (no start-quiz context)', () => {
+    expect(((component as unknown as ComponentAny)['showFinishCue'] as () => boolean)()).toBe(false);
   });
 
   // ── Sticky footer (mobile layout) ──
