@@ -5,7 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { merge } from 'rxjs';
 import { filter, map, startWith } from 'rxjs/operators';
 import { ActionDrawer, ActionDrawerConfig, ActionDrawerItem, AdaptiveNav, BackHintService, KeyboardShortcuts, NavItem, ToastContainer, ToastService } from '@vocavault/ui';
-import { DataExportService, HasUnsavedChanges, WordService } from '@vocavault/data-access';
+import { DataExportService, HasUnsavedChanges, ProgressService, QuizService, WordService } from '@vocavault/data-access';
 import { ChromeService, OnboardingService, ThemeService } from '@vocavault/util';
 
 export const routeAnimations = trigger('routeAnimations', [
@@ -116,10 +116,23 @@ export class FeatureShell implements OnInit {
     position: 'bottom',
   }));
   private readonly wordService = inject(WordService);
+  private readonly quizService = inject(QuizService);
+  private readonly progressService = inject(ProgressService);
   private readonly onboarding = inject(OnboardingService);
   private readonly hasWords = computed(() => this.wordService.words().length > 0);
   /** Quizzes need at least one *complete* word (incomplete ones can't be quizzed). */
   private readonly hasQuizzableWords = computed(() => this.wordService.quizzableWords().length > 0);
+
+  constructor() {
+    // Wire the live data counts that drive first-run guidance. The shell is
+    // always mounted, so the onboarding step stays correct on every page.
+    this.onboarding.setContext({
+      totalWords: computed(() => this.wordService.words().length),
+      quizzableWords: computed(() => this.wordService.quizzableWords().length),
+      quizSets: computed(() => this.quizService.quizSets().length),
+      completedQuizzes: computed(() => this.progressService.results().length),
+    });
+  }
 
   /**
    * Nudge a brand-new user toward the add button: pulse it while the dictionary

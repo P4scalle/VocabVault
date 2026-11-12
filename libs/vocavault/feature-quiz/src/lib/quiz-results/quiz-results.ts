@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { ChromeService, OnboardingService } from '@vocavault/util';
+import { ChromeService } from '@vocavault/util';
 import {
   DEFAULT_QUIZ_DIRECTION,
   FlagReason,
@@ -47,7 +47,6 @@ export class QuizResults implements OnInit {
   private readonly srService = inject(SpacedRepetitionService);
   private readonly chrome = inject(ChromeService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly onboarding = inject(OnboardingService);
 
   readonly id = input.required<string>();
 
@@ -181,7 +180,6 @@ export class QuizResults implements OnInit {
     const scoreBefore = this.progressService.eloquenceScore();
     this.saveResultAndUpdateMastery();
     this.eloquenceDelta.set(this.progressService.eloquenceScore() - scoreBefore);
-    this.onboarding.markQuizDone();
   }
 
   private saveResultAndUpdateMastery(): void {

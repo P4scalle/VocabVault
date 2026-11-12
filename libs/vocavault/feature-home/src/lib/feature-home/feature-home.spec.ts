@@ -37,8 +37,10 @@ const mockQuizService = {
     mode: 'flashcard',
   }),
 };
-const mockOnboardingStep = signal<'add-word' | 'try-quiz' | null>(null);
-const mockOnboardingService = { currentStep: mockOnboardingStep.asReadonly(), setWordCount: vi.fn(), dismiss: vi.fn(), markQuizDone: vi.fn() };
+const mockOnboardingStep = signal<'add-word' | 'create-quiz' | 'start-quiz' | null>(null);
+// The shell owns the onboarding state machine now; home only reads the current
+// step and can dismiss. No setWordCount/markQuizDone here.
+const mockOnboardingService = { currentStep: mockOnboardingStep.asReadonly(), dismiss: vi.fn() };
 
 describe('FeatureHome', () => {
   let fixture: ComponentFixture<FeatureHome>;
@@ -188,16 +190,46 @@ describe('FeatureHome', () => {
     });
 
     it('does not show the "How it works" strip once onboarding is past add-word', () => {
-      mockOnboardingStep.set('try-quiz');
+      mockOnboardingStep.set('create-quiz');
       fixture.detectChanges();
       expect(fixture.nativeElement.querySelector('[data-testid="how-it-works"]')).toBeFalsy();
     });
 
-    it('shows try-quiz banner when onboarding step is try-quiz', () => {
-      mockOnboardingStep.set('try-quiz');
+    it('shows the create-quiz banner (with the approved teaching copy) at that step', () => {
+      mockOnboardingStep.set('create-quiz');
       fixture.detectChanges();
       const el: HTMLElement = fixture.nativeElement;
-      expect(el.textContent).toContain('Nice! Now try a quiz');
+      expect(el.textContent).toContain('Nice! Now build your first quiz');
+      expect(el.textContent).toContain('A quiz is an editable set of words');
+    });
+
+    it('create-quiz banner navigates to /quiz/create when "Create a Quiz" is clicked', () => {
+      mockOnboardingStep.set('create-quiz');
+      fixture.detectChanges();
+      const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      const createBtn = Array.from(fixture.nativeElement.querySelectorAll<HTMLElement>('button, lib-button'))
+        .find((el) => el.textContent?.includes('Create a Quiz'));
+      expect(createBtn).toBeTruthy();
+      createBtn!.click();
+      expect(navigateSpy).toHaveBeenCalledWith(['/quiz', 'create']);
+    });
+
+    it('shows the start-quiz banner at that step', () => {
+      mockOnboardingStep.set('start-quiz');
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.textContent).toContain('Your quiz is ready!');
+    });
+
+    it('start-quiz banner navigates to /quiz when "Start Your Quiz" is clicked', () => {
+      mockOnboardingStep.set('start-quiz');
+      fixture.detectChanges();
+      const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      const startBtn = Array.from(fixture.nativeElement.querySelectorAll<HTMLElement>('button, lib-button'))
+        .find((el) => el.textContent?.includes('Start Your Quiz'));
+      expect(startBtn).toBeTruthy();
+      startBtn!.click();
+      expect(navigateSpy).toHaveBeenCalledWith(['/quiz']);
     });
 
     it('hides onboarding banner when step is null', () => {
@@ -205,11 +237,8 @@ describe('FeatureHome', () => {
       fixture.detectChanges();
       const el: HTMLElement = fixture.nativeElement;
       expect(el.textContent).not.toContain('Welcome to VocaVault!');
-      expect(el.textContent).not.toContain('Nice! Now try a quiz');
-    });
-
-    it('calls setWordCount on construction', () => {
-      expect(mockOnboardingService.setWordCount).toHaveBeenCalled();
+      expect(el.textContent).not.toContain('Nice! Now build your first quiz');
+      expect(el.textContent).not.toContain('Your quiz is ready!');
     });
 
     it('calls dismiss when Dismiss is clicked', () => {
@@ -280,18 +309,10 @@ describe('FeatureHome', () => {
 
     it('does not show quick quiz CTA when onboarding is active', () => {
       mockWordsSignal.set([makeWord()]);
-      mockOnboardingStep.set('try-quiz');
+      mockOnboardingStep.set('create-quiz');
       fixture.detectChanges();
       const ctaBtn = fixture.nativeElement.querySelector('button[class*="vv-card-cta"]');
       expect(ctaBtn).toBeFalsy();
-    });
-
-    it('shows quick quiz button in onboarding try-quiz banner', () => {
-      mockWordsSignal.set([makeWord()]);
-      mockOnboardingStep.set('try-quiz');
-      fixture.detectChanges();
-      const el: HTMLElement = fixture.nativeElement;
-      expect(el.textContent).toContain('Quick Quiz');
     });
   });
 

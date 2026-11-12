@@ -1,8 +1,35 @@
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { OnboardingService } from './onboarding.service';
 
 const STORAGE_KEY = 'vv_onboarding';
+
+interface Counts {
+  totalWords: WritableSignal<number>;
+  quizzableWords: WritableSignal<number>;
+  quizSets: WritableSignal<number>;
+  completedQuizzes: WritableSignal<number>;
+}
+
+/** Wire a fresh set of count signals into the service and hand them back for mutation. */
+function wireContext(
+  service: OnboardingService,
+  init: Partial<Record<keyof Counts, number>> = {},
+): Counts {
+  const counts: Counts = {
+    totalWords: signal(init.totalWords ?? 0),
+    quizzableWords: signal(init.quizzableWords ?? 0),
+    quizSets: signal(init.quizSets ?? 0),
+    completedQuizzes: signal(init.completedQuizzes ?? 0),
+  };
+  service.setContext({
+    totalWords: counts.totalWords.asReadonly(),
+    quizzableWords: counts.quizzableWords.asReadonly(),
+    quizSets: counts.quizSets.asReadonly(),
+    completedQuizzes: counts.completedQuizzes.asReadonly(),
+  });
+  return counts;
+}
 
 describe('OnboardingService', () => {
   let service: OnboardingService;
@@ -14,43 +41,60 @@ describe('OnboardingService', () => {
   });
 
   describe('currentStep', () => {
-    it('returns add-word when word count is 0', () => {
-      service.setWordCount(signal(0));
+    it('returns add-word when there are no words', () => {
+      wireContext(service, { totalWords: 0 });
       expect(service.currentStep()).toBe('add-word');
     });
 
-    it('returns try-quiz when words exist but no quiz done', () => {
-      service.setWordCount(signal(5));
-      expect(service.currentStep()).toBe('try-quiz');
+    it('returns create-quiz when a quizzable word exists but no quiz set', () => {
+      wireContext(service, { totalWords: 1, quizzableWords: 1, quizSets: 0 });
+      expect(service.currentStep()).toBe('create-quiz');
     });
 
-    it('returns null when words exist and quiz done', () => {
-      service.setWordCount(signal(5));
-      service.markQuizDone();
+    it('returns null when a word exists but is not yet quizzable (incomplete)', () => {
+      // e.g. a word with no definition: there's something in the dictionary,
+      // but nothing to quiz, so there is no next step to guide toward yet.
+      wireContext(service, { totalWords: 1, quizzableWords: 0, quizSets: 0 });
+      expect(service.currentStep()).toBeNull();
+    });
+
+    it('returns start-quiz when a quiz exists but none completed', () => {
+      wireContext(service, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 0 });
+      expect(service.currentStep()).toBe('start-quiz');
+    });
+
+    it('returns null once a quiz has been completed', () => {
+      wireContext(service, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 1 });
       expect(service.currentStep()).toBeNull();
     });
 
     it('returns null when dismissed regardless of state', () => {
-      service.setWordCount(signal(0));
+      wireContext(service, { totalWords: 0 });
       service.dismiss();
       expect(service.currentStep()).toBeNull();
     });
 
-    it('reacts to word count changes', () => {
-      const wordCount = signal(0);
-      service.setWordCount(wordCount);
+    it('advances add-word -> create-quiz -> start-quiz -> null as the user progresses', () => {
+      const counts = wireContext(service, { totalWords: 0 });
       expect(service.currentStep()).toBe('add-word');
 
-      wordCount.set(3);
-      expect(service.currentStep()).toBe('try-quiz');
+      counts.totalWords.set(1);
+      counts.quizzableWords.set(1);
+      expect(service.currentStep()).toBe('create-quiz');
+
+      counts.quizSets.set(1);
+      expect(service.currentStep()).toBe('start-quiz');
+
+      counts.completedQuizzes.set(1);
+      expect(service.currentStep()).toBeNull();
     });
 
     it('shows add-word again if all words are deleted', () => {
-      const wordCount = signal(5);
-      service.setWordCount(wordCount);
-      expect(service.currentStep()).toBe('try-quiz');
+      const counts = wireContext(service, { totalWords: 1, quizzableWords: 1 });
+      expect(service.currentStep()).toBe('create-quiz');
 
-      wordCount.set(0);
+      counts.totalWords.set(0);
+      counts.quizzableWords.set(0);
       expect(service.currentStep()).toBe('add-word');
     });
   });
@@ -65,22 +109,14 @@ describe('OnboardingService', () => {
       expect(stored.dismissed).toBe(true);
     });
 
-    it('persists firstQuizDone to localStorage', () => {
-      service.markQuizDone();
-      TestBed.flushEffects();
-      const raw = localStorage.getItem(STORAGE_KEY);
-      expect(raw).not.toBeNull();
-      const stored = JSON.parse(raw as string);
-      expect(stored.firstQuizDone).toBe(true);
-    });
-
-    it('loads persisted state on creation', () => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ dismissed: false, firstQuizDone: true }));
+    it('loads persisted dismissed state on creation', () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ dismissed: true }));
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({});
       const fresh = TestBed.inject(OnboardingService);
-      fresh.setWordCount(signal(5));
+      wireContext(fresh, { totalWords: 0 });
       expect(fresh.currentStep()).toBeNull();
+      expect(fresh.dismissed()).toBe(true);
     });
 
     it('handles corrupted localStorage gracefully', () => {
@@ -88,7 +124,7 @@ describe('OnboardingService', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({});
       const fresh = TestBed.inject(OnboardingService);
-      fresh.setWordCount(signal(0));
+      wireContext(fresh, { totalWords: 0 });
       expect(fresh.currentStep()).toBe('add-word');
     });
 
@@ -96,36 +132,18 @@ describe('OnboardingService', () => {
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({});
       const fresh = TestBed.inject(OnboardingService);
-      fresh.setWordCount(signal(0));
+      wireContext(fresh, { totalWords: 0 });
       expect(fresh.currentStep()).toBe('add-word');
     });
   });
 
-  describe('markQuizDone', () => {
-    it('advances past try-quiz step', () => {
-      service.setWordCount(signal(5));
-      expect(service.currentStep()).toBe('try-quiz');
-      service.markQuizDone();
-      expect(service.currentStep()).toBeNull();
-    });
-
-    it('is idempotent', () => {
-      service.markQuizDone();
-      service.markQuizDone();
-      TestBed.flushEffects();
-      const raw = localStorage.getItem(STORAGE_KEY);
-      expect(raw).not.toBeNull();
-      const stored = JSON.parse(raw as string);
-      expect(stored.firstQuizDone).toBe(true);
-    });
-  });
-
   describe('dismiss', () => {
-    it('hides all steps', () => {
-      service.setWordCount(signal(0));
+    it('hides all steps and flips the dismissed flag', () => {
+      wireContext(service, { totalWords: 0 });
       expect(service.currentStep()).toBe('add-word');
       service.dismiss();
       expect(service.currentStep()).toBeNull();
+      expect(service.dismissed()).toBe(true);
     });
   });
 });
