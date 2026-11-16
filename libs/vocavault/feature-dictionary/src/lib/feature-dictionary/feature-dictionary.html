@@ -564,26 +564,28 @@
     />
   }
 
-  @defer (when view() === 'import'; prefetch on idle) {
-    <lib-bulk-add (cancelled)="onBulkCancel()" (imported)="onBulkImported()" (viewIncomplete)="onViewIncomplete()" />
-  } @loading (minimum 150ms) {
-    <div class="space-y-3 animate-pulse p-1" aria-label="Loading import view" role="status">
-      <div class="h-56 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
-      <div class="h-10 w-28 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
-      <div class="flex items-center gap-2">
-        <div class="h-4 w-10 rounded bg-slate-200 dark:bg-slate-700"></div>
-        <div class="h-9 w-56 rounded-lg bg-slate-200 dark:bg-slate-700"></div>
+  @if (view() === 'import') {
+    @defer (on immediate; prefetch on idle) {
+      <lib-bulk-add (cancelled)="onBulkCancel()" (imported)="onBulkImported()" (viewIncomplete)="onViewIncomplete()" />
+    } @loading (minimum 150ms) {
+      <div class="space-y-3 animate-pulse p-1" aria-label="Loading import view" role="status">
+        <div class="h-56 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+        <div class="h-10 w-28 rounded-xl bg-slate-200 dark:bg-slate-700"></div>
+        <div class="flex items-center gap-2">
+          <div class="h-4 w-10 rounded bg-slate-200 dark:bg-slate-700"></div>
+          <div class="h-9 w-56 rounded-lg bg-slate-200 dark:bg-slate-700"></div>
+        </div>
+        <div class="h-5 w-24 rounded bg-slate-200 dark:bg-slate-700"></div>
       </div>
-      <div class="h-5 w-24 rounded bg-slate-200 dark:bg-slate-700"></div>
-    </div>
-  } @error {
-    <div class="flex flex-col items-center gap-3 py-12 text-center">
-      <i class="pi pi-cloud-off text-3xl text-slate-400" aria-hidden="true"></i>
-      <p class="text-sm text-slate-500 dark:text-slate-400">Failed to load the import module.</p>
-      <button type="button" class="vv-btn-secondary text-sm" (click)="reloadPage()">
-        <i class="pi pi-refresh mr-1" aria-hidden="true"></i> Reload
-      </button>
-    </div>
+    } @error {
+      <div class="flex flex-col items-center gap-3 py-12 text-center">
+        <i class="pi pi-cloud-off text-3xl text-slate-400" aria-hidden="true"></i>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Failed to load the import module.</p>
+        <button type="button" class="vv-btn-secondary text-sm" (click)="reloadPage()">
+          <i class="pi pi-refresh mr-1" aria-hidden="true"></i> Reload
+        </button>
+      </div>
+    }
   }
 
 </div>
