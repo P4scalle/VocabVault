@@ -367,13 +367,13 @@ describe('FeatureShell', () => {
       expect(tooltips[0].textContent).toContain('Add your first word');
     });
 
-    it('does not pulse on home — the welcome banner guides there instead', async () => {
+    it('also pulses on home so the tour points at the add button on every screen', async () => {
       // Use the mobile FAB (the reliably-rendered control in jsdom) like the rest
       // of this block; the projected desktop pill is not dependable here.
       await navigateTo('/dictionary');
       expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(true);
       await navigateTo('/home');
-      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(false);
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(true);
     });
 
     it('keeps pulsing toward quiz creation once a quizzable word exists, with create-quiz copy', async () => {

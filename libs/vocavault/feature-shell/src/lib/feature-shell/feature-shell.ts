@@ -84,19 +84,6 @@ export class FeatureShell implements OnInit {
 
   protected readonly hideFab = computed(() => this.isOnAddPage());
 
-  /** Home has its own onboarding banner, so the add-button hint is redundant there. */
-  protected readonly isHome = toSignal(
-    this.router.events.pipe(
-      filter((e) => e instanceof NavigationEnd),
-      map((e: NavigationEnd) => {
-        const path = new URL(e.urlAfterRedirects, 'http://x').pathname;
-        return path === '/' || path === '/home';
-      }),
-      startWith(false),
-    ),
-    { initialValue: false },
-  );
-
   protected readonly isNavigating = toSignal(
     merge(
       this.router.events.pipe(filter((e) => e instanceof NavigationStart), map(() => true)),
@@ -162,8 +149,10 @@ export class FeatureShell implements OnInit {
    * is disabled there) and once onboarding is dismissed (currentStep is null).
    */
   protected readonly showAddHint = computed(() => {
-    // On home the onboarding banner already guides, so skip the redundant pulse.
-    if (this.fabDisabled() || this.isHome()) return false;
+    // Suppressed only on add pages (the button is disabled there) and once
+    // onboarding is dismissed. Shown on home too, alongside the welcome banner,
+    // so the cue points at the actual + button on every screen.
+    if (this.fabDisabled()) return false;
     const step = this.onboarding.currentStep();
     return step === 'add-word' || step === 'create-quiz';
   });
