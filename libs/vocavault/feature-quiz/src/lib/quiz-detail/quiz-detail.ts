@@ -21,8 +21,8 @@ export class QuizDetail {
 
   readonly id = input.required<string>();
 
-  /** Teach what the modes are while a first-run user is about to take their first quiz. */
-  protected readonly showModeHint = computed(() => this.onboarding.currentStep() === 'start-quiz');
+  /** Teach what the modes are before the first quiz, or during a tour replay. */
+  protected readonly showModeHint = this.onboarding.showStartQuizCue;
 
   protected readonly quizSet = computed(() =>
     this.quizService.getQuizSet(this.id())

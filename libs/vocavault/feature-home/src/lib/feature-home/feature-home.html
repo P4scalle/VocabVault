@@ -1,7 +1,7 @@
 <div class="space-y-4 md:space-y-6 pb-24 md:pb-8">
 
   <!-- Onboarding Banner -->
-  @if (onboarding.currentStep(); as step) {
+  @if (onboarding.displayStep(); as step) {
     <div class="vv-card overflow-hidden animate-fade-in-up">
       @if (step === 'add-word') {
         <!-- Welcome banner: warm, inviting, zero words -->
@@ -156,7 +156,7 @@
   }
 
   <!-- Quick Quiz CTA: shown when user has words and onboarding is done -->
-  @if (hasWords() && !onboarding.currentStep()) {
+  @if (hasWords() && !onboarding.displayStep()) {
     <button
       type="button"
       class="vv-card-cta w-full p-4 flex items-center gap-4 text-left vv-btn-press vv-focus-ring transition-all hover:shadow-md"

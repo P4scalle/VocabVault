@@ -1,7 +1,7 @@
 import { test, expect, Locator, Page } from '@playwright/test';
 
 // Assert an element is GENUINELY running a CSS animation (not just carrying the
-// class — that would be a false positive if the keyframe is dead/clipped/disabled).
+// class, which would be a false positive if the keyframe is dead/clipped/disabled).
 async function expectAnimating(locator: Locator, keyframe: string) {
   const anim = await locator.evaluate((el) => {
     const cs = getComputedStyle(el);
@@ -47,6 +47,38 @@ async function mockDictionary(page: Page) {
       ]),
     }),
   );
+}
+
+// Drive the whole core loop to completion (add word, build quiz, play, finish)
+// so every data-derived cue switches off. Reuses the selectors proven in the
+// walk test above. The ':visible' scoping on the settings controls picks the one
+// nav variant shown at the current viewport (mobile header / desktop / tablet).
+async function completeFirstLoop(page: Page) {
+  await page.goto('/dictionary');
+  await page.getByTestId('starter-words').getByRole('button').first().click();
+  await expect(page.getByTestId('starter-words')).toBeHidden();
+
+  await page.goto('/quiz/create');
+  await page.getByLabel('Name').fill('My First Quiz');
+  const checkboxes = page.locator('input[type="checkbox"]');
+  const count = await checkboxes.count();
+  for (let i = 0; i < count; i++) {
+    await checkboxes.nth(i).check();
+  }
+  await page.getByRole('button', { name: 'Create Quiz Set' }).click();
+  await expect(page).toHaveURL(/\/quiz\//);
+
+  await page.getByRole('button', { name: /Flashcard/ }).click();
+  await expect(page).toHaveURL(/\/play\?mode=flashcard/);
+  await page.locator('.flashcard').click();
+  await page.getByRole('button', { name: 'Got it' }).click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Quiz Results')).toBeVisible();
+}
+
+async function showTipsFromSettings(page: Page) {
+  await page.locator('button[aria-label="Settings menu"]:visible').click();
+  await page.locator('[role="menuitem"]:visible', { hasText: 'Show getting-started tips' }).click();
 }
 
 test.describe('Guided first-quiz onboarding cues', () => {
@@ -110,7 +142,7 @@ test.describe('Guided first-quiz onboarding cues', () => {
     await page.getByRole('button', { name: 'Finish' }).click();
 
     // Stage 4 cue: the first-ever results page carries the teaching banner AND
-    // guides the user onward to the Progress section — the "See your progress"
+    // guides the user onward to the Progress section. The "See your progress"
     // button pulses with a bouncing tooltip (completing the tour of all sections).
     await expect(page.getByText('Quiz Results')).toBeVisible();
     const resultsHint = page.getByTestId('results-hint');
@@ -124,5 +156,26 @@ test.describe('Guided first-quiz onboarding cues', () => {
     const progressTip = page.locator('.vv-cue-tooltip', { hasText: 'See how you did' });
     await expect(progressTip).toBeVisible();
     await expectAnimating(progressTip, 'vv-cue-tooltip-bounce');
+  });
+
+  // Regression guard for the reported bug: once the loop is complete the
+  // data-derived cues are all off, so "Show getting-started tips" must bring the
+  // tour back on its own (previously it only fired a toast and showed nothing).
+  test('replays the tour from Settings after the loop is complete', async ({ page }) => {
+    await completeFirstLoop(page);
+
+    // Loop done: a fresh home load shows no onboarding banner.
+    await page.goto('/home');
+    const welcome = page.getByText('Welcome to VocaVault!');
+    await expect(welcome).toBeHidden();
+
+    // Replaying from Settings brings the welcome recap back.
+    await showTipsFromSettings(page);
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(welcome).toBeVisible();
+
+    // And it survives a hard reload, because the replay flag is persisted.
+    await page.reload();
+    await expect(page.getByText('Welcome to VocaVault!')).toBeVisible();
   });
 });

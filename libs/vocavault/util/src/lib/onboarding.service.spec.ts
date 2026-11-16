@@ -145,25 +145,112 @@ describe('OnboardingService', () => {
       expect(service.currentStep()).toBeNull();
       expect(service.dismissed()).toBe(true);
     });
+
+    it('ends an in-progress replay', () => {
+      wireContext(service, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 1 });
+      service.replay();
+      expect(service.replaying()).toBe(true);
+
+      service.dismiss();
+      expect(service.replaying()).toBe(false);
+    });
   });
 
-  describe('reset', () => {
+  describe('replay', () => {
     it('re-enables guidance so cues reappear for the current milestone', () => {
       wireContext(service, { totalWords: 0 });
       service.dismiss();
       expect(service.currentStep()).toBeNull();
 
-      service.reset();
+      service.replay();
       expect(service.dismissed()).toBe(false);
       expect(service.currentStep()).toBe('add-word');
     });
 
+    it('turns the tour back on for a user who already finished the loop', () => {
+      // Loop complete: currentStep is null forever, so the data-derived cues are
+      // all off. Replay must still bring the tour back.
+      wireContext(service, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 1 });
+      expect(service.currentStep()).toBeNull();
+      expect(service.displayStep()).toBeNull();
+
+      service.replay();
+      expect(service.replaying()).toBe(true);
+      // The home banner falls back to the welcome recap even though currentStep
+      // stays null (the live loop really is complete).
+      expect(service.currentStep()).toBeNull();
+      expect(service.displayStep()).toBe('add-word');
+    });
+
+    it('displayStep tracks the real milestone when one is active', () => {
+      wireContext(service, { totalWords: 1, quizzableWords: 1, quizSets: 0 });
+      service.replay();
+      expect(service.displayStep()).toBe('create-quiz');
+    });
+
+    it('endReplay stops the replay', () => {
+      wireContext(service, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 1 });
+      service.replay();
+      expect(service.replaying()).toBe(true);
+
+      service.endReplay();
+      expect(service.replaying()).toBe(false);
+      expect(service.displayStep()).toBeNull();
+    });
+
     it('persists the un-dismissed state', () => {
       service.dismiss();
-      service.reset();
+      service.replay();
       TestBed.flushEffects();
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) as string);
       expect(stored.dismissed).toBe(false);
+    });
+
+    it('persists the replay flag so a page reload keeps the tour on', () => {
+      service.replay();
+      TestBed.flushEffects();
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) as string);
+      expect(stored.replay).toBe(true);
+
+      // A freshly constructed service (simulating a reload) is still replaying.
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      const fresh = TestBed.inject(OnboardingService);
+      wireContext(fresh, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 1 });
+      expect(fresh.replaying()).toBe(true);
+      expect(fresh.displayStep()).toBe('add-word');
+    });
+
+    it('endReplay persists, so a reload after finishing the recap stays off', () => {
+      service.replay();
+      service.endReplay();
+      TestBed.flushEffects();
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) as string);
+      expect(stored.replay).toBe(false);
+    });
+  });
+
+  describe('per-cue visibility', () => {
+    it('showCreateQuizCue is on at the create-quiz milestone', () => {
+      wireContext(service, { totalWords: 1, quizzableWords: 1, quizSets: 0 });
+      expect(service.showCreateQuizCue()).toBe(true);
+      expect(service.showStartQuizCue()).toBe(false);
+    });
+
+    it('showStartQuizCue is on at the start-quiz milestone', () => {
+      wireContext(service, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 0 });
+      expect(service.showStartQuizCue()).toBe(true);
+      expect(service.showCreateQuizCue()).toBe(false);
+    });
+
+    it('a replay turns every cue on even once the loop is complete', () => {
+      wireContext(service, { totalWords: 3, quizzableWords: 3, quizSets: 1, completedQuizzes: 1 });
+      expect(service.showCreateQuizCue()).toBe(false);
+      expect(service.showStartQuizCue()).toBe(false);
+
+      service.replay();
+      expect(service.showCreateQuizCue()).toBe(true);
+      expect(service.showStartQuizCue()).toBe(true);
     });
   });
 });

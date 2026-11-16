@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, HostListener, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizMode, QUIZ_MODE_MIN_WORDS, QuizService } from '@vocavault/data-access';
 import { ToastService } from '@vocavault/ui';
@@ -37,10 +37,8 @@ export class QuizCreate implements HasUnsavedChanges {
   readonly mode = input<string>();
   readonly hasUnsavedChanges = signal(false);
 
-  /** Teach what a quiz is while a first-run user is at the create-quiz milestone. */
-  protected readonly showTeachingBanner = computed(
-    () => this.onboarding.currentStep() === 'create-quiz',
-  );
+  /** Teach what a quiz is at the create-quiz milestone, or during a tour replay. */
+  protected readonly showTeachingBanner = this.onboarding.showCreateQuizCue;
 
   constructor() {
     this.chrome.enterFocus();

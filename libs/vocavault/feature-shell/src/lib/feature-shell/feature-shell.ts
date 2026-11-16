@@ -46,9 +46,9 @@ export class FeatureShell implements OnInit {
     this.settingsOpen.update((v) => !v);
   }
 
-  /** Re-enable first-run guidance from Settings, then land on home where it shows. */
+  /** Replay the first-run guided tour from Settings, then land on home where it starts. */
   protected restartOnboarding(): void {
-    this.onboarding.reset();
+    this.onboarding.replay();
     this.settingsOpen.set(false);
     this.toast.show('Getting-started tips are back on');
     void this.router.navigate(['/home']);

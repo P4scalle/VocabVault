@@ -56,7 +56,9 @@ export class QuizResults implements OnInit {
    * one saved result), unless they dismissed first-run guidance.
    */
   protected readonly showResultsHint = computed(
-    () => !this.onboarding.dismissed() && this.progressService.results().length === 1,
+    () =>
+      this.onboarding.replaying() ||
+      (!this.onboarding.dismissed() && this.progressService.results().length === 1),
   );
 
   private readonly state: QuizResultsState | null = (() => {
@@ -252,6 +254,9 @@ export class QuizResults implements OnInit {
   }
 
   protected seeProgress(): void {
+    // Reaching Progress is the natural end of the guided tour, so a replay ends
+    // here (a no-op during a normal first-run, which is driven by live data).
+    this.onboarding.endReplay();
     void this.router.navigate(['/progress']);
   }
 

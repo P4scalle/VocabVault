@@ -11,9 +11,23 @@ export interface OnboardingContext {
   completedQuizzes: Signal<number>;
 }
 
+interface PersistedState {
+  dismissed: boolean;
+  replay: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OnboardingService {
-  private readonly _dismissed = signal<boolean>(this.load());
+  // Load persisted flags once so the two signals stay in sync with a single read.
+  private readonly _persisted = this.load();
+  private readonly _dismissed = signal<boolean>(this._persisted.dismissed);
+
+  // On-demand replay of the guided tour (triggered from Settings). Persisted so a
+  // mid-tour page reload does not silently drop the recap; it is cleared the
+  // moment the user dismisses or reaches the end of the recap (see endReplay), so
+  // it cannot get "stuck" on. Drives the teaching cues directly, so they reappear
+  // even for a user whose data-derived currentStep is already null (loop complete).
+  private readonly _replay = signal<boolean>(this._persisted.replay);
 
   // Live data counts, wired once from the always-mounted app shell so the
   // current step stays correct no matter which page the user is on. Held in a
@@ -45,14 +59,44 @@ export class OnboardingService {
     return null;
   });
 
+  /**
+   * True while the user is replaying the getting-started tour. The per-cue
+   * getters below each read this once, so the "a replay re-shows the cue" rule
+   * lives in one place and a new cue can't forget it.
+   */
+  readonly replaying = computed(() => this._replay());
+
+  /**
+   * The step the home banner should render. Normally the live milestone; during
+   * a replay by a user who has already finished the loop (currentStep null) it
+   * falls back to the 'add-word' welcome so the recap has an opening screen.
+   */
+  readonly displayStep = computed<OnboardingStep>(
+    () => this.currentStep() ?? (this._replay() ? 'add-word' : null),
+  );
+
+  // Per-cue visibility. Each reads the replay flag once, so every screen asks
+  // the service instead of re-deriving `currentStep === X || replay` for itself
+  // (easy to get subtly wrong, or to forget when adding a new cue).
+
+  /** Show the "what is a quiz" teaching banner on the create-quiz screen. */
+  readonly showCreateQuizCue = computed(
+    () => this.currentStep() === 'create-quiz' || this._replay(),
+  );
+
+  /** Show the start-quiz cues (quiz-detail mode hint, quiz-card "Start here"). */
+  readonly showStartQuizCue = computed(
+    () => this.currentStep() === 'start-quiz' || this._replay(),
+  );
+
   /** Whether the user has dismissed the first-run guidance. */
   readonly dismissed = computed(() => this._dismissed());
 
   constructor() {
     effect(() => {
-      const dismissed = this._dismissed();
+      const state: PersistedState = { dismissed: this._dismissed(), replay: this._replay() };
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ dismissed }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch {
         /* quota, non-critical */
       }
@@ -61,25 +105,36 @@ export class OnboardingService {
 
   dismiss(): void {
     this._dismissed.set(true);
+    this._replay.set(false);
   }
 
   /**
-   * Re-enable first-run guidance (undo a dismiss). Because the current step is
-   * derived from live data, the contextual cues reappear for whatever milestone
-   * the user is currently at; a user who has already finished the loop simply
-   * sees nothing, which is correct.
+   * Replay the first-run guided tour on demand (from Settings). Clears any prior
+   * dismiss and turns the replay flag on so the teaching cues come back on every
+   * screen (the home welcome, the create-quiz and start-quiz cues, the results
+   * hint), even for a user who has already finished the loop and whose live
+   * currentStep is null. It is persisted so it survives a page reload, and it
+   * ends when the user dismisses or reaches the end of the recap (see endReplay).
    */
-  reset(): void {
+  replay(): void {
     this._dismissed.set(false);
+    this._replay.set(true);
   }
 
-  private load(): boolean {
+  /** End an in-progress replay once the recap has run its course. */
+  endReplay(): void {
+    this._replay.set(false);
+  }
+
+  private load(): PersistedState {
+    const empty: PersistedState = { dismissed: false, replay: false };
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      return JSON.parse(raw).dismissed ?? false;
+      if (!raw) return empty;
+      const parsed = JSON.parse(raw);
+      return { dismissed: parsed.dismissed ?? false, replay: parsed.replay ?? false };
     } catch {
-      return false;
+      return empty;
     }
   }
 }

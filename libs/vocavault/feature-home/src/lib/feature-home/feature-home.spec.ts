@@ -45,8 +45,15 @@ const mockQuizService = {
 };
 const mockOnboardingStep = signal<'add-word' | 'create-quiz' | 'start-quiz' | null>(null);
 // The shell owns the onboarding state machine now; home only reads the current
-// step and can dismiss. No setWordCount/markQuizDone here.
-const mockOnboardingService = { currentStep: mockOnboardingStep.asReadonly(), dismiss: vi.fn() };
+// step and can dismiss. No setWordCount/markQuizDone here. displayStep mirrors
+// currentStep here (no replay under test); the home banner reads displayStep so
+// the welcome recap can appear during a Settings-driven tour replay.
+const mockOnboardingService = {
+  currentStep: mockOnboardingStep.asReadonly(),
+  displayStep: mockOnboardingStep.asReadonly(),
+  replaying: signal(false).asReadonly(),
+  dismiss: vi.fn(),
+};
 
 describe('FeatureHome', () => {
   let fixture: ComponentFixture<FeatureHome>;

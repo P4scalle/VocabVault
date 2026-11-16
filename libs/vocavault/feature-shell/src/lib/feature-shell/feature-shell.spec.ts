@@ -408,7 +408,7 @@ describe('FeatureShell', () => {
   });
 
   describe('restart onboarding from settings', () => {
-    it('re-enables guidance and navigates home', async () => {
+    it('replays the tour (un-dismiss + replay flag) and navigates home', async () => {
       await navigateTo('/dictionary');
       const onboarding = TestBed.inject(OnboardingService);
       onboarding.dismiss();
@@ -418,6 +418,7 @@ describe('FeatureShell', () => {
       (fixture.componentInstance as unknown as { restartOnboarding: () => void }).restartOnboarding();
 
       expect(onboarding.dismissed()).toBe(false);
+      expect(onboarding.replaying()).toBe(true);
       expect(navSpy).toHaveBeenCalledWith(['/home']);
     });
   });
