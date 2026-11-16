@@ -4,7 +4,8 @@ import { signal, WritableSignal } from '@angular/core';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { FeatureDictionary } from './feature-dictionary';
-import { WordService, Word, QuizService, StorageService, MasteryLevel, makeWord, Folder, FolderService, StarterWordsService, STARTER_WORDS } from '@vocavault/data-access';
+import { WordService, Word, QuizService, StorageService, MasteryLevel, makeWord, Folder, FolderService, StarterWordsService, STARTER_WORDS, BulkImportService } from '@vocavault/data-access';
+import { ToastService } from '@vocavault/ui';
 import { ChromeService } from '@vocavault/util';
 
 type DictView = 'list' | 'add' | 'edit' | 'import';
@@ -43,6 +44,8 @@ interface FeatureDictionaryInternals {
   toggleSelectMode(): void;
   onSelectWordsForFolder(folder: Folder): void;
   onWordsAddedToFolder(ids: string[]): void;
+  onBulkCancel(): void;
+  onBulkImported(): void;
   onViewIncomplete(): void;
   openNewFolderForm(): void;
   onCreateFolderFromForm(data: { name: string; color: string }): void;
@@ -127,6 +130,21 @@ describe('FeatureDictionary', () => {
 
     mockStarterWords = { add: vi.fn().mockResolvedValue({ ok: true, incomplete: false }) };
 
+    const mockBulkImportService = {
+      rows: signal([]).asReadonly(),
+      importableCount: signal(0).asReadonly(),
+      restoreDraft: vi.fn().mockReturnValue(false),
+      lastInputText: signal('').asReadonly(),
+      detectedDelimiter: signal('').asReadonly(),
+      wordsOnlyMode: signal(false).asReadonly(),
+      mixedSeparators: signal([]).asReadonly(),
+      detectedWordsOnly: signal(false).asReadonly(),
+    };
+    const mockToastService = {
+      show: vi.fn(),
+      showWithAction: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [FeatureDictionary],
       providers: [
@@ -134,6 +152,8 @@ describe('FeatureDictionary', () => {
         { provide: QuizService, useValue: mockQuizService },
         { provide: StorageService, useValue: mockStorageService },
         { provide: StarterWordsService, useValue: mockStarterWords },
+        { provide: BulkImportService, useValue: mockBulkImportService },
+        { provide: ToastService, useValue: mockToastService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -480,6 +500,101 @@ describe('FeatureDictionary', () => {
       expect((component as unknown as FeatureDictionaryInternals).view()).toBe('list');
       const importEl = fixture.nativeElement.querySelector('lib-bulk-add');
       expect(importEl).toBeFalsy();
+    });
+
+    // The import block uses @if (view() === 'import') { @defer (on immediate; ...) }.
+    // In happy-dom + zoneless Vitest, the @loading (minimum 150ms) timer never fires on
+    // the first open, so we detect the import section via the loading skeleton
+    // ([aria-label="Loading import view"]). On re-open the defer is cached and renders
+    // lib-bulk-add immediately. This helper covers both states.
+    function getImportSection(): Element | null {
+      return (
+        fixture.nativeElement.querySelector('[aria-label="Loading import view"]') ??
+        fixture.nativeElement.querySelector('lib-bulk-add')
+      );
+    }
+
+    it('should mount import section when view is import and unmount it via back chevron', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      (component as unknown as FeatureDictionaryInternals).view.set('import');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeTruthy();
+
+      (component as unknown as FeatureDictionaryInternals).onBulkCancel();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('[data-testid="empty-state"]')).toBeTruthy();
+    });
+
+    it('should unmount import section after import completion', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      (component as unknown as FeatureDictionaryInternals).view.set('import');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeTruthy();
+
+      (component as unknown as FeatureDictionaryInternals).onBulkImported();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('[data-testid="empty-state"]')).toBeTruthy();
+    });
+
+    it('should unmount import section via onViewIncomplete', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      (component as unknown as FeatureDictionaryInternals).view.set('import');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeTruthy();
+
+      (component as unknown as FeatureDictionaryInternals).onViewIncomplete();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeFalsy();
+    });
+
+    it('should not show list chrome while import section is active (mutual exclusivity)', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      (component as unknown as FeatureDictionaryInternals).view.set('import');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('input[aria-label="Search dictionary words"]')).toBeFalsy();
+      expect(fixture.nativeElement.querySelector('[data-testid="empty-state"]')).toBeFalsy();
+    });
+
+    it('should create a fresh import section on re-open (not stale reuse)', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      (component as unknown as FeatureDictionaryInternals).view.set('import');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const firstEl = getImportSection();
+      expect(firstEl).toBeTruthy();
+
+      (component as unknown as FeatureDictionaryInternals).onBulkCancel();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getImportSection()).toBeFalsy();
+
+      (component as unknown as FeatureDictionaryInternals).view.set('import');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      const secondEl = getImportSection();
+      expect(secondEl).toBeTruthy();
+      // Different DOM node confirms @if destroyed and recreated the view (no stale state)
+      expect(secondEl).not.toBe(firstEl);
     });
   });
 
