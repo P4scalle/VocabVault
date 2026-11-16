@@ -192,4 +192,23 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
       },
     ],
   },
+  'quiz-direction': {
+    icon: 'pi pi-info-circle',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Quiz Direction',
+    sections: [
+      {
+        text: 'Direction controls which side of a word you see and which side you answer:',
+        items: [
+          { label: 'Definition → Word', description: 'see the meaning, recall the word' },
+          { label: 'Word → Definition', description: 'see the word, recall its meaning' },
+          { label: 'Example → Definition', description: 'see an example sentence, recall what the word means' },
+          { label: 'Mixed', description: 'a blend of the directions above' },
+        ],
+      },
+      {
+        text: 'Example → Definition only appears once at least 3 words in the set have an example sentence. You can add examples to any word anytime from the Dictionary.',
+      },
+    ],
+  },
 };
