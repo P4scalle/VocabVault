@@ -13,7 +13,7 @@
     <div
       libSwipeable
       (swiped)="onSwipe($event)"
-      class="flashcard relative h-48 xs:h-52 md:h-60 vv-quiz-col cursor-pointer"
+      class="flashcard relative vv-quiz-col cursor-pointer"
       [class.is-flipped]="isFlipped()"
       (click)="flipCard()"
       role="button"
@@ -24,24 +24,32 @@
     >
       <div class="flashcard__inner">
         <div
-          class="flashcard__front flex flex-col items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-600 bg-vv-surface p-6 text-center shadow-sm"
+          class="flashcard__front flex flex-col rounded-2xl border border-slate-200 dark:border-slate-600 bg-vv-surface p-6 text-center shadow-sm"
         >
-          <p class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ currentItem()?.prompt }}</p>
-          @if (currentItem()?.resolvedDirection === 'word-to-definition' && word.pronunciation) {
-            <p class="mt-1 text-sm text-slate-400">{{ word.pronunciation }}</p>
-          }
-          <p class="mt-4 text-xs text-slate-400 flex items-center gap-1">
+          <div class="flashcard__scroll flex flex-col items-center">
+            <div class="my-auto">
+              <p class="text-2xl font-bold text-slate-800 dark:text-slate-100">{{ currentItem()?.prompt }}</p>
+              @if (currentItem()?.resolvedDirection === 'word-to-definition' && word.pronunciation) {
+                <p class="mt-1 text-sm text-slate-400">{{ word.pronunciation }}</p>
+              }
+            </div>
+          </div>
+          <p class="shrink-0 mt-4 text-xs text-slate-400 flex items-center justify-center gap-1">
             <i class="pi pi-refresh" aria-hidden="true"></i>
             Tap to reveal
           </p>
         </div>
         <div
-          class="flashcard__back flex flex-col items-center justify-center rounded-2xl border border-vv-brand bg-vv-brandLight dark:bg-vv-brand/20 p-6 text-center shadow-sm"
+          class="flashcard__back flex flex-col rounded-2xl border border-vv-brand bg-vv-brandLight dark:bg-vv-brand/20 p-6 text-center shadow-sm"
         >
-          <p class="text-base text-slate-800 dark:text-slate-200 font-medium">{{ currentItem()?.answer }}</p>
-          @if (currentItem()?.resolvedDirection !== 'example-to-definition' && quizExample()) {
-            <p class="mt-3 text-sm italic text-slate-500 dark:text-slate-400">"{{ quizExample() }}"</p>
-          }
+          <div class="flashcard__scroll flex flex-col items-center">
+            <div class="my-auto">
+              <p class="text-base text-slate-800 dark:text-slate-200 font-medium">{{ currentItem()?.answer }}</p>
+              @if (currentItem()?.resolvedDirection !== 'example-to-definition' && quizExample()) {
+                <p class="mt-3 text-sm italic text-slate-500 dark:text-slate-400">"{{ quizExample() }}"</p>
+              }
+            </div>
+          </div>
         </div>
       </div>
     </div>
