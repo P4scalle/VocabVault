@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-05-07)
 Phase: 16
 Plan: Not started
 Status: Executing Phase 15
-Last activity: 2026-11-09 - Completed quick task 261109-utp: extracted shared ScoreRing component; quiz accuracy circle now matches home eloquence ring (sizing + arrival animation), home observer plumbing removed, 290 tests + lint green
+Last activity: 2026-11-16 - Completed quick task 261116-dve: per-mode (i) info buttons on all four quiz-detail mode cards (reused lib-info-button/lib-info-drawer feature-home idiom), four new INFO_TOPICS entries, redundant locked-modes-hint paragraph removed, 293 tests + AOT build green
 
 Progress: [=========~] 95%
 
