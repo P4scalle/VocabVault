@@ -3,12 +3,12 @@ import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { A11yModule } from '@angular/cdk/a11y';
 import { DEFAULT_QUIZ_DIRECTION, QUIZ_DIRECTION_LABELS, QuizCapabilities, QuizDirection, QuizMode, QuizService, WordService, quizCapabilities, viableModesForDirection } from '@vocavault/data-access';
-import { Button, ToastService } from '@vocavault/ui';
+import { Button, InfoButton, InfoDrawer, ToastService } from '@vocavault/ui';
 import { OnboardingService } from '@vocavault/util';
 
 @Component({
   selector: 'lib-quiz-detail',
-  imports: [A11yModule, Button, FormsModule],
+  imports: [A11yModule, Button, InfoButton, InfoDrawer, FormsModule],
   templateUrl: './quiz-detail.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -75,6 +75,7 @@ export class QuizDetail {
 
   protected readonly directionLabels = QUIZ_DIRECTION_LABELS;
 
+  protected readonly activeInfoDrawer = signal<string | null>(null);
   protected readonly showWordPicker = signal(false);
   protected readonly wordFilter = signal('');
   protected readonly selectedWordIds = signal<string[]>([]);

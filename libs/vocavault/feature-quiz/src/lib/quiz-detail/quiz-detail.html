@@ -78,80 +78,93 @@
           Pick how to practice. Each mode drills the same words a different way.
         </p>
       }
-      @if (hasLockedModes()) {
-        <p id="locked-modes-hint" class="-mt-2 mb-3 text-sm text-slate-500 dark:text-slate-400" data-testid="locked-modes-hint">
-          Match and Multiple Choice need at least 4 words (4 with examples for example-based rounds). Add more words to unlock them.
-        </p>
-      }
       <div class="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          (click)="startMode('flashcard')"
-          [disabled]="isModeDisabled('flashcard')"
-          [class.opacity-40]="isModeDisabled('flashcard')"
-          [class.cursor-not-allowed]="isModeDisabled('flashcard')"
-          [style.animation-name]="isModeDisabled('flashcard') ? 'none' : null"
-          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
-          style="animation-delay: 0ms"
-        >
-          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
-            <i class="pi pi-clone text-vv-brand text-lg" aria-hidden="true"></i>
+        <div class="relative">
+          <button
+            type="button"
+            (click)="startMode('flashcard')"
+            [disabled]="isModeDisabled('flashcard')"
+            [class.opacity-40]="isModeDisabled('flashcard')"
+            [class.cursor-not-allowed]="isModeDisabled('flashcard')"
+            [style.animation-name]="isModeDisabled('flashcard') ? 'none' : null"
+            class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up w-full"
+            style="animation-delay: 0ms"
+          >
+            <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+              <i class="pi pi-clone text-vv-brand text-lg" aria-hidden="true"></i>
+            </div>
+            <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Flashcard</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Flip cards to reveal definitions</span>
+          </button>
+          <div class="absolute top-2 right-2 z-10">
+            <lib-info-button (click)="$event.stopPropagation(); activeInfoDrawer.set('mode-flashcard')" ariaLabel="About Flashcard" />
           </div>
-          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Flashcard</span>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Flip cards to reveal definitions</span>
-        </button>
-        <button
-          type="button"
-          (click)="startMode('multiple-choice')"
-          [disabled]="isModeDisabled('multiple-choice')"
-          [class.opacity-40]="isModeDisabled('multiple-choice')"
-          [class.cursor-not-allowed]="isModeDisabled('multiple-choice')"
-          [attr.title]="isModeDisabled('multiple-choice') ? 'Needs at least 4 words' : null"
-          [attr.aria-describedby]="isModeDisabled('multiple-choice') ? 'locked-modes-hint' : null"
-          [style.animation-name]="isModeDisabled('multiple-choice') ? 'none' : null"
-          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
-          style="animation-delay: 80ms"
-        >
-          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
-            <i class="pi pi-list-check text-vv-brand text-lg" aria-hidden="true"></i>
+        </div>
+        <div class="relative">
+          <button
+            type="button"
+            (click)="startMode('multiple-choice')"
+            [disabled]="isModeDisabled('multiple-choice')"
+            [class.opacity-40]="isModeDisabled('multiple-choice')"
+            [class.cursor-not-allowed]="isModeDisabled('multiple-choice')"
+            [attr.title]="isModeDisabled('multiple-choice') ? 'Needs at least 4 words' : null"
+            [style.animation-name]="isModeDisabled('multiple-choice') ? 'none' : null"
+            class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up w-full"
+            style="animation-delay: 80ms"
+          >
+            <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+              <i class="pi pi-list-check text-vv-brand text-lg" aria-hidden="true"></i>
+            </div>
+            <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Multiple Choice</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Pick the correct definition</span>
+          </button>
+          <div class="absolute top-2 right-2 z-10">
+            <lib-info-button (click)="$event.stopPropagation(); activeInfoDrawer.set('mode-multiple-choice')" ariaLabel="About Multiple Choice" />
           </div>
-          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Multiple Choice</span>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Pick the correct definition</span>
-        </button>
-        <button
-          type="button"
-          (click)="startMode('type')"
-          [disabled]="isModeDisabled('type')"
-          [class.opacity-40]="isModeDisabled('type')"
-          [class.cursor-not-allowed]="isModeDisabled('type')"
-          [style.animation-name]="isModeDisabled('type') ? 'none' : null"
-          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
-          style="animation-delay: 160ms"
-        >
-          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
-            <i class="pi pi-pen-to-square text-vv-brand text-lg" aria-hidden="true"></i>
+        </div>
+        <div class="relative">
+          <button
+            type="button"
+            (click)="startMode('type')"
+            [disabled]="isModeDisabled('type')"
+            [class.opacity-40]="isModeDisabled('type')"
+            [class.cursor-not-allowed]="isModeDisabled('type')"
+            [style.animation-name]="isModeDisabled('type') ? 'none' : null"
+            class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up w-full"
+            style="animation-delay: 160ms"
+          >
+            <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+              <i class="pi pi-pen-to-square text-vv-brand text-lg" aria-hidden="true"></i>
+            </div>
+            <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Type / Write</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Type the definition from memory</span>
+          </button>
+          <div class="absolute top-2 right-2 z-10">
+            <lib-info-button (click)="$event.stopPropagation(); activeInfoDrawer.set('mode-type')" ariaLabel="About Type / Write" />
           </div>
-          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Type / Write</span>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Type the definition from memory</span>
-        </button>
-        <button
-          type="button"
-          (click)="startMode('match')"
-          [disabled]="isModeDisabled('match')"
-          [class.opacity-40]="isModeDisabled('match')"
-          [class.cursor-not-allowed]="isModeDisabled('match')"
-          [attr.title]="isModeDisabled('match') ? 'Needs at least 4 words' : null"
-          [attr.aria-describedby]="isModeDisabled('match') ? 'locked-modes-hint' : null"
-          [style.animation-name]="isModeDisabled('match') ? 'none' : null"
-          class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up"
-          style="animation-delay: 240ms"
-        >
-          <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
-            <i class="pi pi-arrows-h text-vv-brand text-lg" aria-hidden="true"></i>
+        </div>
+        <div class="relative">
+          <button
+            type="button"
+            (click)="startMode('match')"
+            [disabled]="isModeDisabled('match')"
+            [class.opacity-40]="isModeDisabled('match')"
+            [class.cursor-not-allowed]="isModeDisabled('match')"
+            [attr.title]="isModeDisabled('match') ? 'Needs at least 4 words' : null"
+            [style.animation-name]="isModeDisabled('match') ? 'none' : null"
+            class="vv-card p-5 text-left transition-all enabled:hover:shadow-md enabled:hover:ring-2 enabled:hover:ring-vv-brand vv-focus-ring motion-safe:animate-fade-in-up w-full"
+            style="animation-delay: 240ms"
+          >
+            <div class="w-10 h-10 bg-vv-brandLight dark:bg-vv-brand/20 rounded-xl flex items-center justify-center mb-3">
+              <i class="pi pi-arrows-h text-vv-brand text-lg" aria-hidden="true"></i>
+            </div>
+            <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Match</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Connect words to definitions</span>
+          </button>
+          <div class="absolute top-2 right-2 z-10">
+            <lib-info-button (click)="$event.stopPropagation(); activeInfoDrawer.set('mode-match')" ariaLabel="About Match" />
           </div>
-          <span class="block text-sm font-semibold text-slate-800 dark:text-slate-100">Match</span>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Connect words to definitions</span>
-        </button>
+        </div>
       </div>
     </div>
 
@@ -292,6 +305,7 @@
       </div>
     </div>
   }
+  <lib-info-drawer [(topic)]="activeInfoDrawer" />
 } @else {
   <p class="text-slate-500 dark:text-slate-400">Quiz set not found.</p>
 }
