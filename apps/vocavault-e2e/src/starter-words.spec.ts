@@ -65,8 +65,7 @@ test.describe('Starter words & first-run add hint', () => {
   });
 
   test('add button pulses for the first word, then guides toward the first quiz', async ({ page }) => {
-    // The add-button hint lives off-home (home has its own welcome banner), so
-    // assert it on /dictionary.
+    // Assert the first-run hint from an empty /dictionary (clean starting state).
     await page.goto('/dictionary');
     // Wait for the shell to render before asserting on the hint (avoids a load-time race).
     await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
@@ -91,10 +90,14 @@ test.describe('Starter words & first-run add hint', () => {
     await expectAnimating(page.locator('.vv-cue-pulse').first(), 'vv-cue-pulse-ring');
     await expect(page.locator('.vv-cue-tooltip').first()).toContainText('build your first quiz');
 
-    // Home shows the onboarding banner instead, so the FAB hint is suppressed there.
+    // The cue now points at the + button on EVERY screen, home included
+    // (feat 5314369) — it is no longer suppressed there, and keeps steering
+    // toward building the first quiz alongside the welcome banner.
     await page.goto('/home');
     await expect(page.locator('lib-adaptive-nav nav')).toBeVisible();
-    await expect(page.locator('.vv-cue-pulse')).toHaveCount(0);
+    await expect(page.locator('.vv-cue-pulse').first()).toBeVisible();
+    await expectAnimating(page.locator('.vv-cue-pulse').first(), 'vv-cue-pulse-ring');
+    await expect(page.locator('.vv-cue-tooltip').first()).toContainText('build your first quiz');
   });
 });
 
