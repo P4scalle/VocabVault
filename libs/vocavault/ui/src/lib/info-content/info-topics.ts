@@ -165,7 +165,7 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
         text: 'Pick the correct definition from several options. Fast, and it builds recognition before you try writing answers from memory.',
       },
       {
-        text: 'Needs at least 4 words in the set so there are enough options to choose from — add more words to unlock it.',
+        text: 'Needs at least 4 words in the set so there are enough options to choose from. Add more words to unlock it.',
       },
     ],
   },
@@ -175,7 +175,7 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
     title: 'Type / Write',
     sections: [
       {
-        text: 'Type the definition from memory. The toughest mode and the fastest way to make a word stick — close answers are accepted, so small typos won\'t count against you.',
+        text: 'Type the definition from memory. The toughest mode and the fastest way to make a word stick. Close answers are accepted, so small typos won\'t count against you.',
       },
     ],
   },
@@ -185,10 +185,10 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
     title: 'Match',
     sections: [
       {
-        text: 'Pair each word with its definition against the clock. A quick, playful way to review a whole set at once — larger sets are split into rounds.',
+        text: 'Pair each word with its definition against the clock. A quick, playful way to review a whole set at once (larger sets are split into rounds).',
       },
       {
-        text: 'Needs at least 4 words in the set to make a round — add more words to unlock it.',
+        text: 'Needs at least 4 words in the set to make a round. Add more words to unlock it.',
       },
     ],
   },
