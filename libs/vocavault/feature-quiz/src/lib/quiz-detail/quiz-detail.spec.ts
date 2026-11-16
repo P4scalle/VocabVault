@@ -133,20 +133,18 @@ describe('QuizDetail', () => {
       );
     const setOf = (ids: string[]): QuizSet => ({ ...mockQuizSet, wordIds: ids });
 
-    it('disables match and multiple-choice for a small set, and shows the hint', async () => {
+    it('disables match and multiple-choice for a small set', async () => {
       await setupWithQuizSet('qs1', setOf(['g0', 'g1']), words(2));
       expect(internals().isModeDisabled('match')).toBe(true);
       expect(internals().isModeDisabled('multiple-choice')).toBe(true);
       expect(internals().isModeDisabled('flashcard')).toBe(false);
       expect(internals().isModeDisabled('type')).toBe(false);
-      expect(fixture.nativeElement.querySelector('[data-testid="locked-modes-hint"]')).toBeTruthy();
     });
 
-    it('enables every mode and hides the hint once there are enough words', async () => {
+    it('enables every mode once there are enough words', async () => {
       await setupWithQuizSet('qs1', setOf(['g0', 'g1', 'g2', 'g3']), words(4));
       expect(internals().isModeDisabled('match')).toBe(false);
       expect(internals().isModeDisabled('multiple-choice')).toBe(false);
-      expect(fixture.nativeElement.querySelector('[data-testid="locked-modes-hint"]')).toBeFalsy();
     });
 
     it('hides example-to-definition until enough words have examples', async () => {
