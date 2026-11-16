@@ -10,6 +10,10 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
  */
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
+  /* Retry once: under full parallel load the slow emulated-mobile projects
+     occasionally brush the per-test timeout. A pass-on-retry is reported as
+     "flaky" (suite still green); a genuine failure fails both attempts. */
+  retries: 1,
   use: {
     baseURL,
     /* Collect trace only on failure for debugging */
@@ -57,6 +61,9 @@ export default defineConfig({
     {
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
+      // Emulated mobile WebKit is the slowest project (~25s/test near the 30s
+      // default under full parallel load); give it headroom to avoid timeouts.
+      timeout: 60_000,
     },
   ],
 });
