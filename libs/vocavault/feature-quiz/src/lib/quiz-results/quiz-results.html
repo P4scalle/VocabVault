@@ -184,6 +184,18 @@
 <!-- Sticky bottom action bar -->
 <div class="vv-sticky-footer">
   <div class="vv-sticky-footer-content flex-col gap-2">
+    <!-- "See your progress" leads: it carries the first-run cue toward the Progress
+         section, so it sits on top. Extra bottom margin reserves room for the cue
+         tooltip below the button so it clears the action button underneath. -->
+    <div class="relative" [class.mb-10]="showResultsHint()">
+      <lib-button variant="secondary" [fullWidth]="true" [styleClass]="showResultsHint() ? 'vv-cue-pulse' : ''" (click)="seeProgress()">
+        <i class="pi pi-chart-line mr-2" aria-hidden="true"></i>
+        See your progress
+      </lib-button>
+      @if (showResultsHint()) {
+        <span class="vv-cue-tooltip absolute top-full left-1/2 mt-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">See how you did</span>
+      }
+    </div>
     @if (parentQuizSetId()) {
       <!-- Session quiz: "Next Session" is primary -->
       <lib-button [fullWidth]="true" (click)="nextSession()">
@@ -200,17 +212,6 @@
         Try Again
       </lib-button>
     }
-    <!-- Extra top margin reserves room for the cue tooltip above the button so it
-         clears "Try Again" above, while leaving any "Review" link below untouched. -->
-    <div class="relative" [class.mt-10]="showResultsHint()">
-      <lib-button variant="secondary" [fullWidth]="true" [styleClass]="showResultsHint() ? 'vv-cue-pulse' : ''" (click)="seeProgress()">
-        <i class="pi pi-chart-line mr-2" aria-hidden="true"></i>
-        See your progress
-      </lib-button>
-      @if (showResultsHint()) {
-        <span class="vv-cue-tooltip absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg dark:bg-slate-700" aria-hidden="true">See how you did</span>
-      }
-    </div>
     @if (!isPerfect()) {
       <button
         type="button"
