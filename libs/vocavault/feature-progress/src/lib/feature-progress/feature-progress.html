@@ -115,14 +115,7 @@
     data-testid="eloquence-card"
     class="vv-card p-8 flex flex-col items-center"
   >
-    <lib-circular-progress
-      [value]="eloquenceScore()"
-      [max]="100"
-      [size]="140"
-      [strokeWidth]="18"
-    >
-      <span class="text-5xl font-bold dark:text-slate-100">{{ animatedScore() }}</span>
-    </lib-circular-progress>
+    <lib-score-ring [value]="eloquenceScore()" />
     <div class="mt-4 flex items-center gap-1">
       <div class="px-4 py-1.5 rounded-full bg-vv-brandLight dark:bg-vv-brand/20">
         <p class="font-medium text-base text-vv-brand">Eloquence score</p>

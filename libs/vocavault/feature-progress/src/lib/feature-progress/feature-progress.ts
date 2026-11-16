@@ -14,12 +14,11 @@ import {
   MASTERY_CONFIG,
   Word,
 } from '@vocavault/data-access';
-import { CircularProgress, EmptyState, InfoButton, InfoDrawer } from '@vocavault/ui';
-import { animatedValue } from '@vocavault/util';
+import { EmptyState, InfoButton, InfoDrawer, ScoreRing } from '@vocavault/ui';
 
 @Component({
   selector: 'lib-feature-progress',
-  imports: [CircularProgress, EmptyState, InfoButton, InfoDrawer, RouterLink],
+  imports: [EmptyState, InfoButton, InfoDrawer, RouterLink, ScoreRing],
   templateUrl: './feature-progress.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -31,7 +30,6 @@ export class FeatureProgress {
   protected readonly activeInfoDrawer = signal<'mastery-levels' | 'eloquence' | 'stats' | null>(null);
 
   protected readonly eloquenceScore = this.progressService.eloquenceScore;
-  protected readonly animatedScore = animatedValue(this.eloquenceScore);
   protected readonly wordsLearned = this.progressService.wordsLearned;
   protected readonly masteryDistribution = this.progressService.masteryDistribution;
 
