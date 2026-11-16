@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-05-20T13:42:20.059Z"
-last_activity: 2026-05-20
+stopped_at: "Completed quick task 261116-p2i: import words view leak fixed via @if gate + 5 regression tests, 220 tests green"
+last_updated: "2026-11-16T17:27:58.019Z"
+last_activity: "2026-11-16 - Completed quick task 261116-oen: Example → Definition direction now requires every word complete (term + definition + example), all-or-nothing gate replacing the 3-example threshold, info (i) text updated, data-access 542 + feature-quiz 293 tests green"
 progress:
   total_phases: 16
   completed_phases: 14
@@ -155,6 +155,7 @@ Recent decisions affecting current work:
 - [Phase 14]: Budget tracked via existing fields (reviewCount===1 + lastReviewedAt today), no new persistence
 - [Phase 16]: Flag badge uses amber color scheme matching Needs attention badge for visual consistency
 - [Phase 16]: Playable count filters out incomplete words from quiz set card display
+- [Phase quick-261116-p2i]: @if outer gate owns mount/unmount of bulk-add; @defer (on immediate) handles code-split only — same pattern as add/edit view blocks
 
 ### Pending Todos
 
@@ -203,6 +204,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-11-16T10:05:00Z
-Stopped at: Completed quick task 261116-dve: per-mode info buttons on quiz-detail mode cards, locked-modes-hint removed, 293 tests + AOT build green
+Last session: 2026-11-16T17:27:51.019Z
+Stopped at: Completed quick task 261116-p2i: import words view leak fixed via @if gate + 5 regression tests, 220 tests green
 Resume file: None
