@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, computed, input, output, signal } from '@angular/core';
 import { Word, Folder, MASTERY_CONFIG, parseDefinition, POS_BADGE_CLASSES } from '@vocavault/data-access';
 import { HoldButton, SearchHighlightPipe } from '@vocavault/ui';
 
@@ -23,6 +23,28 @@ export class WordCard {
   readonly searchQuery = input('');
 
   protected readonly isFlagged = computed(() => this.word().flag != null);
+
+  /** Overflow (kebab) action menu — mirrors the folder-row popover pattern. */
+  protected readonly menuOpen = signal(false);
+
+  protected toggleMenu(event: Event): void {
+    event.stopPropagation();
+    this.menuOpen.update(open => !open);
+  }
+
+  protected closeMenu(): void {
+    this.menuOpen.set(false);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    if (this.menuOpen()) this.closeMenu();
+  }
+
+  @HostListener('document:keydown.escape')
+  onDocumentEscape(): void {
+    if (this.menuOpen()) this.closeMenu();
+  }
 
   protected readonly badgeClass = computed(() =>
     MASTERY_CONFIG[this.word().masteryLevel].badgeClass,

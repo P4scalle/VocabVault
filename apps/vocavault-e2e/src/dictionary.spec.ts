@@ -247,6 +247,8 @@ test.describe('Dictionary: Edit & Delete', () => {
   test('deleting a word from the card removes it', async ({ page }) => {
     // Enable reduced motion so hold-button uses instant keyboard confirm path
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    // Delete now lives inside the card's kebab overflow menu — open it first
+    await page.getByRole('button', { name: 'Options for ephemeral' }).click();
     const deleteBtn = page.getByRole('button', { name: /Hold to delete ephemeral/ });
     await deleteBtn.click(); // first click → confirming state (instant via reduced motion)
     await expect(deleteBtn).toHaveClass(/vv-hold-button--confirming/); // wait for confirm state

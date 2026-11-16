@@ -61,6 +61,11 @@ describe('WordCard', () => {
     fixture.componentInstance.deleteRequested.subscribe((w: MockWord) => deleted.push(w));
     fixture.detectChanges();
     await fixture.whenStable();
+    // Delete lives inside the kebab overflow menu — open it first
+    const kebab = fixture.nativeElement.querySelector('button[aria-haspopup="true"]');
+    kebab.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
     // HoldButton keyboard confirm: press Enter twice (first activates confirm mode, second confirms)
     const holdBtn = fixture.nativeElement.querySelector('lib-hold-button button');
     holdBtn.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
