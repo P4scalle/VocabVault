@@ -15,11 +15,18 @@ export const QUIZ_MODE_MIN_WORDS: Record<QuizMode, number> = {
 };
 
 /**
- * Minimum number of words that actually have an example before the
- * example-based direction is offered at all. Below this it degrades to a
- * tiny or empty quiz, so we hide it rather than launch a dead-end.
+ * A word can be played in the example-based direction only when it is fully
+ * complete: it has a term, a definition, and at least one example. The example
+ * direction is all-or-nothing (see `directionOfferable`) — rather than silently
+ * dropping incomplete words, we only offer it when every word qualifies.
  */
-export const EXAMPLE_DIRECTION_MIN_WORDS = 3;
+export function hasExamplePlayableContent(word: Word): boolean {
+  return (
+    word.word.trim().length > 0 &&
+    word.definition.trim().length > 0 &&
+    word.examples.length > 0
+  );
+}
 
 const ALL_MODES: readonly QuizMode[] = ['flashcard', 'multiple-choice', 'type', 'match'];
 const ALL_DIRECTIONS: readonly QuizDirection[] = [
@@ -36,7 +43,7 @@ const ALL_DIRECTIONS: readonly QuizDirection[] = [
  */
 export function playableWordCount(words: Word[], direction: QuizDirection): number {
   if (direction === 'example-to-definition') {
-    return words.filter((w) => w.examples.length > 0).length;
+    return words.filter(hasExamplePlayableContent).length;
   }
   return words.length;
 }
@@ -44,7 +51,9 @@ export function playableWordCount(words: Word[], direction: QuizDirection): numb
 /** Whether a direction clears its own minimum to be offered at all. */
 function directionOfferable(words: Word[], direction: QuizDirection): boolean {
   if (direction === 'example-to-definition') {
-    return playableWordCount(words, direction) >= EXAMPLE_DIRECTION_MIN_WORDS;
+    // All-or-nothing: offer only when EVERY word is complete (term + definition +
+    // example), so no word is ever silently excluded from an example quiz.
+    return words.length > 0 && words.every(hasExamplePlayableContent);
   }
   return words.length >= 1;
 }

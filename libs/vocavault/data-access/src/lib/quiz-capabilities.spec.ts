@@ -4,7 +4,6 @@ import {
   pickQuickQuiz,
   playableWordCount,
   viableModesForDirection,
-  EXAMPLE_DIRECTION_MIN_WORDS,
   QUIZ_MODE_MIN_WORDS,
 } from './quiz-capabilities';
 import { makeWord } from './testing/test-factories';
@@ -22,8 +21,17 @@ describe('playableWordCount', () => {
     expect(playableWordCount(words, 'mixed')).toBe(3);
   });
 
-  it('counts only words with examples for example-to-definition', () => {
+  it('counts only fully-complete words for example-to-definition', () => {
     const words = [...plainWords(5), ...exampleWords(2)];
+    expect(playableWordCount(words, 'example-to-definition')).toBe(2);
+  });
+
+  it('excludes words that have an example but are missing a term or definition', () => {
+    const words = [
+      ...exampleWords(2),
+      makeWord({ definition: '', examples: ['has example, no definition'] }),
+      makeWord({ word: '', examples: ['has example, no term'] }),
+    ];
     expect(playableWordCount(words, 'example-to-definition')).toBe(2);
   });
 });
@@ -54,22 +62,29 @@ describe('quizCapabilities', () => {
     expect(caps.modes).not.toContain('multiple-choice');
   });
 
-  it('hides example-to-definition when too few words have examples', () => {
-    const words = [...plainWords(10), ...exampleWords(EXAMPLE_DIRECTION_MIN_WORDS - 1)];
+  it('hides example-to-definition when any word is missing an example', () => {
+    // Most words have examples, but even one incomplete word hides the direction.
+    const words = [...exampleWords(9), ...plainWords(1)];
     expect(quizCapabilities(words).directions).not.toContain('example-to-definition');
   });
 
-  it('offers example-to-definition at the threshold, but not for modes needing more example words', () => {
-    // Exactly the example minimum (3), which is below the match/MC minimum (4).
-    const words = [...plainWords(20), ...exampleWords(EXAMPLE_DIRECTION_MIN_WORDS)];
+  it('offers example-to-definition (flashcard/type only) for a small all-complete set', () => {
+    // Three complete words: above flashcard/type minimum, below match/MC minimum (4).
+    const words = exampleWords(3);
     const caps = quizCapabilities(words);
     expect(caps.directions).toContain('example-to-definition');
-    // match/MC are viable for the roomy non-example directions...
-    expect(caps.pairs).toContainEqual({ mode: 'match', direction: 'definition-to-word' });
-    // ...but never paired with example-to-definition, which only has 3 playable words.
+    expect(caps.pairs).toContainEqual({ mode: 'flashcard', direction: 'example-to-definition' });
+    expect(caps.pairs).toContainEqual({ mode: 'type', direction: 'example-to-definition' });
+    // match/MC need 4 words, so they are not offered for this set at all.
     expect(caps.pairs).not.toContainEqual({ mode: 'match', direction: 'example-to-definition' });
     expect(caps.pairs).not.toContainEqual({ mode: 'multiple-choice', direction: 'example-to-definition' });
-    expect(caps.pairs).toContainEqual({ mode: 'flashcard', direction: 'example-to-definition' });
+  });
+
+  it('offers match/multiple-choice with example-to-definition when the complete set is large enough', () => {
+    const words = exampleWords(4);
+    const caps = quizCapabilities(words);
+    expect(caps.pairs).toContainEqual({ mode: 'match', direction: 'example-to-definition' });
+    expect(caps.pairs).toContainEqual({ mode: 'multiple-choice', direction: 'example-to-definition' });
   });
 
   it('every reported pair is self-consistent (mode viable for its direction)', () => {
@@ -98,8 +113,9 @@ describe('pickQuickQuiz', () => {
   });
 
   it('can never return a degenerate pair, across the whole rng range', () => {
-    // A dictionary with just enough example words to expose the cross-constraint.
-    const words = [...plainWords(10), ...exampleWords(EXAMPLE_DIRECTION_MIN_WORDS)];
+    // An all-complete set of exactly 3 words: example-to-definition is offered,
+    // but match/MC (which need 4) must never be paired with it.
+    const words = exampleWords(3);
     for (let r = 0; r < 1; r += 0.05) {
       const pick = pickQuickQuiz(words, () => r);
       expect(pick).not.toBeNull();

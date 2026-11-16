@@ -147,13 +147,18 @@ describe('QuizDetail', () => {
       expect(internals().isModeDisabled('multiple-choice')).toBe(false);
     });
 
-    it('hides example-to-definition until enough words have examples', async () => {
-      await setupWithQuizSet('qs1', setOf(['g0', 'g1']), words(2, true)); // 2 with examples (< 3)
+    it('hides example-to-definition when any word lacks an example', async () => {
+      // One complete word, one without an example — all-or-nothing hides the direction.
+      const mixed = [
+        makeWord({ id: 'g0', word: 'w0', definition: 'd0', examples: ['ex0'] }),
+        makeWord({ id: 'g1', word: 'w1', definition: 'd1', examples: [] }),
+      ];
+      await setupWithQuizSet('qs1', setOf(['g0', 'g1']), mixed);
       expect(internals().directionOptions()).not.toContain('example-to-definition');
     });
 
-    it('offers example-to-definition when enough words have examples', async () => {
-      await setupWithQuizSet('qs1', setOf(['g0', 'g1', 'g2']), words(3, true)); // 3 with examples
+    it('offers example-to-definition when every word has an example', async () => {
+      await setupWithQuizSet('qs1', setOf(['g0', 'g1']), words(2, true)); // all complete
       expect(internals().directionOptions()).toContain('example-to-definition');
     });
 

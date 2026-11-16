@@ -207,7 +207,7 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
         ],
       },
       {
-        text: 'Example → Definition only appears once at least 3 words in the set have an example sentence. You can add examples to any word anytime from the Dictionary.',
+        text: 'Example → Definition is available only when every word in the set has a term, a definition, and an example sentence. You can add examples to any word anytime from the Dictionary.',
       },
     ],
   },
