@@ -143,4 +143,53 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
       },
     ],
   },
+  'mode-flashcard': {
+    icon: 'pi pi-clone',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Flashcard',
+    sections: [
+      {
+        text: 'Flip each card to reveal its definition, check your recall, then move on. The lowest-pressure way to meet new words.',
+      },
+      {
+        text: "Works with any set size, so it's a good place to start before the other modes unlock.",
+      },
+    ],
+  },
+  'mode-multiple-choice': {
+    icon: 'pi pi-list-check',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Multiple Choice',
+    sections: [
+      {
+        text: 'Pick the correct definition from several options. Fast, and it builds recognition before you try writing answers from memory.',
+      },
+      {
+        text: 'Needs at least 4 words in the set so there are enough options to choose from — add more words to unlock it.',
+      },
+    ],
+  },
+  'mode-type': {
+    icon: 'pi pi-pen-to-square',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Type / Write',
+    sections: [
+      {
+        text: 'Type the definition from memory. The toughest mode and the fastest way to make a word stick — close answers are accepted, so small typos won\'t count against you.',
+      },
+    ],
+  },
+  'mode-match': {
+    icon: 'pi pi-arrows-h',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Match',
+    sections: [
+      {
+        text: 'Pair each word with its definition against the clock. A quick, playful way to review a whole set at once — larger sets are split into rounds.',
+      },
+      {
+        text: 'Needs at least 4 words in the set to make a round — add more words to unlock it.',
+      },
+    ],
+  },
 };
