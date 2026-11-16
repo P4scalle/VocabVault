@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { openAddSheet } from './helpers';
 
 async function clearStorage(page: Page) {
   await page.goto('/');
@@ -18,7 +19,7 @@ async function seedWords(page: Page, count = 4) {
     if (i === 0) {
       await page.getByRole('button', { name: 'Add Your First Term' }).click();
     } else {
-      await page.getByRole('button', { name: 'Add word or quiz' }).click();
+      await openAddSheet(page);
       await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
     }
     await expect(page.getByRole('heading', { name: 'Add Term' })).toBeVisible();
@@ -44,7 +45,7 @@ test.describe('Quiz: Create Quiz Set', () => {
   });
 
   test('shell "+" → Quiz navigates to create page', async ({ page }) => {
-    await page.getByRole('button', { name: 'Add word or quiz' }).click();
+    await openAddSheet(page);
     await page.getByRole('button', { name: 'Quiz Create a new quiz set.' }).click();
     await expect(page).toHaveURL(/\/quiz\/create/);
   });

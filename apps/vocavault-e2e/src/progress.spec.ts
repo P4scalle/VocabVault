@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { openAddSheet } from './helpers';
 
 async function clearStorage(page: Page) {
   await page.goto('/');
@@ -43,7 +44,7 @@ async function addWord(page: Page, term: string, definition: string, isFirst = f
   if (isFirst) {
     await page.getByRole('button', { name: 'Add Your First Term' }).click();
   } else {
-    await page.getByRole('button', { name: 'Add word or quiz' }).click();
+    await openAddSheet(page);
     await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
   }
   await expect(page.getByRole('heading', { name: 'Add Term' })).toBeVisible();
@@ -146,7 +147,7 @@ test.describe('Progress: updates after a quiz', () => {
     await expect(page).toHaveURL(/\/quiz\/[^/]+$/);
 
     // Play flashcards to completion
-    await page.getByRole('button', { name: /Flashcard/ }).click();
+    await page.getByRole('button', { name: /^Flashcard/ }).click();
     await expect(page).toHaveURL(/\/play\?mode=flashcard/);
 
     await page.locator('.flashcard').click();

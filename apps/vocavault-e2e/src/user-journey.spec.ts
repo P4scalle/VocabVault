@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { openAddSheet } from './helpers';
 
 async function clearStorage(page: Page) {
   await page.goto('/');
@@ -12,7 +13,7 @@ async function addWord(page: Page, term: string, definition: string, isFirst = f
   if (isFirst) {
     await page.getByRole('button', { name: 'Add Your First Term' }).click();
   } else {
-    await page.getByRole('button', { name: 'Add word or quiz' }).click();
+    await openAddSheet(page);
     await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
   }
   await expect(page.getByRole('heading', { name: 'Add Term' })).toBeVisible();
@@ -58,7 +59,7 @@ test.describe('User Journey: add words → quiz → progress', () => {
     await expect(page.getByText('My Vocab Quiz')).toBeVisible();
 
     // Step 3: Launch quiz in flashcard mode (already on detail page)
-    await page.getByRole('button', { name: /Flashcard/ }).click();
+    await page.getByRole('button', { name: /^Flashcard/ }).click();
     await expect(page).toHaveURL(/\/play\?mode=flashcard/);
 
     // Step 4: Play through the flashcard quiz
@@ -113,7 +114,7 @@ test.describe('User Journey: add words → quiz → progress', () => {
     await expect(page).toHaveURL(/\/quiz\//);
 
     // Play quiz, already on detail page, launch flashcard
-    await page.getByRole('button', { name: /Flashcard/ }).click();
+    await page.getByRole('button', { name: /^Flashcard/ }).click();
 
     // Card 1: got it
     await page.locator('.flashcard').click();

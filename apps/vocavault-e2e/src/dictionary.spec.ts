@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { openAddSheet } from './helpers';
 
 // Helper: clear localStorage before each test for isolation
 async function clearStorage(page: Page) {
@@ -8,7 +9,7 @@ async function clearStorage(page: Page) {
 
 // Helper: add a term using the shell "+" → Word flow (works when words already exist)
 async function addTermViaShell(page: Page, term: string, definition: string) {
-  await page.getByRole('button', { name: 'Add word or quiz' }).click();
+  await openAddSheet(page);
   await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
   await expect(page.getByRole('heading', { name: 'Add Term' })).toBeVisible();
   await page.getByRole('textbox', { name: /Term/ }).fill(term);
@@ -168,7 +169,7 @@ test.describe('Dictionary: Add via Shell Navigation', () => {
 
   test('shell "+" → Word opens add form on dictionary page', async ({ page }) => {
     await page.goto('/dictionary');
-    await page.getByRole('button', { name: 'Add word or quiz' }).click();
+    await openAddSheet(page);
     await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
 
     await expect(page).toHaveURL(/\/dictionary\?addWord=true/);
@@ -180,7 +181,7 @@ test.describe('Dictionary: Add via Shell Navigation', () => {
     await expect(page.getByRole('heading', { name: 'Dictionary', exact: true })).toBeVisible();
 
     // Use shell add button while already on dictionary
-    await page.getByRole('button', { name: 'Add word or quiz' }).click();
+    await openAddSheet(page);
     const wordAction = page.getByRole('button', { name: 'Word Add a new word to your' });
     await expect(wordAction).toBeVisible();
     await wordAction.click();
@@ -191,7 +192,7 @@ test.describe('Dictionary: Add via Shell Navigation', () => {
 
   test('REGRESSION: shell "+" → Word opens form from a different page', async ({ page }) => {
     await page.goto('/quiz');
-    await page.getByRole('button', { name: 'Add word or quiz' }).click();
+    await openAddSheet(page);
     await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
 
     // Should navigate to dictionary with form open
@@ -267,7 +268,7 @@ test.describe('Dictionary: Edit & Delete', () => {
   });
 
   test('cancel from add form returns to list without changes', async ({ page }) => {
-    await page.getByRole('button', { name: 'Add word or quiz' }).click();
+    await openAddSheet(page);
     await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
     await page.getByRole('textbox', { name: /Term/ }).fill('should-not-save');
     await page.getByRole('button', { name: 'Go back' }).click();

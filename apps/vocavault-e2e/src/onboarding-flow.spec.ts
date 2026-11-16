@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { openAddSheet } from './helpers';
 
 // Runs on every configured project (desktop + mobile), covering the guided
 // add-sheet gating and the "How it works" steps on all form factors.
@@ -28,16 +29,7 @@ async function mockDictionary(page: Page) {
 }
 
 // The add control is a mobile FAB ("Open add options") or a desktop pill
-// ("Add word or quiz") depending on viewport. Open whichever is visible.
-async function openAddSheet(page: Page) {
-  const mobileFab = page.getByRole('button', { name: 'Open add options' });
-  const desktopPill = page.getByRole('button', { name: 'Add word or quiz' });
-  if (await mobileFab.isVisible()) {
-    await mobileFab.click();
-  } else {
-    await desktopPill.click();
-  }
-}
+// ("Add word or quiz") depending on viewport — see openAddSheet in ./helpers.
 
 test.describe('Onboarding guided flow', () => {
   test.beforeEach(async ({ page }) => {

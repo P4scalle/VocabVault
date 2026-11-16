@@ -68,7 +68,7 @@ async function completeFirstLoop(page: Page) {
   await page.getByRole('button', { name: 'Create Quiz Set' }).click();
   await expect(page).toHaveURL(/\/quiz\//);
 
-  await page.getByRole('button', { name: /Flashcard/ }).click();
+  await page.getByRole('button', { name: /^Flashcard/ }).click();
   await expect(page).toHaveURL(/\/play\?mode=flashcard/);
   await page.locator('.flashcard').click();
   await page.getByRole('button', { name: 'Got it' }).click();
@@ -133,7 +133,7 @@ test.describe('Guided first-quiz onboarding cues', () => {
     await card.click();
     await expect(page).toHaveURL(/\/quiz\//);
 
-    await page.getByRole('button', { name: /Flashcard/ }).click();
+    await page.getByRole('button', { name: /^Flashcard/ }).click();
     await expect(page).toHaveURL(/\/play\?mode=flashcard/);
 
     // Single starter word => single card: flip, assess, finish.

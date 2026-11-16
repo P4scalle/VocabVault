@@ -617,8 +617,8 @@ test.describe('Responsive: Quiz Sticky Layout', () => {
     }
     await page.getByRole('button', { name: 'Create Quiz Set' }).click();
     // App navigates to quiz detail after creation, wait for it
-    await expect(page.getByRole('button', { name: /Multiple Choice/i })).toBeVisible({ timeout: 10000 });
-    await page.getByRole('button', { name: /Multiple Choice/i }).click();
+    await expect(page.getByRole('button', { name: /^Multiple Choice/i })).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: /^Multiple Choice/i }).click();
     // Wait for quiz to render
     await expect(page.getByText(/Question \d+ of \d+/)).toBeVisible();
   }
