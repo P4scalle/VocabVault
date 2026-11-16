@@ -34,6 +34,25 @@ describe('playableWordCount', () => {
     ];
     expect(playableWordCount(words, 'example-to-definition')).toBe(2);
   });
+
+  it('treats a blank or whitespace-only example as no example', () => {
+    const words = [
+      ...exampleWords(1),
+      makeWord({ examples: [''] }), // the ['']-floor the word form leaves behind
+      makeWord({ examples: ['   '] }),
+      makeWord({ examples: ['', '  ', 'a real one'] }), // one real example among blanks → counts
+    ];
+    expect(playableWordCount(words, 'example-to-definition')).toBe(2);
+  });
+
+  it('excludes words whose term or definition is only whitespace', () => {
+    const words = [
+      ...exampleWords(1),
+      makeWord({ word: '   ', examples: ['ex'] }),
+      makeWord({ definition: '\t', examples: ['ex'] }),
+    ];
+    expect(playableWordCount(words, 'example-to-definition')).toBe(1);
+  });
 });
 
 describe('quizCapabilities', () => {
@@ -65,6 +84,16 @@ describe('quizCapabilities', () => {
   it('hides example-to-definition when any word is missing an example', () => {
     // Most words have examples, but even one incomplete word hides the direction.
     const words = [...exampleWords(9), ...plainWords(1)];
+    expect(quizCapabilities(words).directions).not.toContain('example-to-definition');
+  });
+
+  it('hides example-to-definition when a word has an example but no definition', () => {
+    const words = [...exampleWords(3), makeWord({ definition: '', examples: ['ex'] })];
+    expect(quizCapabilities(words).directions).not.toContain('example-to-definition');
+  });
+
+  it('hides example-to-definition when a word has only a blank example', () => {
+    const words = [...exampleWords(3), makeWord({ examples: [''] })];
     expect(quizCapabilities(words).directions).not.toContain('example-to-definition');
   });
 

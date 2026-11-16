@@ -24,7 +24,9 @@ export function hasExamplePlayableContent(word: Word): boolean {
   return (
     word.word.trim().length > 0 &&
     word.definition.trim().length > 0 &&
-    word.examples.length > 0
+    // "Has an example" means a non-blank one — the same rule word-form uses when it
+    // saves (it filters by `trim().length > 0` and floors an emptied list to ['']).
+    word.examples.some((example) => example.trim().length > 0)
   );
 }
 
