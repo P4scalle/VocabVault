@@ -35,14 +35,32 @@ Per-quiz `examples.length > 0` filters in flashcard/type/match/quiz-direction ar
 harmless no-ops once the offering gate guarantees completeness; left as defensive
 filters. The `mixed` direction's per-word behavior is unchanged.
 
+## Edge-case hardening (follow-up)
+
+`hasExamplePlayableContent` now counts an example only when `trim().length > 0`
+(matching word-form's save rule), so the form's `['']`-floor or a whitespace-only
+example no longer makes a word eligible. Added tests for: blank/whitespace examples,
+one real example among blanks, whitespace-only term/definition, and gate-level
+(`quizCapabilities`) hiding when a word has an example but a blank definition or only
+a blank example.
+
+Verified every UI path to the example direction is gated: quiz-detail direction
+options (← quizCapabilities), Quick Quiz (← pickQuickQuiz ← quizCapabilities), and
+Smart Review (uses DEFAULT_QUIZ_DIRECTION = definition-to-word, never example). Only
+manual `?direction=` URL tampering is ungated, where per-quiz `examples.length > 0`
+filters remain as a safety net. The `mixed` direction's per-word example selection
+is a separate feature and intentionally unchanged.
+
 ## Verification
 
-- `npx nx test data-access` — 542 passed (incl. 15 quiz-capabilities).
+- `npx nx test data-access` — 546 passed (incl. 19 quiz-capabilities).
 - `npx nx test feature-quiz` — 293 passed (incl. 13 quiz-detail).
+- `npx nx build vocavault` — AOT build green.
 
-## Commit
+## Commits
 
 - `81cbaee` — feat(quiz): require every word complete for Example → Definition
+- `46261fb` — fix(quiz): count only non-blank examples; cover example-direction edge cases
 
 ## Follow-ups / notes
 
