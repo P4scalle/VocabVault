@@ -492,4 +492,58 @@ describe('FeatureShell', () => {
       expect(byId('quiz')?.disabled).toBe(true);
     });
   });
+
+  // ──────────────────────────────────────
+  // Guided tour replay reproduces the full first-run path (non-destructive)
+  // ──────────────────────────────────────
+
+  describe('guided tour preview (replay forces the full first-run path)', () => {
+    function internals() {
+      return fixture.componentInstance as unknown as FeatureShellInternals;
+    }
+    const byId = (id: string) => internals().addActions().find((a) => a.id === id);
+
+    it('pulses the add button with "Add your first word" during a replay, even when words exist', async () => {
+      // A user who already has a quizzable word (live step: create-quiz) turns the
+      // tour on. The preview must restart the FAB cue at the add-word welcome, not
+      // leave it on the "build your first quiz" copy.
+      TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
+      TestBed.inject(OnboardingService).replay();
+      await navigateTo('/dictionary');
+      expect(getMobileFab()?.classList.contains('vv-cue-pulse')).toBe(true);
+      const tooltip = fixture.nativeElement.querySelector('.vv-cue-tooltip');
+      expect(tooltip?.textContent).toContain('Add your first word');
+    });
+
+    it('highlights Word (not Quiz) during a replay without disabling the real buttons', async () => {
+      TestBed.inject(WordService).addWord({ word: 'Serendipity', pronunciation: '', definition: 'A happy accident', examples: [] });
+      TestBed.inject(OnboardingService).replay();
+      await navigateTo('/home');
+      expect(byId('word')?.highlight).toBe(true);
+      expect(byId('quiz')?.highlight).toBe(false);
+      // Non-destructive: a real word exists, so Quiz/Folder stay usable.
+      expect(byId('quiz')?.disabled).toBeFalsy();
+      expect(byId('folder')?.disabled).toBeFalsy();
+    });
+  });
+
+  describe('guided tour switch', () => {
+    function openSettings(): void {
+      (fixture.componentInstance as unknown as { toggleSettings: () => void }).toggleSettings();
+      fixture.detectChanges();
+    }
+
+    it('renders a switch whose aria-checked tracks the tour on/off state', async () => {
+      await navigateTo('/home');
+      openSettings();
+      const sw = fixture.nativeElement.querySelector('[role="switch"]');
+      expect(sw).toBeTruthy();
+      expect(sw.textContent).toContain('Guided tour');
+      expect(sw.getAttribute('aria-checked')).toBe('false');
+
+      TestBed.inject(OnboardingService).replay();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('[role="switch"]').getAttribute('aria-checked')).toBe('true');
+    });
+  });
 });

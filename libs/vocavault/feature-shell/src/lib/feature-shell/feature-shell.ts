@@ -47,20 +47,20 @@ export class FeatureShell implements OnInit {
   }
 
   /**
-   * Toggle the first-run getting-started tips from Settings. Turning them on
-   * replays the welcome tour (the same banner a brand-new user sees) and lands
-   * on home; turning them off hides it again, so a user who flipped it on by
-   * mistake can undo it from the same menu item.
+   * Toggle the first-run guided tour from Settings. Turning it on replays the
+   * full first-run path (the same welcome, add-button pulse and cues a brand-new
+   * user sees) and lands on home; turning it off hides it again, so a user who
+   * flipped it on by mistake can undo it from the same switch.
    */
   protected toggleGettingStarted(): void {
     this.settingsOpen.set(false);
     if (this.onboarding.replaying()) {
       this.onboarding.dismiss();
-      this.toast.show('Getting-started tips turned off');
+      this.toast.show('Guided tour turned off');
       return;
     }
     this.onboarding.replay();
-    this.toast.show('Getting-started tips are back on');
+    this.toast.show('Guided tour turned on');
     void this.router.navigate(['/home']);
   }
 
@@ -156,27 +156,33 @@ export class FeatureShell implements OnInit {
    * Pulse the add button to guide first-run users across two milestones: toward
    * adding a word while the dictionary is empty, then toward building their
    * first quiz once a quizzable word exists. Suppressed on add pages (the button
-   * is disabled there) and once onboarding is dismissed (currentStep is null).
+   * is disabled there) and once onboarding is dismissed (displayStep is null).
+   *
+   * Reads displayStep (not currentStep) so a Settings replay reproduces the full
+   * first-run path — the pulse returns even for a user who already has words.
    */
   protected readonly showAddHint = computed(() => {
     // Suppressed only on add pages (the button is disabled there) and once
     // onboarding is dismissed. Shown on home too, alongside the welcome banner,
     // so the cue points at the actual + button on every screen.
     if (this.fabDisabled()) return false;
-    const step = this.onboarding.currentStep();
+    const step = this.onboarding.displayStep();
     return step === 'add-word' || step === 'create-quiz';
   });
 
-  /** Tooltip copy for the add-button hint, matched to the current milestone. */
+  /** Tooltip copy for the add-button hint, matched to the guided step. */
   protected readonly addHintText = computed(() =>
-    this.onboarding.currentStep() === 'create-quiz'
+    this.onboarding.displayStep() === 'create-quiz'
       ? 'Now build your first quiz'
       : 'Add your first word',
   );
 
   protected readonly addActions = computed<readonly ActionDrawerItem[]>(() => {
     const hw = this.hasWords();
-    const step = this.onboarding.currentStep();
+    // displayStep (replay-aware) drives the "Start here" highlight so a tour
+    // replay points at Word again; disabled stays keyed to real data (hw /
+    // quizzable) so the preview never actually locks a real user's buttons.
+    const step = this.onboarding.displayStep();
     return [
       { id: 'word', label: 'Word', description: 'Add a new word to your dictionary.', iconClass: 'pi pi-file-edit', highlight: step === 'add-word' },
       { id: 'quiz', label: 'Quiz', description: 'Create a new quiz set.', iconClass: 'pi pi-bolt', disabled: !this.hasQuizzableWords(), highlight: step === 'create-quiz' },

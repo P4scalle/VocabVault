@@ -76,14 +76,11 @@ async function completeFirstLoop(page: Page) {
   await expect(page.getByText('Quiz Results')).toBeVisible();
 }
 
-async function showTipsFromSettings(page: Page) {
+// The getting-started tips are now a single "Guided tour" switch in Settings:
+// one control that toggles the tour on or off (aria-checked reflects state).
+async function toggleGuidedTour(page: Page) {
   await page.locator('button[aria-label="Settings menu"]:visible').click();
-  await page.locator('[role="menuitem"]:visible', { hasText: 'Show getting-started tips' }).click();
-}
-
-async function hideTipsFromSettings(page: Page) {
-  await page.locator('button[aria-label="Settings menu"]:visible').click();
-  await page.locator('[role="menuitem"]:visible', { hasText: 'Hide getting-started tips' }).click();
+  await page.locator('[role="switch"]:visible', { hasText: 'Guided tour' }).click();
 }
 
 test.describe('Guided first-quiz onboarding cues', () => {
@@ -164,7 +161,7 @@ test.describe('Guided first-quiz onboarding cues', () => {
   });
 
   // Regression guard for the reported bug: once the loop is complete the
-  // data-derived cues are all off, so "Show getting-started tips" must bring the
+  // data-derived cues are all off, so the Guided tour switch must bring the
   // tour back on its own (previously it only fired a toast and showed nothing).
   test('replays the tour from Settings after the loop is complete', async ({ page }) => {
     await completeFirstLoop(page);
@@ -175,9 +172,15 @@ test.describe('Guided first-quiz onboarding cues', () => {
     await expect(welcome).toBeHidden();
 
     // Replaying from Settings brings the welcome recap back.
-    await showTipsFromSettings(page);
+    await toggleGuidedTour(page);
     await expect(page).toHaveURL(/\/home$/);
     await expect(welcome).toBeVisible();
+
+    // Full first-run path, not just the banner: the add-button cue restarts at
+    // "Add your first word" even though the user already has words.
+    await expect(
+      page.locator('.vv-cue-tooltip', { hasText: 'Add your first word' }).first(),
+    ).toBeVisible();
 
     // And it survives a hard reload, because the replay flag is persisted.
     await page.reload();
@@ -200,12 +203,12 @@ test.describe('Guided first-quiz onboarding cues', () => {
     await expect(welcome).toBeHidden();
 
     // Turning tips on restarts at the welcome even though the user is mid-loop.
-    await showTipsFromSettings(page);
+    await toggleGuidedTour(page);
     await expect(page).toHaveURL(/\/home$/);
     await expect(welcome).toBeVisible();
 
-    // The same menu item is now a toggle: turning it off hides the banner again.
-    await hideTipsFromSettings(page);
+    // The same switch toggles it off again: the banner hides.
+    await toggleGuidedTour(page);
     await expect(welcome).toBeHidden();
   });
 });

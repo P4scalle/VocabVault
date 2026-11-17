@@ -57,12 +57,22 @@
             <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
             <button
               type="button"
-              role="menuitem"
-              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              role="switch"
+              [attr.aria-checked]="onboarding.replaying()"
+              class="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               (click)="toggleGettingStarted()"
             >
-              <i [class]="(onboarding.replaying() ? 'pi pi-eye-slash' : 'pi pi-compass') + ' text-sm text-slate-400'" aria-hidden="true"></i>
-              {{ onboarding.replaying() ? 'Hide getting-started tips' : 'Show getting-started tips' }}
+              <span class="flex items-center gap-3">
+                <i class="pi pi-compass text-sm text-slate-400" aria-hidden="true"></i>
+                Guided tour
+              </span>
+              <span
+                class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
+                [class]="onboarding.replaying() ? 'bg-vv-brand' : 'bg-slate-300 dark:bg-slate-600'"
+                aria-hidden="true"
+              >
+                <span class="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform" [class]="onboarding.replaying() ? 'translate-x-4' : 'translate-x-0.5'"></span>
+              </span>
             </button>
           </div>
         }
@@ -135,12 +145,22 @@
             <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
             <button
               type="button"
-              role="menuitem"
-              class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              role="switch"
+              [attr.aria-checked]="onboarding.replaying()"
+              class="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
               (click)="toggleGettingStarted()"
             >
-              <i [class]="(onboarding.replaying() ? 'pi pi-eye-slash' : 'pi pi-compass') + ' text-sm text-slate-400'" aria-hidden="true"></i>
-              {{ onboarding.replaying() ? 'Hide getting-started tips' : 'Show getting-started tips' }}
+              <span class="flex items-center gap-3">
+                <i class="pi pi-compass text-sm text-slate-400" aria-hidden="true"></i>
+                Guided tour
+              </span>
+              <span
+                class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
+                [class]="onboarding.replaying() ? 'bg-vv-brand' : 'bg-slate-300 dark:bg-slate-600'"
+                aria-hidden="true"
+              >
+                <span class="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform" [class]="onboarding.replaying() ? 'translate-x-4' : 'translate-x-0.5'"></span>
+              </span>
             </button>
           </div>
         }
@@ -187,12 +207,22 @@
           <div class="my-1 border-t border-slate-200 dark:border-slate-700"></div>
           <button
             type="button"
-            role="menuitem"
-            class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            role="switch"
+            [attr.aria-checked]="onboarding.replaying()"
+            class="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             (click)="toggleGettingStarted()"
           >
-            <i [class]="(onboarding.replaying() ? 'pi pi-eye-slash' : 'pi pi-compass') + ' text-sm text-slate-400'" aria-hidden="true"></i>
-            {{ onboarding.replaying() ? 'Hide getting-started tips' : 'Show getting-started tips' }}
+            <span class="flex items-center gap-3">
+              <i class="pi pi-compass text-sm text-slate-400" aria-hidden="true"></i>
+              Guided tour
+            </span>
+            <span
+              class="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors"
+              [class]="onboarding.replaying() ? 'bg-vv-brand' : 'bg-slate-300 dark:bg-slate-600'"
+              aria-hidden="true"
+            >
+              <span class="inline-block h-4 w-4 rounded-full bg-white shadow transition-transform" [class]="onboarding.replaying() ? 'translate-x-4' : 'translate-x-0.5'"></span>
+            </span>
           </button>
         </div>
       }
