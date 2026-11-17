@@ -81,6 +81,11 @@ async function showTipsFromSettings(page: Page) {
   await page.locator('[role="menuitem"]:visible', { hasText: 'Show getting-started tips' }).click();
 }
 
+async function hideTipsFromSettings(page: Page) {
+  await page.locator('button[aria-label="Settings menu"]:visible').click();
+  await page.locator('[role="menuitem"]:visible', { hasText: 'Hide getting-started tips' }).click();
+}
+
 test.describe('Guided first-quiz onboarding cues', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
@@ -177,5 +182,30 @@ test.describe('Guided first-quiz onboarding cues', () => {
     // And it survives a hard reload, because the replay flag is persisted.
     await page.reload();
     await expect(page.getByText('Welcome to VocaVault!')).toBeVisible();
+  });
+
+  // Regression guard for the EXACT reported bug: a user who is only part-way
+  // through the loop (has a quizzable word, so the live milestone is create-quiz)
+  // used to be dropped at the create-quiz nudge instead of the welcome. Turning
+  // tips on must restart at the welcome, and the menu item must toggle it off.
+  test('replays the welcome mid-loop and toggles it back off from the menu', async ({ page }) => {
+    await page.goto('/dictionary');
+    await page.getByTestId('starter-words').getByRole('button').first().click();
+    await expect(page.getByTestId('starter-words')).toBeHidden();
+
+    // A word exists, so the live milestone is past add-word: Home does not show
+    // the welcome on its own.
+    await page.goto('/home');
+    const welcome = page.getByText('Welcome to VocaVault!');
+    await expect(welcome).toBeHidden();
+
+    // Turning tips on restarts at the welcome even though the user is mid-loop.
+    await showTipsFromSettings(page);
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(welcome).toBeVisible();
+
+    // The same menu item is now a toggle: turning it off hides the banner again.
+    await hideTipsFromSettings(page);
+    await expect(welcome).toBeHidden();
   });
 });

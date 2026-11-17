@@ -59,10 +59,10 @@
               type="button"
               role="menuitem"
               class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              (click)="restartOnboarding()"
+              (click)="toggleGettingStarted()"
             >
-              <i class="pi pi-compass text-sm text-slate-400" aria-hidden="true"></i>
-              Show getting-started tips
+              <i [class]="(onboarding.replaying() ? 'pi pi-eye-slash' : 'pi pi-compass') + ' text-sm text-slate-400'" aria-hidden="true"></i>
+              {{ onboarding.replaying() ? 'Hide getting-started tips' : 'Show getting-started tips' }}
             </button>
           </div>
         }
@@ -137,10 +137,10 @@
               type="button"
               role="menuitem"
               class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              (click)="restartOnboarding()"
+              (click)="toggleGettingStarted()"
             >
-              <i class="pi pi-compass text-sm text-slate-400" aria-hidden="true"></i>
-              Show getting-started tips
+              <i [class]="(onboarding.replaying() ? 'pi pi-eye-slash' : 'pi pi-compass') + ' text-sm text-slate-400'" aria-hidden="true"></i>
+              {{ onboarding.replaying() ? 'Hide getting-started tips' : 'Show getting-started tips' }}
             </button>
           </div>
         }
@@ -189,10 +189,10 @@
             type="button"
             role="menuitem"
             class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-            (click)="restartOnboarding()"
+            (click)="toggleGettingStarted()"
           >
-            <i class="pi pi-compass text-sm text-slate-400" aria-hidden="true"></i>
-            Show getting-started tips
+            <i [class]="(onboarding.replaying() ? 'pi pi-eye-slash' : 'pi pi-compass') + ' text-sm text-slate-400'" aria-hidden="true"></i>
+            {{ onboarding.replaying() ? 'Hide getting-started tips' : 'Show getting-started tips' }}
           </button>
         </div>
       }

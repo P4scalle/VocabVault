@@ -182,10 +182,26 @@ describe('OnboardingService', () => {
       expect(service.displayStep()).toBe('add-word');
     });
 
-    it('displayStep tracks the real milestone when one is active', () => {
+    it('shows the welcome during a replay even when the user is mid-loop', () => {
+      // Regression: a user who already has words (live step: create-quiz) taps
+      // "show getting-started tips". The home banner must restart at the welcome
+      // — the same screen a brand-new, zero-word user sees — not drop them at
+      // their current milestone.
       wireContext(service, { totalWords: 1, quizzableWords: 1, quizSets: 0 });
+      expect(service.currentStep()).toBe('create-quiz');
+
       service.replay();
-      expect(service.displayStep()).toBe('create-quiz');
+      expect(service.displayStep()).toBe('add-word');
+    });
+
+    it('shows the welcome during a replay for a user with a full dictionary and quizzes', () => {
+      // Same guarantee regardless of how far along the user is (quiz built,
+      // none completed → live step start-quiz).
+      wireContext(service, { totalWords: 20, quizzableWords: 20, quizSets: 2, completedQuizzes: 0 });
+      expect(service.currentStep()).toBe('start-quiz');
+
+      service.replay();
+      expect(service.displayStep()).toBe('add-word');
     });
 
     it('endReplay stops the replay', () => {

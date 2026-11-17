@@ -46,10 +46,20 @@ export class FeatureShell implements OnInit {
     this.settingsOpen.update((v) => !v);
   }
 
-  /** Replay the first-run guided tour from Settings, then land on home where it starts. */
-  protected restartOnboarding(): void {
-    this.onboarding.replay();
+  /**
+   * Toggle the first-run getting-started tips from Settings. Turning them on
+   * replays the welcome tour (the same banner a brand-new user sees) and lands
+   * on home; turning them off hides it again, so a user who flipped it on by
+   * mistake can undo it from the same menu item.
+   */
+  protected toggleGettingStarted(): void {
     this.settingsOpen.set(false);
+    if (this.onboarding.replaying()) {
+      this.onboarding.dismiss();
+      this.toast.show('Getting-started tips turned off');
+      return;
+    }
+    this.onboarding.replay();
     this.toast.show('Getting-started tips are back on');
     void this.router.navigate(['/home']);
   }
@@ -126,7 +136,7 @@ export class FeatureShell implements OnInit {
   private readonly wordService = inject(WordService);
   private readonly quizService = inject(QuizService);
   private readonly progressService = inject(ProgressService);
-  private readonly onboarding = inject(OnboardingService);
+  protected readonly onboarding = inject(OnboardingService);
   private readonly hasWords = computed(() => this.wordService.words().length > 0);
   /** Quizzes need at least one *complete* word (incomplete ones can't be quizzed). */
   private readonly hasQuizzableWords = computed(() => this.wordService.quizzableWords().length > 0);

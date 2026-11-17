@@ -407,19 +407,37 @@ describe('FeatureShell', () => {
     });
   });
 
-  describe('restart onboarding from settings', () => {
-    it('replays the tour (un-dismiss + replay flag) and navigates home', async () => {
+  describe('getting-started tips toggle from settings', () => {
+    function toggle(): void {
+      (fixture.componentInstance as unknown as { toggleGettingStarted: () => void }).toggleGettingStarted();
+    }
+
+    it('turns the tips on (un-dismiss + replay flag) and navigates home', async () => {
       await navigateTo('/dictionary');
       const onboarding = TestBed.inject(OnboardingService);
       onboarding.dismiss();
       expect(onboarding.dismissed()).toBe(true);
 
       const navSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
-      (fixture.componentInstance as unknown as { restartOnboarding: () => void }).restartOnboarding();
+      toggle();
 
       expect(onboarding.dismissed()).toBe(false);
       expect(onboarding.replaying()).toBe(true);
       expect(navSpy).toHaveBeenCalledWith(['/home']);
+    });
+
+    it('turns the tips back off when toggled again, without navigating', async () => {
+      await navigateTo('/dictionary');
+      const onboarding = TestBed.inject(OnboardingService);
+      toggle();
+      expect(onboarding.replaying()).toBe(true);
+
+      const navSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      toggle();
+
+      expect(onboarding.replaying()).toBe(false);
+      expect(onboarding.dismissed()).toBe(true);
+      expect(navSpy).not.toHaveBeenCalled();
     });
   });
 

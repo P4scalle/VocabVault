@@ -67,12 +67,14 @@ export class OnboardingService {
   readonly replaying = computed(() => this._replay());
 
   /**
-   * The step the home banner should render. Normally the live milestone; during
-   * a replay by a user who has already finished the loop (currentStep null) it
-   * falls back to the 'add-word' welcome so the recap has an opening screen.
+   * The step the home banner should render. During a replay it is always the
+   * 'add-word' welcome, so toggling "getting-started tips" back on reproduces the
+   * exact first-run experience a brand-new (zero-word) user sees, no matter how
+   * far the user has actually progressed. Outside a replay it tracks the live
+   * milestone (or null once the loop is complete / guidance was dismissed).
    */
   readonly displayStep = computed<OnboardingStep>(
-    () => this.currentStep() ?? (this._replay() ? 'add-word' : null),
+    () => (this._replay() ? 'add-word' : this.currentStep()),
   );
 
   // Per-cue visibility. Each reads the replay flag once, so every screen asks
