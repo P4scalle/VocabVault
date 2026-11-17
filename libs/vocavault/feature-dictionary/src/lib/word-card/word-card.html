@@ -92,6 +92,7 @@
     @if (!selectable()) {
       <div
         class="relative flex-shrink-0"
+        tabindex="-1"
         (click)="$event.stopPropagation()"
         (keydown)="$event.stopPropagation()"
       >
