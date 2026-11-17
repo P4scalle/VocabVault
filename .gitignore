@@ -48,10 +48,8 @@ Thumbs.db
 
 vitest.config.*.timestamp*
 
-# Local planning notes & AI-assistant config (not part of the app)
+# Local planning notes (not part of the app)
 .planning/
-.codex/
-CLAUDE.md
 docs/testing-concepts-deep-dive.md
 
 # Debug logs
@@ -59,8 +57,6 @@ debug.log
 .vercel
 .vite/
 *.tsbuildinfo
-.claude/
-.claude/worktrees/
 .playwright-cli/
 
 # Playwright test artifacts (failure diffs, traces, videos — ephemeral)
