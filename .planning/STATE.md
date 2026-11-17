@@ -131,9 +131,9 @@ Recent decisions affecting current work:
 - [Phase 08-bulk-word-import-v2]: BulkImportService v2 drops xlsxHeaders/xlsxPreviewRows — XLSX uses first two columns directly (simpler, no column mapping UI)
 - [Phase 08-bulk-word-import-v2]: wordsOnlyMode signal toggles missing-def rows to ok status — words without definitions are imported as incomplete
 - [Phase 08-bulk-word-import-v2]: BulkAdd added to feature-dictionary imports[] despite RESEARCH Pitfall 2 — Angular compiler requires it; @defer still lazy-loads as separate 22.9kB chunk
-- [Phase 08]: BulkPreview uses PrimeIcons (pi pi-search, pi-spin pi-spinner) instead of lucideIcon — CLAUDE.md icon system override; matches existing bulk-input pattern
+- [Phase 08]: BulkPreview uses PrimeIcons (pi pi-search, pi-spin pi-spinner) instead of lucideIcon — project icon-system override; matches existing bulk-input pattern
 - [Phase 08]: collapse-on-expand via expandedRowId signal — CDK virtual scroll constraint; only one expanded row at a time
-- [Phase 08-bulk-word-import-v2]: PrimeIcons used throughout bulk-add success state and filter chip — lucideIcon directives replaced per CLAUDE.md mandate
+- [Phase 08-bulk-word-import-v2]: PrimeIcons used throughout bulk-add success state and filter chip — lucideIcon directives replaced per project icon-system convention
 - [Phase 08-bulk-word-import-v2]: Undo toast label is Undo new to clarify only newly added words are undoable — merged words cannot be reverted without storing old values
 - [Phase 10]: vi.clearAllMocks over vi.restoreAllMocks for module-level vi.mock preservation
 - [Phase 11]: CSS Grid 0fr->1fr for collapsible animation instead of @angular/animations (deprecated)
