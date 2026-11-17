@@ -15,10 +15,11 @@ import {
   Word,
 } from '@vocavault/data-access';
 import { EmptyState, InfoButton, InfoDrawer, ScoreRing } from '@vocavault/ui';
+import { OnboardingCelebration } from '../celebration/celebration';
 
 @Component({
   selector: 'lib-feature-progress',
-  imports: [EmptyState, InfoButton, InfoDrawer, RouterLink, ScoreRing],
+  imports: [EmptyState, InfoButton, InfoDrawer, RouterLink, ScoreRing, OnboardingCelebration],
   templateUrl: './feature-progress.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

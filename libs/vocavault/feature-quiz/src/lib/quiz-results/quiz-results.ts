@@ -254,9 +254,9 @@ export class QuizResults implements OnInit {
   }
 
   protected seeProgress(): void {
-    // Reaching Progress is the natural end of the guided tour, so a replay ends
-    // here (a no-op during a normal first-run, which is driven by live data).
-    this.onboarding.endReplay();
+    // Just navigate: the guided tour now ends when the completion celebration on
+    // the Progress page is acknowledged (OnboardingService.dismissCelebration),
+    // so a replay must stay active until then rather than ending here.
     void this.router.navigate(['/progress']);
   }
 

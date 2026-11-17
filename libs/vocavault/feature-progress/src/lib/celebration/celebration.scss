@@ -1,0 +1,45 @@
+:host {
+  display: contents;
+}
+
+.vv-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.vv-confetti-piece {
+  position: absolute;
+  top: -12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: vv-confetti-fall;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes vv-confetti-fall {
+  0% {
+    transform: translateY(-12px) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(380px) rotate(var(--vv-confetti-rot, 540deg));
+    opacity: 0;
+  }
+}
+
+// Respect the user's motion preference: no falling confetti, the static trophy
+// and copy carry the moment.
+@media (prefers-reduced-motion: reduce) {
+  .vv-confetti {
+    display: none;
+  }
+}

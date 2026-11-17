@@ -78,9 +78,48 @@ async function completeFirstLoop(page: Page) {
 
 // The getting-started tips are now a single "Guided tour" switch in Settings:
 // one control that toggles the tour on or off (aria-checked reflects state).
-async function toggleGuidedTour(page: Page) {
+function guidedTourSwitch(page: Page) {
+  return page.locator('[role="switch"]:visible', { hasText: 'Guided tour' });
+}
+async function openSettingsMenu(page: Page) {
   await page.locator('button[aria-label="Settings menu"]:visible').click();
-  await page.locator('[role="switch"]:visible', { hasText: 'Guided tour' }).click();
+}
+async function toggleGuidedTour(page: Page) {
+  await openSettingsMenu(page);
+  await guidedTourSwitch(page).click();
+}
+
+// Add a word through the add form (used mid-replay, when the starter-word chips
+// are gone because the dictionary already has words). Mirrors dictionary.spec.
+async function addWordViaForm(page: Page, term: string, definition: string) {
+  // Open the add control, waiting for whichever the viewport exposes (mobile FAB
+  // vs desktop pill) so we never race the post-navigation render.
+  const fab = page.getByRole('button', { name: 'Open add options' });
+  const pill = page.getByRole('button', { name: 'Add word or quiz' });
+  await expect(fab.or(pill)).toBeVisible();
+  await (await fab.isVisible() ? fab : pill).click();
+  await page.getByRole('button', { name: 'Word Add a new word to your' }).click();
+  await expect(page.getByRole('heading', { name: 'Add Term' })).toBeVisible();
+  await page.getByRole('textbox', { name: /Term/ }).fill(term);
+  await page.getByRole('textbox', { name: /Definition/ }).fill(definition);
+  await page.getByRole('button', { name: 'Add Term' }).click();
+  // The form stays in add mode and clears; a toast confirms the save.
+  await expect(page.getByText('Term added!').first()).toBeVisible();
+}
+
+// Build a one-word (single-card) quiz and play it to the results screen.
+async function buildAndCompleteSingleCardQuiz(page: Page, name: string) {
+  await page.goto('/quiz/create');
+  await page.getByLabel('Name').fill(name);
+  await page.locator('input[type="checkbox"]').first().check();
+  await page.getByRole('button', { name: 'Create Quiz Set' }).click();
+  await expect(page).toHaveURL(/\/quiz\//);
+  await page.getByRole('button', { name: /^Flashcard/ }).click();
+  await expect(page).toHaveURL(/\/play\?mode=flashcard/);
+  await page.locator('.flashcard').click();
+  await page.getByRole('button', { name: 'Got it' }).click();
+  await page.getByRole('button', { name: 'Finish' }).click();
+  await expect(page.getByText('Quiz Results')).toBeVisible();
 }
 
 test.describe('Guided first-quiz onboarding cues', () => {
@@ -158,6 +197,16 @@ test.describe('Guided first-quiz onboarding cues', () => {
     const progressTip = page.locator('.vv-cue-tooltip', { hasText: 'See how you did' });
     await expect(progressTip).toBeVisible();
     await expectAnimating(progressTip, 'vv-cue-tooltip-bounce');
+
+    // Stage 5 (finale): following the cue to Progress triggers the completion
+    // celebration — the congratulations dialog with confetti — which closes the
+    // loop. It appears on Progress, not on the results page.
+    await progressBtn.click();
+    await expect(page).toHaveURL(/\/progress$/);
+    await expect(page.getByText('Congratulations!')).toBeVisible();
+    await expect(page.getByText("You're now expanding your vocabulary!")).toBeVisible();
+    await page.getByRole('button', { name: 'Continue' }).click();
+    await expect(page.getByText('Congratulations!')).toBeHidden();
   });
 
   // Regression guard for the reported bug: once the loop is complete the
@@ -210,5 +259,43 @@ test.describe('Guided first-quiz onboarding cues', () => {
     // The same switch toggles it off again: the banner hides.
     await toggleGuidedTour(page);
     await expect(welcome).toBeHidden();
+  });
+
+  // Full REPLAY scenario: a returning user turns the tour back on, re-walks the
+  // whole loop, and the tour ends with the completion celebration on Progress —
+  // after which the Guided tour switch reads OFF again. The tour must stay on for
+  // the entire re-walk and end ONLY on completion.
+  test('replays the entire tour to a second celebration, then the switch is off', async ({ page }) => {
+    // A returning user who already finished the loop once.
+    await completeFirstLoop(page);
+
+    // Turn the tour back on from Settings — it restarts at the welcome.
+    await page.goto('/home');
+    await toggleGuidedTour(page);
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(page.getByText('Welcome to VocaVault!')).toBeVisible();
+
+    // Re-walk the loop during the replay: add a word, build a quiz, complete it.
+    await page.goto('/dictionary');
+    await addWordViaForm(page, 'replayword', 'a word added during the replay');
+    await buildAndCompleteSingleCardQuiz(page, 'Replay Quiz');
+
+    // The tour is STILL on at the finish line: the results cue pulses, which for
+    // a returning user only happens while a replay is active. It ends only on
+    // completion, not before.
+    const progressBtn = page.getByRole('button', { name: 'See your progress' });
+    await expect(progressBtn).toBeVisible();
+    await expectAnimating(progressBtn, 'vv-cue-pulse-ring');
+
+    // Following the cue to Progress fires the celebration again and ends the tour.
+    await progressBtn.click();
+    await expect(page).toHaveURL(/\/progress$/);
+    await expect(page.getByText('Congratulations!')).toBeVisible();
+    await page.getByRole('button', { name: 'Continue' }).click();
+    await expect(page.getByText('Congratulations!')).toBeHidden();
+
+    // The Guided tour switch now reads OFF again in the menu (tour completed).
+    await openSettingsMenu(page);
+    await expect(guidedTourSwitch(page)).toHaveAttribute('aria-checked', 'false');
   });
 });

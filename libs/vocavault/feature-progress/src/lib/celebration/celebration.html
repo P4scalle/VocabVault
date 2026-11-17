@@ -1,0 +1,33 @@
+<lib-bottom-sheet [visible]="onboarding.showCelebration()" (visibleChange)="onClose()">
+  <!-- Confetti burst: purely decorative, hidden under reduced motion. -->
+  <div class="vv-confetti" aria-hidden="true">
+    @for (p of confetti; track $index) {
+      <span
+        class="vv-confetti-piece"
+        [style.left.%]="p.left"
+        [style.width.px]="p.size"
+        [style.height.px]="p.size"
+        [style.background]="p.color"
+        [style.animation-delay.ms]="p.delayMs"
+        [style.animation-duration.ms]="p.durationMs"
+        [style.--vv-confetti-rot]="p.rotate + 'deg'"
+      ></span>
+    }
+  </div>
+
+  <div class="relative flex flex-col items-center text-center">
+    <div
+      class="w-16 h-16 rounded-2xl bg-gradient-to-br from-vv-brand/20 to-emerald-400/20 shadow-sm flex items-center justify-center mb-4"
+    >
+      <i class="pi pi-trophy text-3xl text-vv-brand" aria-hidden="true"></i>
+    </div>
+    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Congratulations!</h2>
+    <p class="text-sm text-slate-600 dark:text-slate-400 max-w-xs mb-1 leading-relaxed">
+      You're now expanding your vocabulary!
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-500 max-w-xs mb-5 leading-relaxed">
+      You added words, practiced them, and completed your first quiz.
+    </p>
+    <lib-button styleClass="px-8 vv-btn-press" (click)="onClose()">Continue</lib-button>
+  </div>
+</lib-bottom-sheet>
