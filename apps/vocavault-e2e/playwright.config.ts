@@ -3,7 +3,10 @@ import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
 
 // For CI, you may want to set BASE_URL to the deployed application.
-const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
+// Dedicated e2e port (4300) so a manually-running dev server on 4200 can never
+// be silently reused in place of the freshly-built static artifact.
+const E2E_PORT = 4300;
+const baseURL = process.env['BASE_URL'] || `http://localhost:${E2E_PORT}`;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -31,11 +34,18 @@ export default defineConfig({
       animations: 'disabled',
     },
   },
-  /* Run your local dev server before starting the tests */
+  /* Serve the PRODUCTION build statically — not the dev server. The dev server
+     compiles lazy routes on first navigation, and under full parallel load
+     (10 workers × 5 engines) those on-demand compiles starve the slow emulated
+     WebKit projects into timeouts. A pre-built static artifact removes the
+     compile entirely: deterministic, and faster overall.
+     reuseExistingServer:false + a dedicated port guarantees every run tests a
+     freshly-built bundle, never a stale/wrong leftover server. */
   webServer: {
-    command: 'npx nx run vocavault:serve',
-    url: 'http://localhost:4200',
-    reuseExistingServer: true,
+    command: `npx nx run vocavault:serve-static --port=${E2E_PORT}`,
+    url: `http://localhost:${E2E_PORT}`,
+    reuseExistingServer: false,
+    timeout: 120_000,
     cwd: workspaceRoot,
   },
   projects: [
@@ -57,6 +67,9 @@ export default defineConfig({
     {
       name: 'Mobile Chrome',
       use: { ...devices['Pixel 5'] },
+      // Emulated mobile is the slowest tier under parallel load; give it the
+      // same headroom as Mobile Safari so it can't brush the 30s default.
+      timeout: 60_000,
     },
     {
       name: 'Mobile Safari',
