@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: "Completed quick task 261116-p2i: import words view leak fixed via @if gate + 5 regression tests, 220 tests green"
-last_updated: "2026-11-16T17:27:58.019Z"
-last_activity: "2026-11-16 - Completed quick task 261116-oen: Example → Definition direction now requires every word complete (term + definition + example), all-or-nothing gate replacing the 3-example threshold, info (i) text updated, data-access 542 + feature-quiz 293 tests green"
+status: complete
+stopped_at: "v1.0 milestone complete — Phase 15 (structured-definition-display, verified 8/8) and Phase 16 (word-flag-system, verified 16/16) both passed; all 16 phases done"
+last_updated: "2026-11-20T00:00:00.000Z"
+last_activity: "2026-11-20 - Reconciled STATE with reality: Phases 15 & 16 both verified passed (VERIFICATION.md), milestone at 16/16 phases. Pruned 11 stale local branches (patch-equivalent to master) + dropped 2 orphaned stashes (superseded bulk-import WIP)."
 progress:
   total_phases: 16
-  completed_phases: 14
+  completed_phases: 16
   total_plans: 45
-  completed_plans: 43
-  percent: 95
+  completed_plans: 45
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-07)
 
 **Core value:** Fast loop from "I found a new word" to "I know this word"
-**Current focus:** Phase 15 — structured-definition-display
+**Current focus:** v1.0 milestone complete (16/16 phases) — awaiting next milestone or backlog promotion
 
 ## Current Position
 
-Phase: 16
-Plan: Not started
-Status: Executing Phase 15
-Last activity: 2026-11-16 - Completed quick task 261116-p2i: Import Words (bulk-add) view no longer leaks/stacks below the dictionary list — wrapped the import `@defer` in `@if (view()==='import')` so it unmounts on every exit path; added 5 regression tests (verified RED on pre-fix template); 220 feature-dictionary tests + AOT build green
+Phase: 16 (final) — complete
+Plan: All plans complete (45/45)
+Status: v1.0 milestone complete — all 16 phases verified
+Last activity: 2026-11-20 - Reconciled STATE with reality. Phase 15 (structured-definition-display) verified 8/8 and Phase 16 (word-flag-system) verified 16/16 — both passed. Housekeeping: pruned 11 stale local branches (git cherry confirmed patch-equivalent to master) and dropped 2 orphaned stashes (bulk-import WIP, already shipped). Parked WIP remains in stash@{0} (dictionary/quiz component-extraction refactor, 2026-11-02).
 
-Progress: [=========~] 95%
+Progress: [==========] 100%
 
 ## Performance Metrics
 
