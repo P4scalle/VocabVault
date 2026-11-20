@@ -47,12 +47,34 @@ interface DictionaryApiEntry {
 }
 
 const API_BASE = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
-const FALLBACK_API_BASE =
-  'https://api.freedictionaryapi.com/api/v1/entries/en/';
+// freedictionaryapi.com has NO `api.` subdomain (that host does not resolve)
+// and returns a different JSON shape than the primary — see fallbackToEntry.
+const FALLBACK_API_BASE = 'https://freedictionaryapi.com/api/v1/entries/en/';
 const RATE_LIMIT_COOLDOWN_MS = 30_000;
 const CACHE_MAX_SIZE = 200;
 
 import { POS_ABBREVS } from './pos-abbreviations';
+import { normalizeHeadword } from './normalize-term';
+
+// ── Fallback API (freedictionaryapi.com) response shape ──────────────
+// Deliberately different from DictionaryApiEntry; fallbackToEntry() adapts it.
+interface FreeDictPronunciation {
+  type?: string;
+  text?: string;
+}
+interface FreeDictSense {
+  definition?: string;
+  examples?: string[];
+}
+interface FreeDictEntry {
+  partOfSpeech?: string;
+  pronunciations?: FreeDictPronunciation[];
+  senses?: FreeDictSense[];
+}
+interface FreeDictResponse {
+  word?: string;
+  entries?: FreeDictEntry[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class DictionaryApiService {
@@ -71,7 +93,10 @@ export class DictionaryApiService {
       throw new Error('Please enter a word to look up');
     }
 
-    const encoded = encodeURIComponent(trimmed.toLowerCase());
+    // Defense-in-depth: strip any list marker ("1. apple") before querying,
+    // regardless of how the term reached us (import, manual entry, retry).
+    const headword = normalizeHeadword(trimmed);
+    const encoded = encodeURIComponent(headword.toLowerCase());
 
     const cached = this.cache.get(encoded);
     if (cached) return cached;
@@ -181,15 +206,24 @@ export class DictionaryApiService {
     sourceIndex?: 0 | 1,
   ): Promise<DictionaryLookupResult> {
     const url = `${baseUrl}${encoded}`;
+    const isFallback = baseUrl === FALLBACK_API_BASE;
 
     try {
       const response = await firstValueFrom(
-        this.http.get<DictionaryApiEntry[]>(url).pipe(timeout(10000)),
+        this.http.get<unknown>(url).pipe(timeout(10000)),
       );
 
-      const entry = response?.[0];
+      const entry = isFallback
+        ? this.fallbackToEntry(response as FreeDictResponse)
+        : (response as DictionaryApiEntry[] | null)?.[0];
 
-      if (!entry || !Array.isArray(entry.meanings)) {
+      if (isFallback) {
+        // freedictionaryapi returns HTTP 200 with { entries: [] } for unknown
+        // words (not a 404), so an empty result IS a "not found".
+        if (!entry || entry.meanings.length === 0) {
+          throw new Error('Word not found. Try a different spelling.');
+        }
+      } else if (!entry || !Array.isArray(entry.meanings)) {
         throw new Error('Unexpected response from dictionary API');
       }
 
@@ -221,6 +255,38 @@ export class DictionaryApiService {
       if (error instanceof Error) throw error;
       throw new Error('Dictionary lookup failed.');
     }
+  }
+
+  /**
+   * Adapt the fallback API's shape into the primary's DictionaryApiEntry so all
+   * downstream normalization (normalizeEntry / extractAllMeanings / merge) is
+   * reused unchanged. Each fallback entry is one part-of-speech; we fold them
+   * into a single synthetic entry whose meanings[] mirrors the primary.
+   * Meanings with no usable definition are dropped so an empty result is
+   * correctly treated as "not found" by the caller.
+   */
+  private fallbackToEntry(data: FreeDictResponse): DictionaryApiEntry {
+    const entries = data?.entries ?? [];
+
+    const phonetics: DictionaryApiPhonetic[] = [];
+    for (const entry of entries) {
+      for (const p of entry.pronunciations ?? []) {
+        if (p.text) phonetics.push({ text: p.text });
+      }
+    }
+
+    const meanings: DictionaryApiMeaning[] = entries
+      .map((entry) => ({
+        partOfSpeech: entry.partOfSpeech ?? '',
+        definitions: (entry.senses ?? [])
+          .filter((s): s is FreeDictSense & { definition: string } =>
+            Boolean(s.definition?.trim()),
+          )
+          .map((s) => ({ definition: s.definition, example: s.examples?.[0] })),
+      }))
+      .filter((m) => m.definitions.length > 0);
+
+    return { word: data?.word ?? '', phonetics, meanings };
   }
 
   private normalizeEntry(entry: DictionaryApiEntry): DictionaryLookupResult {

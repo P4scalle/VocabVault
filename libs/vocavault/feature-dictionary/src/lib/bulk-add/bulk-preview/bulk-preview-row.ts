@@ -10,7 +10,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { BulkImportService, ParsedRow } from '@vocavault/data-access';
+import { BulkImportService, ParsedRow, LOOKUP_FAILURE_LABEL } from '@vocavault/data-access';
 
 @Component({
   selector: 'lib-bulk-preview-row',
@@ -28,6 +28,12 @@ export class BulkPreviewRow {
   readonly expand = output<void>();
 
   protected readonly lookingUp = signal(false);
+
+  // Human-readable reason for a failed lookup (empty when none / unknown).
+  protected readonly failureLabel = computed(() => {
+    const reason = this.row().lookupError;
+    return reason ? LOOKUP_FAILURE_LABEL[reason] : '';
+  });
 
   // Inline edit signals (populated on expand)
   protected readonly editWord = signal('');

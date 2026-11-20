@@ -13,7 +13,37 @@ describe('DictionaryApiService', () => {
   let httpController: HttpTestingController;
 
   const API_BASE = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
-  const FALLBACK_API_BASE = 'https://api.freedictionaryapi.com/api/v1/entries/en/';
+  const FALLBACK_API_BASE = 'https://freedictionaryapi.com/api/v1/entries/en/';
+
+  /**
+   * Convert a primary-shaped mock into the REAL freedictionaryapi.com shape so
+   * fallback requests are flushed with the genuine wire format the service
+   * parses. Tests keep expressing data in the familiar primary shape; this
+   * guarantees the fallback parser is exercised against production reality.
+   */
+  type PrimaryEntry = {
+    word?: string;
+    phonetics?: { text?: string }[];
+    meanings?: { partOfSpeech?: string; definitions?: { definition: string; example?: string }[] }[];
+  };
+  const toFreeDict = (primary: unknown) => {
+    const entry = (Array.isArray(primary) ? primary[0] : primary) as PrimaryEntry | undefined;
+    if (!entry) return { word: '', entries: [] };
+    const pronunciations = (entry.phonetics ?? [])
+      .filter((p) => p.text)
+      .map((p) => ({ type: 'ipa', text: p.text }));
+    return {
+      word: entry.word ?? '',
+      entries: (entry.meanings ?? []).map((m) => ({
+        partOfSpeech: m.partOfSpeech ?? '',
+        pronunciations,
+        senses: (m.definitions ?? []).map((d) => ({
+          definition: d.definition,
+          examples: d.example ? [d.example] : [],
+        })),
+      })),
+    };
+  };
 
   const mockApiResponse = [
     {
@@ -65,13 +95,17 @@ describe('DictionaryApiService', () => {
 
   const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 
-  /** Flush both primary and fallback with the same response for single-mode tests */
+  /** Flush both primary and fallback with the same (primary-shaped) response. */
   const flushBoth = (word: string, response: unknown) => {
     httpController.expectOne(API_BASE + word).flush(response);
-    httpController.expectOne(FALLBACK_API_BASE + word).flush(response);
+    httpController.expectOne(FALLBACK_API_BASE + word).flush(toFreeDict(response));
   };
 
-  /** Flush both with different responses/statuses */
+  /**
+   * Flush both with different responses/statuses. The fallback SUCCESS body is
+   * converted to the real freedict shape; when a fallbackStatus (error) is
+   * given, the raw body is flushed as-is (error bodies aren't parsed).
+   */
   const flushPrimaryAndFallback = (
     word: string,
     primaryResponse: unknown,
@@ -90,7 +124,7 @@ describe('DictionaryApiService', () => {
     if (fallbackStatus) {
       fallbackReq.flush(fallbackResponse, fallbackStatus);
     } else {
-      fallbackReq.flush(fallbackResponse);
+      fallbackReq.flush(toFreeDict(fallbackResponse));
     }
   };
 
@@ -182,7 +216,7 @@ describe('DictionaryApiService', () => {
       const fallbackReq = httpController.expectOne(FALLBACK_API_BASE + 'ephemeral');
 
       primaryReq.flush(mockApiResponse);
-      fallbackReq.flush(mockApiResponse);
+      fallbackReq.flush(toFreeDict(mockApiResponse));
 
       const result: DictionaryLookupResult = await promise;
       expect(result.pronunciation).toBe('/\u026A\u02C8f\u025Bm.\u0259r.\u0259l/');
@@ -408,7 +442,7 @@ describe('DictionaryApiService', () => {
       httpController.expectOne(API_BASE + 'hello')
         .error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
       httpController.expectOne(FALLBACK_API_BASE + 'hello')
-        .flush(simpleResponse());
+        .flush(toFreeDict(simpleResponse()));
 
       const result = await promise;
       expect(result.definition).toBe('n. A greeting.');
@@ -713,7 +747,7 @@ describe('DictionaryApiService', () => {
       const promise2 = service.lookupWord('world');
       httpController.expectNone(API_BASE + 'world');
       httpController.expectOne(FALLBACK_API_BASE + 'world')
-        .flush(simpleResponse('world', 'The earth.'));
+        .flush(toFreeDict(simpleResponse('world', 'The earth.')));
 
       const result = await promise2;
       expect(result.definition).toBe('n. The earth.');
@@ -787,14 +821,15 @@ describe('DictionaryApiService', () => {
 
     // --- Error handling in lookupFrom ---
 
+    // Primary-parsing failures: the fallback is flushed as rate-limited (429) so
+    // the primary's error is the one that surfaces (a RateLimitError fallback is
+    // skipped in single-mode error precedence), isolating the primary path.
+    const fallback429 = { status: 429, statusText: 'Too Many Requests' } as const;
+
     it('should throw "Unexpected response" when API returns empty array', async () => {
       const promise = service.lookupWord('test');
 
-      flushPrimaryAndFallback(
-        'test',
-        [],
-        [],
-      );
+      flushPrimaryAndFallback('test', [], null, undefined, fallback429);
 
       await expect(promise).rejects.toThrow('Unexpected response from dictionary API');
     });
@@ -803,15 +838,16 @@ describe('DictionaryApiService', () => {
       const promise = service.lookupWord('test');
 
       const badResponse = [{ word: 'test', phonetics: [] }];
-      flushBoth('test', badResponse);
+      flushPrimaryAndFallback('test', badResponse, null, undefined, fallback429);
 
       await expect(promise).rejects.toThrow('Unexpected response from dictionary API');
     });
 
     it('should re-throw Error instances from unexpected errors', async () => {
-      // When response is null (not an array), the code throws "Unexpected response"
+      // When the primary response is null (not an array), the code throws
+      // "Unexpected response"; fallback is rate-limited so that error surfaces.
       const promise = service.lookupWord('test');
-      flushBoth('test', null);
+      flushPrimaryAndFallback('test', null, null, undefined, fallback429);
 
       await expect(promise).rejects.toThrow('Unexpected response from dictionary API');
     });
@@ -851,7 +887,7 @@ describe('DictionaryApiService', () => {
       await tick();
 
       httpController.expectOne(FALLBACK_API_BASE + 'hello')
-        .flush(simpleResponse());
+        .flush(toFreeDict(simpleResponse()));
 
       const result = await promise;
       expect(result.definition).toBe('n. A greeting.');
@@ -867,7 +903,7 @@ describe('DictionaryApiService', () => {
       await tick();
 
       httpController.expectOne(FALLBACK_API_BASE + 'rare')
-        .flush(simpleResponse('rare', 'Not common.'));
+        .flush(toFreeDict(simpleResponse('rare', 'Not common.')));
 
       const result = await promise;
       expect(result.definition).toBe('n. Not common.');
@@ -908,7 +944,7 @@ describe('DictionaryApiService', () => {
       await tick();
 
       httpController.expectOne(FALLBACK_API_BASE + 'rare')
-        .flush(simpleResponse('rare', 'Not common.'));
+        .flush(toFreeDict(simpleResponse('rare', 'Not common.')));
 
       const result = await promise;
       expect(result.definition).toBe('n. Not common.');
@@ -931,7 +967,7 @@ describe('DictionaryApiService', () => {
       await tick();
 
       httpController.expectOne(FALLBACK_API_BASE + 'rare')
-        .flush(simpleResponse('rare', 'Not common.'));
+        .flush(toFreeDict(simpleResponse('rare', 'Not common.')));
 
       const result = await promise;
       expect(result.definition).toBe('n. Not common.');
@@ -959,13 +995,13 @@ describe('DictionaryApiService', () => {
       await tick();
 
       httpController.expectOne(FALLBACK_API_BASE + 'hello')
-        .flush(simpleResponse());
+        .flush(toFreeDict(simpleResponse()));
       await promise1;
 
       const promise2 = service.lookupWord('world', { bulkMode: true });
       httpController.expectNone(API_BASE + 'world');
       httpController.expectOne(FALLBACK_API_BASE + 'world')
-        .flush(simpleResponse('world', 'The earth.'));
+        .flush(toFreeDict(simpleResponse('world', 'The earth.')));
 
       const result = await promise2;
       expect(result.definition).toBe('n. The earth.');
@@ -982,7 +1018,7 @@ describe('DictionaryApiService', () => {
           .flush(null, { status: 429, statusText: 'Too Many Requests' });
         await tick();
         httpController.expectOne(FALLBACK_API_BASE + 'hello')
-          .flush(simpleResponse());
+          .flush(toFreeDict(simpleResponse()));
         await promise1;
 
         mockNow += 31_000;
@@ -1041,7 +1077,11 @@ describe('DictionaryApiService', () => {
 
     // --- Normalization ---
 
-    it('should normalize fallback API response the same as primary', async () => {
+    it('should normalize the REAL freedictionaryapi.com shape into the primary result', async () => {
+      // Regression guard: this is the genuine wire shape of the fallback API
+      // (word \u2192 entries[] \u2192 { partOfSpeech, pronunciations[], senses[] }), NOT
+      // the primary's shape. If the fallback contract drifts, this test breaks
+      // instead of the bug silently reappearing in production.
       const promise = service.lookupWord('dummy', { bulkMode: true });
       httpController.expectOne(API_BASE + 'dummy')
         .flush(null, { status: 429, statusText: 'Too Many Requests' });
@@ -1049,25 +1089,38 @@ describe('DictionaryApiService', () => {
       await tick();
 
       httpController.expectOne(FALLBACK_API_BASE + 'dummy')
-        .flush([
-          {
-            word: 'dummy',
-            phonetics: [{ text: '/\u02C8d\u028Cmi/' }],
-            meanings: [
-              {
-                partOfSpeech: 'noun',
-                definitions: [
-                  { definition: 'A model or replica.', example: 'A crash test dummy.' },
-                ],
-              },
-            ],
-          },
-        ]);
+        .flush({
+          word: 'dummy',
+          entries: [
+            {
+              partOfSpeech: 'noun',
+              pronunciations: [{ type: 'ipa', text: '/\u02C8d\u028Cmi/' }],
+              senses: [
+                { definition: 'A model or replica.', examples: ['A crash test dummy.'] },
+              ],
+            },
+          ],
+        });
 
       const result = await promise;
       expect(result.pronunciation).toBe('/\u02C8d\u028Cmi/');
       expect(result.definition).toBe('n. A model or replica.');
       expect(result.examples).toEqual(['A crash test dummy.']);
+    });
+
+    it('should treat a fallback 200 with empty entries as "Word not found"', async () => {
+      // freedictionaryapi.com returns HTTP 200 + { entries: [] } for unknown
+      // words \u2014 this must surface as not-found, never a blank "ready" result.
+      const promise = service.lookupWord('xyznotaword', { bulkMode: true });
+      httpController.expectOne(API_BASE + 'xyznotaword')
+        .flush(null, { status: 404, statusText: 'Not Found' });
+
+      await tick();
+
+      httpController.expectOne(FALLBACK_API_BASE + 'xyznotaword')
+        .flush({ word: 'xyznotaword', entries: [] });
+
+      await expect(promise).rejects.toThrow('Word not found. Try a different spelling.');
     });
 
     // --- Unexpected response ---

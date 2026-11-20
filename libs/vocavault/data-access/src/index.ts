@@ -10,6 +10,8 @@ export * from './lib/folder.service';
 export * from './lib/quiz.service';
 export * from './lib/progress.service';
 export * from './lib/dictionary-api.service';
+export * from './lib/normalize-term';
+export * from './lib/lookup-error';
 export * from './lib/definition-validation';
 export * from './lib/pos-abbreviations';
 export * from './lib/parse-definition';

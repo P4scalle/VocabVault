@@ -27,7 +27,7 @@
       </span>
       <span class="vv-badge text-2xs px-1.5 py-0.5 rounded-full" [class]="badgeConfig().classes">
         @if (row().lookupFailed) {
-          <i class="pi pi-wifi-off text-[10px] mr-0.5" aria-hidden="true"></i>Lookup failed
+          <i class="pi pi-wifi-off text-[10px] mr-0.5" aria-hidden="true"></i>Lookup failed@if (failureLabel()) {: {{ failureLabel() }}}
         } @else {
           {{ badgeConfig().label }}
         }

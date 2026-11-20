@@ -3,6 +3,8 @@ import { WordService } from './word.service';
 import { DictionaryApiService, RateLimitError } from './dictionary-api.service';
 import { BulkParseService, DetectedDelimiter } from './bulk-parse.service';
 import { isPlaceholderDefinition } from './definition-validation';
+import { normalizeHeadword } from './normalize-term';
+import { classifyLookupError, LookupFailureReason } from './lookup-error';
 
 export type { DetectedDelimiter } from './bulk-parse.service';
 
@@ -16,6 +18,8 @@ export interface ParsedRow {
   duplicateOf?: string;
   duplicateAction?: 'keep' | 'skip' | 'merge';
   lookupFailed?: boolean;
+  /** Why the lookup failed, so the UI can show a reason instead of a bare flag. */
+  lookupError?: LookupFailureReason;
 }
 
 const DRAFT_KEY = 'vv_bulk_draft';
@@ -106,7 +110,7 @@ export class BulkImportService {
     const parsedRows: ParsedRow[] = data
       .filter((row) => row.length > 0 && (row[0]?.trim()))
       .map((row) => {
-        const word = (row[0] != null ? String(row[0]) : '').trim().replace(/\s+/g, ' ');
+        const word = normalizeHeadword(row[0] != null ? String(row[0]) : '');
         const definition = (row[1] != null ? String(row[1]) : '').trim().replace(/\s+/g, ' ');
         // A word is only "ok" if it has a real, non-placeholder definition
         const status: ParsedRow['status'] =
@@ -309,7 +313,7 @@ export class BulkImportService {
         if (error instanceof RateLimitError) {
           rateLimitedIds.add(row.id);
         } else {
-          pendingUpdates.set(row.id, { lookupFailed: true });
+          pendingUpdates.set(row.id, { lookupFailed: true, lookupError: classifyLookupError(error) });
           notFound++;
           this.lookupResults.update(r => [...r, { word: row.word, found: false }]);
         }
@@ -411,7 +415,7 @@ export class BulkImportService {
             if (error instanceof RateLimitError) {
               // stays in rateLimitedIds for next round
             } else {
-              retryPending.set(row.id, { lookupFailed: true });
+              retryPending.set(row.id, { lookupFailed: true, lookupError: classifyLookupError(error) });
               rateLimitedIds.delete(row.id);
               notFound++;
               this.lookupResults.update(r => [...r, { word: row.word, found: false }]);
@@ -458,7 +462,7 @@ export class BulkImportService {
         rows.map((r) => {
           if (rateLimitedIds.has(r.id)) {
             notFound++;
-            return { ...r, lookupFailed: true };
+            return { ...r, lookupFailed: true, lookupError: 'rate-limited' as const };
           }
           return r;
         })
@@ -488,11 +492,12 @@ export class BulkImportService {
         examples: result.examples,
         status: 'ok',
         lookupFailed: false,
+        lookupError: undefined,
       });
       this.currentLookupWord.set('');
       return true;
-    } catch {
-      this.updateRow(id, { lookupFailed: true });
+    } catch (error) {
+      this.updateRow(id, { lookupFailed: true, lookupError: classifyLookupError(error) });
       this.currentLookupWord.set('');
       return false;
     }

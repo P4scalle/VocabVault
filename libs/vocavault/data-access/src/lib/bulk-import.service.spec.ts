@@ -119,6 +119,31 @@ describe('BulkImportService', () => {
       expect(rows[1].status).toBe('ok');
       expect(rows[2].status).toBe('missing-def');
     });
+
+    it('strips numbered list markers from the word', () => {
+      service.parseText('1. Apple\n2. Banana\n141. Spoon');
+      const words = service.rows().map((r) => r.word);
+      expect(words).toEqual(['Apple', 'Banana', 'Spoon']);
+    });
+
+    it('strips bullet, dash, paren, and letter-ordinal markers', () => {
+      service.parseText('- Apple\n• Banana\n3) Orange\na. Grape');
+      const words = service.rows().map((r) => r.word);
+      expect(words).toEqual(['Apple', 'Banana', 'Orange', 'Grape']);
+    });
+
+    it('strips the marker but keeps the definition when both are present', () => {
+      service.parseText('1. Apple - a round fruit');
+      expect(service.rows()[0].word).toBe('Apple');
+      expect(service.rows()[0].definition).toBe('a round fruit');
+      expect(service.rows()[0].status).toBe('ok');
+    });
+
+    it('does not strip decimals or marker-like words without trailing space', () => {
+      service.parseText('1.5 liters\nnote');
+      const words = service.rows().map((r) => r.word);
+      expect(words).toEqual(['1.5 liters', 'note']);
+    });
   });
 
   describe('detectDelimiter', () => {
@@ -515,6 +540,14 @@ describe('BulkImportService', () => {
       const result = await service.lookupOne(rowId);
       expect(result).toBe(false);
       expect(service.rows()[0].lookupFailed).toBe(true);
+    });
+
+    it('should record the failure reason so it is never silent', async () => {
+      lookupWordMock.mockRejectedValue(new Error('Word not found. Try a different spelling.'));
+      service.parseText('xyzqwerty');
+      const rowId = service.rows()[0].id;
+      await service.lookupOne(rowId);
+      expect(service.rows()[0].lookupError).toBe('not-found');
     });
   });
 
