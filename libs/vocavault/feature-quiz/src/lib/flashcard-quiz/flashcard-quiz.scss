@@ -1,21 +1,31 @@
 .flashcard {
   perspective: 1000px;
-  /* Grid stack: the card sizes to its (taller) face instead of a fixed height,
-     so it grows with content. A min-height keeps short cards substantial. */
-  display: grid;
-  min-height: 13rem;
+
+  /* Canonical 3D flip card: a stable, viewport-bounded height with the two
+     faces ABSOLUTELY positioned and overlaid (inset: 0).
+
+     Why absolute (and not a grid/flow stack): a 3D flip relies on the browser
+     culling the back-facing layer via backface-visibility. That culling is only
+     reliable when each face is its own positioned compositing layer. A CSS grid
+     stack (grid-area: 1/1) looks identical in Chrome/Firefox but on iOS Safari
+     the rotated back face is NOT culled and bleeds through the front, mirrored.
+     That was the regression introduced by commit bd68117 (grid-area + overflow
+     on the faces). Do NOT move these faces back to grid or normal flow.
+
+     Height is a fixed clamp rather than content-driven on purpose: absolute
+     faces can't size the container, and a fixed height means the card never
+     resizes when you flip it and can never push the sticky footer off-screen.
+     Long content scrolls inside .flashcard__scroll instead of growing the card. */
+  height: clamp(13rem, 40vh, 32rem);
 
   @media (min-width: 768px) {
-    min-height: 15rem;
+    height: clamp(15rem, 40vh, 32rem);
   }
 
   &__inner {
-    /* Single-cell grid stack: both faces share one cell (grid-area 1/1) so they
-       stay stacked for the flip while the card sizes to the taller one.
-       NOTE: overflow must stay `visible` here — any other value flattens
-       transform-style: preserve-3d and breaks the flip. */
-    display: grid;
-    min-height: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
     transition: transform 0.4s ease;
     transform-style: preserve-3d;
   }
@@ -26,20 +36,13 @@
 
   &__front,
   &__back {
-    grid-area: 1 / 1;
-    min-width: 0;
-    min-height: 0;
-    /* The cap lives on the face (a flex column, per the template classes).
-       max-height + the flex scroll child below is the reliable "grow to fit,
-       then scroll" mechanism: the card grows with content up to this cap, then
-       the inner region scrolls — guaranteeing the card never exceeds the
-       viewport so the sticky footer stays in view regardless of content size. */
-    max-height: min(60vh, 32rem);
+    position: absolute;
+    inset: 0;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    /* Clip the scroll content to the rounded border. Safe here: these faces are
-       leaves in the 3D context, so clipping them does not flatten the flip. */
-    overflow: hidden;
+    /* No overflow here: a non-visible overflow on a face can create a stacking
+       context that defeats backface-visibility on iOS Safari. The inner
+       .flashcard__scroll region owns all overflow/scrolling instead. */
   }
 
   &__back {
@@ -54,7 +57,7 @@
      default to min-height:auto, which would defeat overflow and let long text
      bleed out of the card. Content is centered via auto margins on the child
      (see template) so it scrolls cleanly from the top when it overflows rather
-     than clipping — a plain justify-center would hide the top of long text. */
+     than clipping; a plain justify-center would hide the top of long text. */
   &__scroll {
     flex: 1 1 auto;
     min-height: 0;
