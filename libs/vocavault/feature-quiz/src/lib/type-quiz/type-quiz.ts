@@ -16,10 +16,11 @@ import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } fro
 import { fuzzyMatch, FuzzyResult } from '@vocavault/util';
 import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
 import { buildQuizItem, filterAndNotify, QuizItem, normalizeDirection } from '../quiz-shared/quiz-direction';
+import { QuizExplainSheet, QuizExplanation } from '../quiz-shared/quiz-explain-sheet';
 
 @Component({
   selector: 'lib-type-quiz',
-  imports: [FormsModule, Button, EmptyState, QuizFlagBanner, QuizProgressBar],
+  imports: [FormsModule, Button, EmptyState, QuizFlagBanner, QuizProgressBar, QuizExplainSheet],
   templateUrl: './type-quiz.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -49,6 +50,15 @@ export class TypeQuiz implements HasUnsavedChanges {
   }
 
   protected readonly flaggedIds = signal<Set<string>>(new Set());
+
+  /** Opens the "Why?" explanation sheet after a wrong answer (null = closed). */
+  protected readonly explainData = signal<QuizExplanation | null>(null);
+
+  protected explainWrong(): void {
+    const w = this.currentWord();
+    if (!w || this.isCorrect() || this.isClose()) return;
+    this.explainData.set({ word: w, picked: this.userInput() });
+  }
 
   private readonly finishing = signal(false);
   readonly hasUnsavedChanges = computed(() => !this.finishing() && (this.userInput().trim().length > 0 || this.correctCount() > 0 || this.wrongWordIds().length > 0));
@@ -144,6 +154,7 @@ export class TypeQuiz implements HasUnsavedChanges {
     this.userInput.set('');
     this.isSubmitted.set(false);
     this.lastFuzzyResult.set(null);
+    this.explainData.set(null);
     this.focusInput();
   }
 

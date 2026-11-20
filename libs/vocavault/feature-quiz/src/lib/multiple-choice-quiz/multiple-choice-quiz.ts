@@ -13,6 +13,7 @@ import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } fro
 import { shuffle } from '@vocavault/util';
 import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
 import { buildQuizItem, filterAndNotify, getAnswer, normalizeDirection } from '../quiz-shared/quiz-direction';
+import { QuizExplainSheet, QuizExplanation } from '../quiz-shared/quiz-explain-sheet';
 
 interface MCQuestion {
   word: Word;
@@ -25,7 +26,7 @@ interface MCQuestion {
 
 @Component({
   selector: 'lib-multiple-choice-quiz',
-  imports: [Button, EmptyState, QuizFlagBanner, QuizProgressBar],
+  imports: [Button, EmptyState, QuizFlagBanner, QuizProgressBar, QuizExplainSheet],
   templateUrl: './multiple-choice-quiz.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -53,6 +54,16 @@ export class MultipleChoiceQuiz implements HasUnsavedChanges {
   }
 
   protected readonly flaggedIds = signal<Set<string>>(new Set());
+
+  /** Opens the "Why?" explanation sheet after a wrong answer (null = closed). */
+  protected readonly explainData = signal<QuizExplanation | null>(null);
+
+  protected explainWrong(): void {
+    const q = this.currentQuestion();
+    const picked = this.selectedOptionIndex();
+    if (picked === null || picked === q.correctIndex) return;
+    this.explainData.set({ word: q.word, picked: q.options[picked] });
+  }
 
   private readonly finishing = signal(false);
   readonly hasUnsavedChanges = computed(() => !this.finishing() && (this.selectedOptionIndex() !== null || this.correctCount() > 0 || this.wrongWordIds().length > 0));
@@ -156,6 +167,7 @@ export class MultipleChoiceQuiz implements HasUnsavedChanges {
   protected next(): void {
     this.currentIndex.update((i) => i + 1);
     this.selectedOptionIndex.set(null);
+    this.explainData.set(null);
   }
 
   protected finish(): void {

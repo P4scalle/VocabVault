@@ -208,6 +208,66 @@ describe('TypeQuiz', () => {
     expect(component.hasUnsavedChanges()).toBe(true);
   });
 
+  // ── Wrong-answer explanation ──
+
+  type FuzzyResult = { exact: boolean; close: boolean; similarity: number };
+  const forceResult = (result: FuzzyResult, typed = 'nonsense') => {
+    const comp = component as unknown as ComponentAny;
+    (comp['userInput'] as { set(v: string): void }).set(typed);
+    (comp['lastFuzzyResult'] as { set(v: FuzzyResult): void }).set(result);
+    (comp['isSubmitted'] as { set(v: boolean): void }).set(true);
+    fixture.detectChanges();
+  };
+
+  it('shows a "Why?" affordance with the correct answer when wrong', () => {
+    forceResult({ exact: false, close: false, similarity: 0.1 });
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Not quite');
+    expect(text).toContain('Why?');
+    expect(text).toContain('Ephemeral'); // correct answer shown inline
+  });
+
+  it('shows an amber "Close enough" line (no "Why?") when close but not exact', () => {
+    forceResult({ exact: false, close: true, similarity: 0.85 }, 'Ephemerl');
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Close enough');
+    expect(text).not.toContain('Why?');
+  });
+
+  it('shows a green textarea border and no box or "Why?" when correct', () => {
+    forceResult({ exact: true, close: false, similarity: 1 }, 'Ephemeral');
+    const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
+    expect(textarea.classList).toContain('border-green-500');
+    const text = fixture.nativeElement.textContent;
+    expect(text).not.toContain('Why?');
+    expect(text).not.toContain('Not quite');
+  });
+
+  it('opens the explanation sheet when "Why?" is tapped on a wrong answer', async () => {
+    forceResult({ exact: false, close: false, similarity: 0.1 });
+    const whyBtn = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+    ).find((b) => b.textContent?.includes('Why?'));
+    whyBtn?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const panel = fixture.nativeElement.querySelector('[data-testid="bottom-sheet-panel"]');
+    expect(panel).not.toBeNull();
+    expect(panel?.textContent).toContain('Ephemeral');
+  });
+
+  it('explainWrong() is a no-op on a correct or close answer', () => {
+    const comp = component as unknown as ComponentAny;
+    forceResult({ exact: true, close: false, similarity: 1 }, 'Ephemeral');
+    (comp['explainWrong'] as () => void).call(component);
+    expect((comp['explainData'] as () => unknown)()).toBeNull();
+
+    forceResult({ exact: false, close: true, similarity: 0.85 }, 'Ephemerl');
+    (comp['explainWrong'] as () => void).call(component);
+    expect((comp['explainData'] as () => unknown)()).toBeNull();
+  });
+
   describe('0-word degenerate state', () => {
     it('renders empty state when quiz set has 0 words', async () => {
       TestBed.resetTestingModule();

@@ -43,20 +43,18 @@
       <div class="sr-only" role="status" aria-live="polite">{{ selectedOptionIndex() === currentQuestion()!.correctIndex ? 'Correct!' : 'Incorrect' }}</div>
 
       @if (selectedOptionIndex() !== currentQuestion()!.correctIndex) {
-        <div class="rounded-xl border-2 border-red-400 bg-red-50 dark:bg-red-900/30 p-4" role="status">
-          <p class="flex items-center gap-2 font-semibold text-red-700 dark:text-red-400">
-            <i class="pi pi-times-circle" aria-hidden="true"></i> Incorrect
-          </p>
-          <p class="mt-2 text-sm text-slate-700 dark:text-slate-300">
-            <span class="font-medium">Correct answer:</span> {{ currentQuestion()!.options[currentQuestion()!.correctIndex] }}
-          </p>
-        </div>
-      } @else {
-        <div class="rounded-xl border-2 border-green-400 bg-green-50 dark:bg-green-900/30 p-4" role="status">
-          <p class="flex items-center gap-2 font-semibold text-green-700 dark:text-green-400">
-            <i class="pi pi-check-circle" aria-hidden="true"></i> Correct!
-          </p>
-        </div>
+        <button
+          type="button"
+          (click)="explainWrong()"
+          class="flex w-full items-center gap-2 rounded-xl border-2 border-red-400 bg-red-50 dark:bg-red-900/30 px-4 py-3 text-left text-sm font-semibold text-red-700 dark:text-red-400 vv-focus-ring"
+        >
+          <i class="pi pi-times-circle" aria-hidden="true"></i>
+          <span>Not quite</span>
+          <span class="ml-auto flex items-center gap-1 text-vv-brand">
+            Why?
+            <i class="pi pi-info-circle" aria-hidden="true"></i>
+          </span>
+        </button>
       }
 
       <div class="vv-sticky-footer-inline">
@@ -74,6 +72,8 @@
         </div>
       </div>
     }
+
+    <lib-quiz-explain-sheet [(data)]="explainData" />
   </div>
 } @else {
   <lib-empty-state

@@ -27,6 +27,8 @@ interface MultipleChoiceQuizInternals {
   isAnswered: Signal<boolean>;
   currentIndex: WritableSignal<number>;
   questions: WritableSignal<MCQuestion[]>;
+  explainData: WritableSignal<unknown>;
+  next: () => void;
 }
 
 const testWords: Word[] = [
@@ -223,18 +225,20 @@ describe('MultipleChoiceQuiz', () => {
 
   // ── Feedback text ──
 
-  it('shows "Correct!" feedback panel when answer is right', async () => {
+  it('announces "Correct!" to screen readers and shows no "Why?" affordance when right', async () => {
     const q = (component as unknown as MultipleChoiceQuizInternals).currentQuestion();
     const buttons = fixture.nativeElement.querySelectorAll('button');
     buttons[q.correctIndex].click();
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Correct!');
+    // Positive feedback is the green option border; the only "Correct!" text is
+    // the sr-only live region. No explanation affordance on a right answer.
+    expect(fixture.nativeElement.querySelector('[role="status"]')?.textContent).toContain('Correct!');
+    expect(fixture.nativeElement.textContent).not.toContain('Why?');
   });
 
-  it('shows "Incorrect" feedback with correct answer when wrong', async () => {
+  it('shows a "Why?" affordance (correct answer still highlighted) when wrong', async () => {
     const q = (component as unknown as MultipleChoiceQuizInternals).currentQuestion();
     const wrongIdx = q.correctIndex === 0 ? 1 : 0;
     const buttons = fixture.nativeElement.querySelectorAll('button');
@@ -243,9 +247,64 @@ describe('MultipleChoiceQuiz', () => {
     await fixture.whenStable();
 
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Incorrect');
-    expect(text).toContain('Correct answer:');
+    expect(text).toContain('Not quite');
+    expect(text).toContain('Why?');
+    // The correct answer remains visible inline via the highlighted option.
     expect(text).toContain(q.options[q.correctIndex]);
+  });
+
+  it('opens the explanation sheet when "Why?" is tapped', async () => {
+    const q = (component as unknown as MultipleChoiceQuizInternals).currentQuestion();
+    const wrongIdx = q.correctIndex === 0 ? 1 : 0;
+    const buttons = fixture.nativeElement.querySelectorAll('button');
+    buttons[wrongIdx].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const whyBtn = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+    ).find((b) => b.textContent?.includes('Why?'));
+    whyBtn?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const sheet = fixture.nativeElement.querySelector('[data-testid="bottom-sheet-panel"]');
+    expect(sheet).not.toBeNull();
+    expect(sheet?.textContent).toContain(q.word.word);
+  });
+
+  it('regression: no legacy bordered "Correct!" panel renders on a right answer', async () => {
+    const q = (component as unknown as MultipleChoiceQuizInternals).currentQuestion();
+    const buttons = fixture.nativeElement.querySelectorAll('button');
+    buttons[q.correctIndex].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // The old green confirmation box used `.border-green-400`; it must not return.
+    expect(fixture.nativeElement.querySelector('.border-green-400')).toBeNull();
+  });
+
+  it('advancing to the next question clears any open explanation sheet', async () => {
+    const internals = component as unknown as MultipleChoiceQuizInternals;
+    const q = internals.currentQuestion();
+    const wrongIdx = q.correctIndex === 0 ? 1 : 0;
+    fixture.nativeElement.querySelectorAll('button')[wrongIdx].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const whyBtn = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+    ).find((b) => b.textContent?.includes('Why?'));
+    whyBtn?.click();
+    fixture.detectChanges();
+    expect(internals.explainData()).not.toBeNull();
+
+    internals.next();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(internals.explainData()).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="bottom-sheet-panel"]')).toBeNull();
   });
 
   // ── Keyboard shortcuts ──
