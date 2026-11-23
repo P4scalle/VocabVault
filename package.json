@@ -11,7 +11,8 @@
     "lint": "npx nx run-many -t lint",
     "format": "npx nx format:write",
     "format:check": "npx nx format:check",
-    "e2e": "npx nx e2e vocavault-e2e",
+    "e2e": "npx nx e2e vocavault-e2e -- --project=chromium --grep-invert=@visual",
+    "e2e:full": "npx nx e2e vocavault-e2e",
     "verify": "npm run lint && npm run test && npm run build"
   },
   "private": true,
