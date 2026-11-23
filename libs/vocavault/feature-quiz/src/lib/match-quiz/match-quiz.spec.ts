@@ -296,6 +296,75 @@ describe('MatchQuiz', () => {
     );
   });
 
+  // ── Matched-pairs reinforcement strip ──
+
+  const strip = () =>
+    (fixture.nativeElement as HTMLElement).querySelector('section[aria-label="Matched pairs"]');
+  const stripRows = () =>
+    (fixture.nativeElement as HTMLElement).querySelectorAll(
+      'section[aria-label="Matched pairs"] li',
+    );
+
+  it('strip: hidden when no pairs are matched', () => {
+    expect(strip()).toBeNull();
+  });
+
+  it('strip: shows one row reuniting term + definition for a matched pair', () => {
+    component['matchedPairIds'].set(['w1']);
+    fixture.detectChanges();
+    const rows = stripRows();
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent).toContain('apple');
+    expect(rows[0].textContent).toContain('A fruit');
+  });
+
+  it('strip: row count tracks matchedPairIds length', () => {
+    component['matchedPairIds'].set(['w1', 'w2', 'w3']);
+    fixture.detectChanges();
+    expect(stripRows().length).toBe(3);
+  });
+
+  it('strip: term + definition are direction-independent', () => {
+    // Pin a non-default direction; the strip must still read word → definition.
+    fixture.componentRef.setInput('direction', 'word-to-definition');
+    fixture.detectChanges();
+    const w = component['getWord']('w1')!;
+    expect(component['pairTerm'](w)).toBe('apple');
+    expect(component['pairMeaning'](w)).toBe('A fruit');
+  });
+
+  it('strip: clears when matchedPairIds resets at a round boundary', () => {
+    component['matchedPairIds'].set(['w1', 'w2']);
+    fixture.detectChanges();
+    expect(stripRows().length).toBe(2);
+
+    component['matchedPairIds'].set([]);
+    fixture.detectChanges();
+    expect(strip()).toBeNull();
+  });
+
+  it('strip: definition uses line-clamp so long text cannot grow the row', () => {
+    component['matchedPairIds'].set(['w1']);
+    fixture.detectChanges();
+    const meaning = stripRows()[0].querySelector('.line-clamp-2');
+    expect(meaning).not.toBeNull();
+    expect(meaning?.textContent).toContain('A fruit');
+  });
+
+  it('strip: skips an id with no current-round word without throwing', () => {
+    component['matchedPairIds'].set(['does-not-exist']);
+    expect(() => fixture.detectChanges()).not.toThrow();
+    expect(stripRows().length).toBe(0);
+  });
+
+  it('strip: hidden once the round completes (completion card takes over)', () => {
+    component['matchedPairIds'].set(['w1', 'w2', 'w3', 'w4']);
+    fixture.detectChanges();
+    expect(component['isComplete']()).toBe(true);
+    expect(strip()).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('All matched');
+  });
+
 });
 
 describe('MatchQuiz null/empty definition safety', () => {

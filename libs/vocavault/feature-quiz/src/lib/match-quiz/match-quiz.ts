@@ -211,6 +211,20 @@ export class MatchQuiz implements HasUnsavedChanges {
     return getAnswer(word, this.roundDirection());
   }
 
+  /**
+   * Reinforcement strip: reunite a matched pair as term + definition in a
+   * fixed, learning-friendly order, independent of the round's direction.
+   * Reuses the existing direction helpers with a pinned `word-to-definition`
+   * so `getPrompt` yields the vocabulary word and `getAnswer` the definition.
+   */
+  protected pairTerm(word: Word): string {
+    return getPrompt(word, 'word-to-definition');
+  }
+
+  protected pairMeaning(word: Word): string {
+    return getAnswer(word, 'word-to-definition');
+  }
+
   protected readonly columnLabels = computed(
     () => COLUMN_LABELS[this.roundDirection()] ?? COLUMN_LABELS['definition-to-word'],
   );
