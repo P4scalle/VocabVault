@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService, Word } from '@vocavault/data-access';
-import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } from '@vocavault/ui';
+import { Button, EmptyState, QuizProgressBar, ToastService } from '@vocavault/ui';
 import { shuffle } from '@vocavault/util';
 import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
 import { getPrompt, getAnswer, filterAndNotify, resolveDirection, COLUMN_LABELS, normalizeDirection } from '../quiz-shared/quiz-direction';
@@ -20,7 +20,7 @@ const MOBILE_BREAKPOINT = 640;
 
 @Component({
   selector: 'lib-match-quiz',
-  imports: [Button, EmptyState, QuizFlagBanner, QuizProgressBar],
+  imports: [Button, EmptyState, QuizProgressBar],
   templateUrl: './match-quiz.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -33,8 +33,6 @@ export class MatchQuiz implements HasUnsavedChanges {
   readonly direction = input(DEFAULT_QUIZ_DIRECTION, { transform: normalizeDirection });
 
   private readonly quizSetId = resolveQuizSetId(this.route);
-
-  protected readonly flaggedIds = signal<Set<string>>(new Set());
 
   private readonly finishing = signal(false);
   readonly hasUnsavedChanges = computed(() => !this.finishing() && (this.totalMatchedCount() > 0 || this.selectedWordId() !== null || this.selectedDefId() !== null));
@@ -134,29 +132,6 @@ export class MatchQuiz implements HasUnsavedChanges {
     () => this.isRoundComplete() && this.isLastRound(),
   );
 
-  /** Current word for the flag banner: selected word or first in round */
-  protected readonly currentFlagWord = computed(() => {
-    const wordId = this.selectedWordId();
-    if (wordId) return this.getWord(wordId);
-    const defId = this.selectedDefId();
-    if (defId) return this.getWord(defId);
-    return this.words()[0];
-  });
-
-  protected readonly selectedLabel = computed(() => {
-    const wordId = this.selectedWordId();
-    if (wordId) {
-      const w = this.getWord(wordId);
-      return w ? this.getLeftText(w) : null;
-    }
-    const defId = this.selectedDefId();
-    if (defId) {
-      const w = this.getWord(defId);
-      return w ? this.getRightText(w) : null;
-    }
-    return null;
-  });
-
   /** Unified selection handler that works from either column */
   protected select(id: string, side: 'word' | 'def'): void {
     if (this.matchedPairIds().includes(id)) return;
@@ -251,7 +226,7 @@ export class MatchQuiz implements HasUnsavedChanges {
       wrongAnswers: allMistakes,
       mode: 'match',
       direction: this.direction(),
-      flaggedWordIds: [...this.flaggedIds()],
+      flaggedWordIds: [],
     });
   }
 }

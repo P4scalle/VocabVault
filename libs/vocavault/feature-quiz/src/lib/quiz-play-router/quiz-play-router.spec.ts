@@ -143,4 +143,30 @@ describe('QuizPlayRouter', () => {
     expect(stickyWrapper?.className).toContain('md:static');
     expect(stickyWrapper?.className).toContain('md:bg-transparent');
   });
+
+  // ── Title info button ("what to do" help) ──
+
+  it('shows the info button beside the title for a known mode', async () => {
+    await setup('match');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('lib-info-button')).toBeTruthy();
+    expect(component['howToTopic']()).toBe('howto-match');
+  });
+
+  it('hides the info button for an unknown mode', async () => {
+    await setup('bogus');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('lib-info-button')).toBeNull();
+    expect(component['howToTopic']()).toBeNull();
+  });
+
+  it('opening the info button sets the drawer topic to the current mode', async () => {
+    await setup('multiple-choice');
+    const el = fixture.nativeElement as HTMLElement;
+    expect(component['infoTopic']()).toBeNull();
+    const infoBtn = el.querySelector<HTMLElement>('lib-info-button');
+    expect(infoBtn).toBeTruthy();
+    infoBtn?.click();
+    expect(component['infoTopic']()).toBe('howto-multiple-choice');
+  });
 });

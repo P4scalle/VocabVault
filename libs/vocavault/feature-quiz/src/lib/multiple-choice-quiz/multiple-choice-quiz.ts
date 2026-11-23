@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DEFAULT_QUIZ_DIRECTION, HasUnsavedChanges, QuizDirection, QuizService, Word } from '@vocavault/data-access';
-import { Button, EmptyState, QuizFlagBanner, QuizProgressBar, ToastService } from '@vocavault/ui';
+import { Button, EmptyState, QuizProgressBar, ToastService } from '@vocavault/ui';
 import { shuffle } from '@vocavault/util';
 import { resolveQuizSetId, navigateToResults } from '../quiz-shared/quiz-utils';
 import { buildQuizItem, filterAndNotify, getAnswer, normalizeDirection } from '../quiz-shared/quiz-direction';
@@ -26,7 +26,7 @@ interface MCQuestion {
 
 @Component({
   selector: 'lib-multiple-choice-quiz',
-  imports: [Button, EmptyState, QuizFlagBanner, QuizProgressBar, QuizExplainSheet],
+  imports: [Button, EmptyState, QuizProgressBar, QuizExplainSheet],
   templateUrl: './multiple-choice-quiz.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -52,8 +52,6 @@ export class MultipleChoiceQuiz implements HasUnsavedChanges {
       );
     }
   }
-
-  protected readonly flaggedIds = signal<Set<string>>(new Set());
 
   /** Opens the "Why?" explanation sheet after a wrong answer (null = closed). */
   protected readonly explainData = signal<QuizExplanation | null>(null);
@@ -179,7 +177,7 @@ export class MultipleChoiceQuiz implements HasUnsavedChanges {
       wrongAnswers: this.wrongWordIds(),
       mode: 'multiple-choice',
       direction: this.direction(),
-      flaggedWordIds: [...this.flaggedIds()],
+      flaggedWordIds: [],
     });
   }
 }

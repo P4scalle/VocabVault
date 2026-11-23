@@ -11,4 +11,6 @@
     </button>
   }
   <h1 class="m-0 text-lg xs:text-xl font-bold leading-tight text-slate-900 dark:text-slate-100">{{ title() }}</h1>
+  <!-- Optional trailing slot beside the title (e.g. an info "i" button). Renders nothing when no content is projected. -->
+  <ng-content />
 </header>

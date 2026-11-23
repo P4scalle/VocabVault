@@ -1,5 +1,12 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PageHeader } from './page-header';
+
+@Component({
+  imports: [PageHeader],
+  template: `<lib-page-header title="Hosted"><span class="projected-slot">slot content</span></lib-page-header>`,
+})
+class ProjectionHost {}
 
 describe('PageHeader', () => {
   let fixture: ComponentFixture<PageHeader>;
@@ -43,5 +50,17 @@ describe('PageHeader', () => {
 
     fixture.nativeElement.querySelector('button').click();
     expect(emitted).toBe(true);
+  });
+});
+
+describe('PageHeader content projection', () => {
+  it('renders projected content in the trailing slot beside the title', async () => {
+    await TestBed.configureTestingModule({ imports: [ProjectionHost] }).compileComponents();
+    const host = TestBed.createComponent(ProjectionHost);
+    host.detectChanges();
+    await host.whenStable();
+    const slot = host.nativeElement.querySelector('.projected-slot');
+    expect(slot).toBeTruthy();
+    expect(slot.textContent).toContain('slot content');
   });
 });

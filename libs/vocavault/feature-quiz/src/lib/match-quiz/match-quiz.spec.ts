@@ -238,22 +238,6 @@ describe('MatchQuiz', () => {
     expect(component['tileClass']('w1', 'def')).toContain('hover:border-vv-brand');
   });
 
-  // ── selectedLabel ──
-
-  it('selectedLabel returns null when nothing selected', () => {
-    expect(component['selectedLabel']()).toBeNull();
-  });
-
-  it('selectedLabel returns left text when word selected', () => {
-    component['selectedWordId'].set('w1');
-    expect(component['selectedLabel']()).toBe('A fruit');
-  });
-
-  it('selectedLabel returns right text when def selected', () => {
-    component['selectedDefId'].set('w1');
-    expect(component['selectedLabel']()).toBe('apple');
-  });
-
   // ── finish ──
 
   it('finish() navigates to results with correct state', () => {
@@ -388,7 +372,7 @@ describe('MatchQuiz direction-input safety (regression)', () => {
     expect(() => f.detectChanges()).not.toThrow();
 
     const buttons = (f.nativeElement as HTMLElement).querySelectorAll('button');
-    // 4 word tiles + 4 definition tiles = 8 (plus the flag-banner button).
+    // 4 word tiles + 4 definition tiles = 8.
     expect(buttons.length).toBeGreaterThanOrEqual(8);
 
     const comp = f.componentInstance as unknown as {

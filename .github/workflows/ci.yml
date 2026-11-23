@@ -64,6 +64,7 @@ jobs:
             src/onboarding-flow.spec.ts \
             src/progress.spec.ts \
             src/quiz-management.spec.ts \
+            src/quiz-mode-help.spec.ts \
             src/quiz.spec.ts \
             src/responsive.spec.ts \
             src/starter-words.spec.ts \

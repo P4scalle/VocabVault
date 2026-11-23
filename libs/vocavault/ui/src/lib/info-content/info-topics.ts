@@ -192,6 +192,49 @@ export const INFO_TOPICS: Record<string, InfoTopic> = {
       },
     ],
   },
+  // In-quiz "what to do" help, opened from the info button beside the quiz
+  // title. Kept separate from the 'mode-*' topics (which describe modes on the
+  // selection screen) because mid-quiz the voice is "here is how to play now".
+  'howto-flashcard': {
+    icon: 'pi pi-clone',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Flashcard',
+    sections: [
+      {
+        text: 'Tap a card to flip it and see the answer. Then tell us honestly whether you got it or missed it, and we use that to plan your review. There is no pressure here. This is just about meeting the words.',
+      },
+    ],
+  },
+  'howto-multiple-choice': {
+    icon: 'pi pi-list-check',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Multiple Choice',
+    sections: [
+      {
+        text: 'Read the prompt, then pick the option that fits. Prefer the keyboard? Press 1 to 4 to choose. If you miss one, tap Why for a friendly explanation. Every answer helps us learn what to revisit with you.',
+      },
+    ],
+  },
+  'howto-type': {
+    icon: 'pi pi-pen-to-square',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Type / Write',
+    sections: [
+      {
+        text: 'Type the answer from memory and press Enter. Do not worry about being perfect. Close answers and small typos still count, so a stray letter will not hurt. Miss one? Tap Why and we walk you through it.',
+      },
+    ],
+  },
+  'howto-match': {
+    icon: 'pi pi-arrows-h',
+    iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',
+    title: 'Match',
+    sections: [
+      {
+        text: 'Tap a word, then tap its matching definition to pair them up. Changed your mind? Tap it again to undo. Bigger sets are split into short rounds, so you can work through them a little at a time.',
+      },
+    ],
+  },
   'quiz-direction': {
     icon: 'pi pi-info-circle',
     iconBg: 'bg-vv-brandLight dark:bg-vv-brand/20',

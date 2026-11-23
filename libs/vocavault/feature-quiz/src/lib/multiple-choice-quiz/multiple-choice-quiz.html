@@ -32,13 +32,6 @@
       }
     </div>
 
-    <!-- Flag banner -->
-    <lib-quiz-flag-banner
-      [wordId]="q.word.id"
-      [wordLabel]="q.word.word"
-      [(flaggedIds)]="flaggedIds"
-    />
-
     @if (isAnswered()) {
       <div class="sr-only" role="status" aria-live="polite">{{ selectedOptionIndex() === currentQuestion()!.correctIndex ? 'Correct!' : 'Incorrect' }}</div>
 
