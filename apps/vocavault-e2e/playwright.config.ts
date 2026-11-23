@@ -19,6 +19,13 @@ export default defineConfig({
   retries: 1,
   use: {
     baseURL,
+    /* Block the Angular service worker (enabled in the production build we serve
+       statically). Once it registers (registerWhenStable, ≤30s) it controls the
+       page, and Playwright's page.route() does NOT intercept service-worker
+       fetches — so network stubs (e.g. the dictionary mock) are silently
+       bypassed and tests hit the live API. Blocking the SW keeps request
+       interception deterministic; the app is fully functional without it. */
+    serviceWorkers: 'block',
     /* Collect trace only on failure for debugging */
     trace: 'retain-on-failure',
     /* Screenshots only on failure, keeps test-results/ clean on pass */

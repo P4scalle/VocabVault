@@ -1,4 +1,5 @@
 import { test, expect, Locator, Page } from '@playwright/test';
+import { mockDictionary } from './helpers';
 
 // Runs across every configured project (desktop Chromium/Firefox/WebKit +
 // Mobile Chrome/Safari), so this covers the add hint and starter words on
@@ -22,25 +23,6 @@ async function clearStorage(page: Page) {
     localStorage.clear();
     sessionStorage.clear();
   });
-}
-
-// Canned dictionary response so the test never depends on the live API.
-async function mockDictionary(page: Page) {
-  await page.route('**/api.dictionaryapi.dev/**', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify([
-        {
-          word: 'serendipity',
-          phonetics: [{ text: '/ˌsɛrənˈdɪpɪti/' }],
-          meanings: [
-            { partOfSpeech: 'noun', definitions: [{ definition: 'A happy accident.' }] },
-          ],
-        },
-      ]),
-    }),
-  );
 }
 
 test.describe('Starter words & first-run add hint', () => {

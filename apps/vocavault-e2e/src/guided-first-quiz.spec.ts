@@ -1,4 +1,5 @@
 import { test, expect, Locator, Page } from '@playwright/test';
+import { mockDictionary } from './helpers';
 
 // Assert an element is GENUINELY running a CSS animation (not just carrying the
 // class, which would be a false positive if the keyframe is dead/clipped/disabled).
@@ -28,25 +29,6 @@ async function clearStorage(page: Page) {
     localStorage.clear();
     sessionStorage.clear();
   });
-}
-
-// Canned dictionary response so the test never depends on the live API.
-async function mockDictionary(page: Page) {
-  await page.route('**/api.dictionaryapi.dev/**', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify([
-        {
-          word: 'serendipity',
-          phonetics: [{ text: '/ˌsɛrənˈdɪpɪti/' }],
-          meanings: [
-            { partOfSpeech: 'noun', definitions: [{ definition: 'A happy accident.' }] },
-          ],
-        },
-      ]),
-    }),
-  );
 }
 
 // Drive the whole core loop to completion (add word, build quiz, play, finish)

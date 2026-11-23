@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { mockDictionary } from './helpers';
 
 // Verifies the in-quiz "what to do" help: an info "i" button beside the quiz
 // title that opens a responsive drawer (bottom sheet on mobile, dialog on
@@ -38,6 +39,7 @@ async function openFlashcardPlay(page: Page) {
 test.describe('Quiz mode help', () => {
   test.beforeEach(async ({ page }) => {
     await clearStorage(page);
+    await mockDictionary(page);
   });
 
   test('info button beside the title opens the how-to drawer', async ({ page }) => {

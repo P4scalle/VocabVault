@@ -1,5 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
-import { openAddSheet } from './helpers';
+import { openAddSheet, mockDictionary } from './helpers';
 
 // Runs on every configured project (desktop + mobile), covering the guided
 // add-sheet gating and the "How it works" steps on all form factors.
@@ -10,22 +10,6 @@ async function clearStorage(page: Page) {
     localStorage.clear();
     sessionStorage.clear();
   });
-}
-
-async function mockDictionary(page: Page) {
-  await page.route('**/api.dictionaryapi.dev/**', (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify([
-        {
-          word: 'serendipity',
-          phonetics: [{ text: '/x/' }],
-          meanings: [{ partOfSpeech: 'noun', definitions: [{ definition: 'A happy accident.' }] }],
-        },
-      ]),
-    }),
-  );
 }
 
 // The add control is a mobile FAB ("Open add options") or a desktop pill
