@@ -349,6 +349,10 @@ describe('MatchQuiz', () => {
     const meaning = stripRows()[0].querySelector('.line-clamp-2');
     expect(meaning).not.toBeNull();
     expect(meaning?.textContent).toContain('A fruit');
+    // `line-clamp-2` sets `display:-webkit-box`; a `block` utility on the same
+    // element silently overrides it and defeats the clamp. Guard against that
+    // regression (class presence alone does not prove the clamp works).
+    expect(meaning?.classList.contains('block')).toBe(false);
   });
 
   it('strip: skips an id with no current-round word without throwing', () => {
